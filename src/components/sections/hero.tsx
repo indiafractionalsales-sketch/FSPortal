@@ -1,54 +1,42 @@
-
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ShieldCheck, Users, BarChart3 } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full hero-gradient pointer-events-none" />
-      <div className="container relative mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-1 mb-4">
-            Next-Gen Fractional Sales Intelligence
-          </Badge>
-          <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight text-white">
-            Scale Your Revenue with <span className="text-accent">Fractional Intelligence</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            The world's first AI-powered network for fractional sales partners. Built for high-volume partnerships and millions of records with sub-millisecond latency.
-          </p>
-          
-          <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 mt-10">
-            <Input 
-              type="email" 
-              placeholder="Enter your work email" 
-              className="bg-card/50 border-white/10 h-12 focus-visible:ring-primary"
-            />
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-semibold h-12 px-8">
-              Join Waitlist
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+    <section className="relative h-[80vh] flex items-end justify-center pb-12 overflow-hidden bg-white">
+      {/* Full Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/hero-collage.png"
+          alt="Diverse sales professionals networking with vibrant gradient overlay"
+          fill
+          priority
+          className="object-cover object-top opacity-90"
+        />
+      </div>
+
+      {/* Center Glass Box overlay */}
+      <div className="relative z-10 w-[90%] max-w-xl bg-white/80 backdrop-blur-md border border-white/40 py-8 px-6 md:px-10 text-center shadow-2xl">
+        <h1 className="text-3xl md:text-4xl font-serif text-red-600 font-bold mb-3 tracking-tight">
+          Fractional Sales Partner
+        </h1>
+        <p className="text-slate-800 text-sm md:text-base mx-auto mb-6 font-sans leading-relaxed">
+          Discover the change-makers helping MSMEs from emerging markets reach their full potential across the UK, USA, AUS, and EU.
+        </p>
+        
+        <Link href="#read-more" className="inline-flex items-center gap-2 text-red-600 font-bold hover:text-red-800 transition-colors text-xs tracking-[0.2em] uppercase font-sans">
+          READ MORE
+          <div className="border border-red-600 p-0.5 ml-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 6h16" />
+              <path d="M4 12h16" />
+              <path d="M4 18h16" />
+            </svg>
           </div>
-          
-          <div className="flex flex-wrap justify-center items-center gap-8 pt-12 text-muted-foreground/60">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5" />
-              <span className="text-sm font-medium">Enterprise Security</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              <span className="text-sm font-medium">20k+ Sales Partners</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              <span className="text-sm font-medium">Real-time Analytics</span>
-            </div>
-          </div>
-        </div>
+        </Link>
       </div>
     </section>
   );

@@ -3,7 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ScaleFraction | AI-Powered Fractional Sales Partner Platform',
+  title: 'Fractional Sales Partner | AI-Powered Platform',
   description: 'Scale your revenue with high-performance fractional sales partners. Intelligent matching, real-time activity feeds, and infinite scale backend.',
 };
 
