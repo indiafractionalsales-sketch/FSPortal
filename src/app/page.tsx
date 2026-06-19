@@ -4,6 +4,7 @@ import { Navbar } from "@/components/sections/navbar";
 import { Hero } from "@/components/sections/hero";
 import { Partners } from "@/components/sections/partners";
 import { Services } from "@/components/sections/services";
+import { Brands } from "@/components/sections/brands";
 import { Footer } from "@/components/sections/footer";
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
       <Hero />
       <Partners />
       <Services />
+      <Brands />
       <Footer />
     </main>
   );
