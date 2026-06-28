@@ -9,9 +9,7 @@ import {
   Handshake, 
   TrendingUp,
   ShieldCheck,
-  ArrowUpRight,
-  Store,
-  Briefcase
+  ArrowUpRight
 } from "lucide-react";
 
 type TabType = "msme" | "sales";
@@ -26,8 +24,9 @@ export function HowItWorks() {
       description: "Share event details — location, dates, your product, target audience, and what you need represented.",
       Icon: Calendar,
       color: "text-blue-600",
-      bg: "bg-blue-100",
-      border: "border-blue-200"
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      gradient: "from-blue-100 to-transparent"
     },
     {
       step: 2,
@@ -35,8 +34,9 @@ export function HowItWorks() {
       description: "We surface vetted sales partners in your target market. Review profiles, shortlist, and approve.",
       Icon: BrainCircuit,
       color: "text-indigo-600",
-      bg: "bg-indigo-100",
-      border: "border-indigo-200"
+      bg: "bg-indigo-50",
+      border: "border-indigo-200",
+      gradient: "from-indigo-100 to-transparent"
     },
     {
       step: 3,
@@ -44,8 +44,9 @@ export function HowItWorks() {
       description: "Your partner attends, pitches, and closes on your behalf. You get reports and leads directly.",
       Icon: Trophy,
       color: "text-emerald-600",
-      bg: "bg-emerald-100",
-      border: "border-emerald-200"
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      gradient: "from-emerald-100 to-transparent"
     }
   ];
 
@@ -56,8 +57,9 @@ export function HowItWorks() {
       description: "Highlight your sales experience, industry expertise, and regions you cover.",
       Icon: UserCircle,
       color: "text-orange-600",
-      bg: "bg-orange-100",
-      border: "border-orange-200"
+      bg: "bg-orange-50",
+      border: "border-orange-200",
+      gradient: "from-orange-100 to-transparent"
     },
     {
       step: 2,
@@ -65,8 +67,9 @@ export function HowItWorks() {
       description: "Receive curated gig opportunities based on your skills and upcoming expos in your area.",
       Icon: Handshake,
       color: "text-red-600",
-      bg: "bg-red-100",
-      border: "border-red-200"
+      bg: "bg-red-50",
+      border: "border-red-200",
+      gradient: "from-red-100 to-transparent"
     },
     {
       step: 3,
@@ -74,8 +77,9 @@ export function HowItWorks() {
       description: "Represent top brands, close deals, and earn competitive compensation without full-time commitment.",
       Icon: TrendingUp,
       color: "text-green-600",
-      bg: "bg-green-100",
-      border: "border-green-200"
+      bg: "bg-green-50",
+      border: "border-green-200",
+      gradient: "from-green-100 to-transparent"
     }
   ];
 
@@ -88,121 +92,102 @@ export function HowItWorks() {
   const buttonText = activeTab === "msme" ? "What info do I need to post?" : "View available gigs";
 
   return (
-    <section className="bg-[#faf8f5] py-16 md:py-24 border-t border-gray-200">
-      <div className="container mx-auto px-4 max-w-5xl">
+    <section className="bg-[#faf8f5] py-20 md:py-32 border-t border-gray-200 overflow-hidden relative">
+      {/* Subtle Background Pattern/Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl h-[600px] bg-gradient-to-b from-orange-100/40 via-red-100/20 to-transparent blur-3xl rounded-full -z-10 pointer-events-none"></div>
+
+      <div className="container mx-auto px-4 md:px-8 max-w-[1400px] relative z-10">
         
-        {/* Title */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-5xl font-serif text-black font-bold tracking-tight mb-4">
-            How it works
+        {/* Toggle & Title */}
+        <div className="flex flex-col items-center mb-20 md:mb-28">
+          <div className="flex p-1.5 bg-white rounded-full border border-gray-200 shadow-sm mb-12 relative">
+            <div 
+              className={`absolute inset-y-1.5 w-[calc(50%-6px)] bg-[#701010] rounded-full transition-all duration-500 ease-out shadow-md ${activeTab === 'msme' ? 'left-1.5' : 'left-[calc(50%+4.5px)]'}`}
+            ></div>
+            <button 
+              onClick={() => setActiveTab("msme")}
+              className={`relative z-10 px-6 py-2.5 rounded-full font-sans font-bold text-sm tracking-wide transition-colors duration-300 w-40 sm:w-48 ${activeTab === 'msme' ? 'text-white' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              I'm a Business
+            </button>
+            <button 
+              onClick={() => setActiveTab("sales")}
+              className={`relative z-10 px-6 py-2.5 rounded-full font-sans font-bold text-sm tracking-wide transition-colors duration-300 w-40 sm:w-48 ${activeTab === 'msme' ? 'text-gray-600 hover:text-gray-900' : 'text-white'}`}
+            >
+              I'm a Sales Pro
+            </button>
+          </div>
+
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-black font-bold tracking-tight text-center max-w-3xl leading-tight">
+            How {activeTab === "msme" ? "MSMEs get represented" : "Sales Pros land premium gigs"} <br className="hidden md:block"/> at global expos & events
           </h2>
-          <p className="text-gray-600 font-sans text-lg max-w-2xl mx-auto">
-            Choose your path to see how we connect brands with elite sales representation at global expos.
-          </p>
         </div>
 
-        {/* Visual Image Toggle */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-12 md:mb-16 max-w-4xl mx-auto">
-          {/* MSME Button */}
-          <button 
-            onClick={() => setActiveTab('msme')}
-            className={`relative flex-1 rounded-3xl overflow-hidden h-40 md:h-48 border-4 transition-all duration-500 group ${
-              activeTab === 'msme' 
-                ? 'border-[#701010] shadow-2xl scale-[1.02]' 
-                : 'border-transparent opacity-70 hover:opacity-100 grayscale hover:grayscale-0'
-            }`}
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?q=80&w=800&auto=format&fit=crop" 
-              alt="Bustling exhibition and expo" 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            <div className={`absolute inset-0 transition-colors duration-500 ${activeTab === 'msme' ? 'bg-[#701010]/60' : 'bg-black/60'}`}></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-              <Store className={`w-8 h-8 mb-3 transition-transform duration-500 ${activeTab === 'msme' ? 'scale-110' : ''}`} />
-              <span className="font-serif text-xl md:text-2xl font-bold tracking-wide">For Businesses & MSMEs</span>
-              <span className="font-sans text-xs md:text-sm font-medium opacity-90 mt-2 uppercase tracking-widest">I need representation</span>
-            </div>
-            
-            {/* Active Indicator Arrow */}
-            <div className={`absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#faf8f5] rotate-45 transition-transform duration-500 ${activeTab === 'msme' ? 'translate-y-0' : 'translate-y-12'}`}></div>
-          </button>
-
-          {/* Sales Pro Button */}
-          <button 
-            onClick={() => setActiveTab('sales')}
-            className={`relative flex-1 rounded-3xl overflow-hidden h-40 md:h-48 border-4 transition-all duration-500 group ${
-              activeTab === 'sales' 
-                ? 'border-[#701010] shadow-2xl scale-[1.02]' 
-                : 'border-transparent opacity-70 hover:opacity-100 grayscale hover:grayscale-0'
-            }`}
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop" 
-              alt="Confident sales professional" 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            <div className={`absolute inset-0 transition-colors duration-500 ${activeTab === 'sales' ? 'bg-[#701010]/60' : 'bg-black/60'}`}></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-              <Briefcase className={`w-8 h-8 mb-3 transition-transform duration-500 ${activeTab === 'sales' ? 'scale-110' : ''}`} />
-              <span className="font-serif text-xl md:text-2xl font-bold tracking-wide">For Sales Professionals</span>
-              <span className="font-sans text-xs md:text-sm font-medium opacity-90 mt-2 uppercase tracking-widest">I want to represent</span>
-            </div>
-            
-            {/* Active Indicator Arrow */}
-            <div className={`absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#faf8f5] rotate-45 transition-transform duration-500 ${activeTab === 'sales' ? 'translate-y-0' : 'translate-y-12'}`}></div>
-          </button>
-        </div>
-
-        {/* Dynamic Title based on selection */}
-        <div className="text-center mb-8">
-          <h3 className="text-2xl md:text-3xl font-serif text-black font-bold">
-            {activeTab === "msme" ? "How you get represented at global expos" : "How you land premium gigs"}
-          </h3>
-        </div>
-
-        {/* Steps Grid - Ultra Compact */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative mb-12">
+        {/* Alternating Timeline Layout for Desktop / Left-aligned for Mobile */}
+        <div className="relative max-w-5xl mx-auto mb-20">
           
-          {/* Connecting Line (Desktop only) */}
-          <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-0.5 bg-gray-200 z-0"></div>
+          {/* Central Glowing Line (Desktop) */}
+          <div className="hidden md:block absolute top-10 bottom-10 left-1/2 w-1 bg-gradient-to-b from-gray-200 via-[#701010]/30 to-gray-200 -translate-x-1/2 rounded-full"></div>
+          {/* Left Glowing Line (Mobile) */}
+          <div className="md:hidden absolute top-10 bottom-10 left-[2.25rem] w-1 bg-gradient-to-b from-gray-200 via-[#701010]/30 to-gray-200 rounded-full"></div>
 
-          {currentSteps.map((step) => (
-            <div key={step.step} className="relative z-10 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-5 bg-white md:bg-transparent p-5 md:p-0 rounded-2xl md:rounded-none border border-gray-100 md:border-transparent shadow-sm md:shadow-none transition-transform hover:-translate-y-1">
-              
-              {/* Compact Icon */}
-              <div className={`w-14 h-14 md:w-16 md:h-16 shrink-0 rounded-full bg-white shadow-sm border-2 ${step.border} flex items-center justify-center relative group`}>
-                <step.Icon className={`w-6 h-6 md:w-7 md:h-7 ${step.color}`} strokeWidth={2} />
-                <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full ${step.bg} flex items-center justify-center text-[10px] font-bold ${step.color} border border-white shadow-sm`}>
-                  {step.step}
+          <div className="flex flex-col gap-8 md:gap-16">
+            {currentSteps.map((step, index) => {
+              const isEven = index % 2 === 0;
+              return (
+                <div key={step.step} className={`relative flex flex-col md:flex-row items-center justify-between w-full group ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                  
+                  {/* Card Section */}
+                  <div className={`w-full md:w-[45%] pl-24 md:pl-0 ${isEven ? 'md:pr-12 lg:pr-16 md:text-right' : 'md:pl-12 lg:pl-16 md:text-left'}`}>
+                    <div className="relative p-6 md:p-8 bg-white/80 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+                      {/* Decorative Gradient Background */}
+                      <div className={`absolute top-0 ${isEven ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} w-full h-full ${step.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10`}></div>
+                      
+                      <span className={`text-xs font-black tracking-widest uppercase mb-3 block ${step.color}`}>
+                        Step {step.step}
+                      </span>
+                      <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 font-sans text-base md:text-lg leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Center Node Section */}
+                  <div className="absolute left-4 md:static md:w-[10%] flex justify-center relative z-10">
+                    <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full bg-white shadow-xl border-4 ${step.border} flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ease-out`}>
+                      <step.Icon className={`w-6 h-6 md:w-8 md:h-8 ${step.color}`} strokeWidth={2} />
+                    </div>
+                  </div>
+
+                  {/* Empty Spacer Section */}
+                  <div className="hidden md:block w-[45%]"></div>
+                  
                 </div>
-              </div>
-
-              {/* Text */}
-              <div className="flex-1 md:text-center pt-1 md:pt-0">
-                <h3 className="text-lg font-serif font-bold text-gray-900 mb-1">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 font-sans text-sm leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
 
-        {/* Info Box & CTA - Merged into a sleek, space-saving bottom bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-5 bg-white border border-gray-200 rounded-2xl p-4 md:p-5 shadow-sm max-w-4xl mx-auto">
-          <div className="flex items-start md:items-center gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5 md:mt-0" />
-            <p className="text-gray-700 font-sans text-sm font-medium">
+        {/* Info Box */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="bg-[#f0ece1]/60 border border-[#e5dfd1] rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6 text-center sm:text-left transition-colors duration-500 hover:bg-[#f0ece1]">
+            <div className="flex-shrink-0 mt-1 p-3 bg-white rounded-full shadow-sm">
+              <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-emerald-700" strokeWidth={2} />
+            </div>
+            <p className="text-gray-800 font-sans text-base md:text-lg leading-relaxed font-medium pt-1">
               {infoText}
             </p>
           </div>
-          <button className="shrink-0 flex items-center gap-2 px-6 py-2.5 bg-[#701010] border border-transparent text-white rounded-full font-sans font-bold text-sm hover:bg-[#5a0c0c] hover:shadow-md transition-all duration-300 w-full md:w-auto justify-center group">
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center">
+          <button className="group flex items-center gap-3 px-8 py-4 bg-white border border-gray-200 rounded-full font-sans font-bold text-base text-gray-800 shadow-sm hover:text-white hover:bg-[#701010] hover:border-[#701010] hover:shadow-lg transition-all duration-300">
             {buttonText}
-            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
           </button>
         </div>
 

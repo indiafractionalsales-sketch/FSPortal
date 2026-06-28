@@ -39,10 +39,10 @@ export function Navbar() {
 
           {/* Right: Profile */}
           <div className="flex items-center">
-            <button className="relative p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors">
+            <Link href="/login" className="relative p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors">
               <User className="w-5 h-5 text-gray-700" />
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -66,10 +66,10 @@ export function Navbar() {
 
             {/* Right: Profile */}
             <div className="flex items-center gap-6">
-              <button className="relative p-2 rounded-full border border-white/30 hover:bg-white/10 transition-colors">
+              <Link href="/login" className="relative p-2 rounded-full border border-white/30 hover:bg-white/10 transition-colors">
                 <User className="w-5 h-5 text-white" />
                 <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#1a1a1a]"></span>
-              </button>
+              </Link>
             </div>
           </div>
 
