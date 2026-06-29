@@ -35,7 +35,15 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Center: Logo removed as per request */}
+          {/* Center: Logo */}
+          <div className="flex items-center justify-center">
+            <Link href="/" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+              Fractional Sales 
+              <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1">
+                Portal
+              </span>
+            </Link>
+          </div>
 
           {/* Right: Profile */}
           <div className="flex items-center">
@@ -62,7 +70,15 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* Center: Logo removed as per request */}
+            {/* Center: Logo */}
+            <div className="flex items-center justify-center">
+              <Link href="/" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-white flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                Fractional Sales 
+                <span className="text-white font-headline text-[10px] uppercase tracking-widest font-bold border border-white/20 px-1.5 py-0.5 ml-1">
+                  Portal
+                </span>
+              </Link>
+            </div>
 
             {/* Right: Profile */}
             <div className="flex items-center gap-6">
