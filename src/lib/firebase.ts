@@ -2,12 +2,12 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCgsX-X3l8yZiVrkI6C3t4vo5RXt2f-cus",
-  authDomain: "studio-5489234154-a618d.firebaseapp.com",
-  projectId: "studio-5489234154-a618d",
-  storageBucket: "studio-5489234154-a618d.firebasestorage.app",
-  messagingSenderId: "985695796084",
-  appId: "1:985695796084:web:6b26206a0421ae6b664a21",
+  apiKey: "AIzaSyCAUreCKl5BY4VBHJdc_ax6hfazSpLedq0",
+  authDomain: "fractional-sales-4436e.firebaseapp.com",
+  projectId: "fractional-sales-4436e",
+  storageBucket: "fractional-sales-4436e.firebasestorage.app",
+  messagingSenderId: "65179773854",
+  appId: "1:65179773854:web:493dacf63eb48e8f16c48f",
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
