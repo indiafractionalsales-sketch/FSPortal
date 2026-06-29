@@ -5,37 +5,27 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
-import { signInWithRedirect, getRedirectResult, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithPopup,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Redirect signed-in users to dashboard and handle redirect result after Google sign-in
+  // Redirect signed-in users to dashboard
   useEffect(() => {
-    setLoading(true);
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         router.replace("/dashboard");
-        return;
+      } else {
+        setLoading(false);
       }
-
-      getRedirectResult(auth)
-        .then((result) => {
-          if (result?.user) {
-            router.replace("/dashboard");
-          } else {
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error("Google redirect result error:", err);
-          setError("Sign-in failed. Please try again.");
-          setLoading(false);
-        });
     });
 
     return () => unsubscribe();
@@ -45,9 +35,15 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      await signInWithRedirect(auth, googleProvider);
-      // Page will redirect to Google, then come back and getRedirectResult will handle it
+      await setPersistence(auth, browserLocalPersistence);
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        router.replace("/dashboard");
+      } else {
+        setLoading(false);
+      }
     } catch (err: any) {
+      console.error("Google sign-in error:", err);
       setError("Sign-in failed. Please try again.");
       setLoading(false);
     }
