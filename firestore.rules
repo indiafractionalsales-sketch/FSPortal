@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Restrict profile documents to their authenticated owner using userId as document ID
+    match /OBO_Profile/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /SP_Profile/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /TPSP_Profile/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId 
+                    && (!resource.data.keys().has('role') || resource.data.role == request.resource.data.role);
+    }
+  }
+}
