@@ -293,8 +293,8 @@ export default function HomePage() {
                 )}
               </div>
 
-              <button 
-                onClick={() => router.push("/profile")} 
+              <button
+                onClick={() => router.push("/profile")}
                 className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full"
               >
                 {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
@@ -343,7 +343,7 @@ export default function HomePage() {
 
         {/* Center Feed Area */}
         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50/50">
-          <div className="max-w-[640px] mx-auto space-y-4">
+          <div className="max-w-[980px] mx-auto space-y-4">
 
             {/* Share Post Card */}
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
