@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Building, Users, Globe, Award, Briefcase, Phone, Settings, FileText, Check, ChevronDown, ChevronUp, ImageIcon, ArrowLeft, Pencil
+  Building, Users, Globe, Award, Briefcase, Phone, Settings, FileText, Check, ChevronDown, ChevronUp, ImageIcon, ArrowLeft, Pencil, Plus, Trash2, X, ExternalLink
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
@@ -25,6 +25,17 @@ export default function ProfilePage() {
   const [isRoleLocked, setIsRoleLocked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profileFetched, setProfileFetched] = useState(false);
+
+  // ─── Product & Service Catalog (UI state — Firestore in next sprint) ─────
+  const [products, setProducts] = useState<Array<{
+    id: string; name: string; specification: string;
+    referenceLink: string; photos: string[];
+  }>>([]);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [customerCare, setCustomerCare] = useState({ name: "", email: "", phone: "", hours: "" });
+  const [grievanceOfficer, setGrievanceOfficer] = useState({ name: "", email: "", phone: "" });
+  const [editingCustomerCare, setEditingCustomerCare] = useState(false);
+  const [editingGrievanceOfficer, setEditingGrievanceOfficer] = useState(false);
 
   // OBO Profile Form State
   const [oboData, setOboData] = useState({
@@ -343,7 +354,10 @@ export default function ProfilePage() {
               <ArrowLeft className="w-4 h-4" /> Dashboard
             </Link>
             <div className="h-4 w-px bg-gray-200" />
-            <span className="font-serif font-bold text-[#701010] tracking-wide text-sm">Fractional Sales Portal</span>
+            <div className="flex flex-col items-start gap-0">
+              <span className="font-serif font-bold text-[#701010] tracking-wide text-sm leading-tight">Fractional Sales Portal</span>
+              <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Where Every Post is a Business</span>
+            </div>
           </div>
         </div>
       </header>
@@ -1463,6 +1477,351 @@ export default function ProfilePage() {
                     {tpspData.email && <div className="flex items-center gap-3"><FileText className="w-3.5 h-3.5 text-gray-400" /><p className="text-sm text-gray-800">{tpspData.email}</p></div>}
                     {tpspData.website && <div className="flex items-center gap-3"><Globe className="w-3.5 h-3.5 text-gray-400" /><a href={tpspData.website.startsWith("http") ? tpspData.website : `https://${tpspData.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#701010] hover:underline truncate">{tpspData.website}</a></div>}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* ══════════════════ PRODUCT / SERVICE CATALOG ══════════════════ */}
+            {/* Independent of Edit Profile — user can manage catalog without editing profile */}
+            {(userType === "obo" || userType === "tpsp") && (
+              <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+
+                {/* Catalog Header */}
+                <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="font-serif font-bold text-base text-gray-900 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#701010]" />
+                      {userType === "obo" ? "Product Catalog" : "Service Catalog"}
+                    </h2>
+                    <p className="text-[10px] font-headline text-gray-400 uppercase tracking-wider mt-0.5">
+                      {products.length === 0 ? "No items listed yet" : `${products.length} ${products.length === 1 ? "item" : "items"} listed`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const id = `p_${Date.now()}`;
+                      setProducts(prev => [...prev, { id, name: "", specification: "", referenceLink: "", photos: [] }]);
+                      setEditingProductId(id);
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#701010] hover:bg-[#580c0c] text-white text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg transition-all duration-200 shadow-sm"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add {userType === "obo" ? "Product" : "Service"}
+                  </button>
+                </div>
+
+                <div className="px-6 py-6 space-y-6">
+
+                  {/* Customer Care & Grievance Officer — shared for all products */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {/* Customer Care */}
+                    <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/40">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-serif font-bold text-sm text-gray-800 flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-[#701010]" /> Customer Care
+                        </h4>
+                        <button
+                          onClick={() => setEditingCustomerCare(prev => !prev)}
+                          className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 hover:text-[#701010] flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#701010]/5 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          {editingCustomerCare ? "Done" : "Edit"}
+                        </button>
+                      </div>
+                      {editingCustomerCare ? (
+                        <div className="space-y-2.5">
+                          {([
+                            { key: "name", label: "Name / Department", placeholder: "Customer Support Team" },
+                            { key: "email", label: "Email", placeholder: "support@brand.com" },
+                            { key: "phone", label: "Phone", placeholder: "+91 98765 43210" },
+                            { key: "hours", label: "Support Hours", placeholder: "Mon–Fri, 9am–6pm IST" }
+                          ] as const).map(field => (
+                            <div key={field.key}>
+                              <label className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400">{field.label}</label>
+                              <input
+                                value={customerCare[field.key]}
+                                onChange={e => setCustomerCare(p => ({ ...p, [field.key]: e.target.value }))}
+                                placeholder={field.placeholder}
+                                className="w-full mt-0.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {customerCare.name && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Name</p><p className="text-sm text-gray-800">{customerCare.name}</p></div>}
+                          {customerCare.email && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Email</p><p className="text-sm text-gray-800">{customerCare.email}</p></div>}
+                          {customerCare.phone && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Phone</p><p className="text-sm text-gray-800">{customerCare.phone}</p></div>}
+                          {customerCare.hours && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Hours</p><p className="text-sm text-gray-800">{customerCare.hours}</p></div>}
+                          {!customerCare.name && !customerCare.email && !customerCare.phone && (
+                            <p className="text-xs text-gray-400 italic">Click Edit to add customer care details</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Grievance Officer */}
+                    <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/40">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-serif font-bold text-sm text-gray-800 flex items-center gap-2">
+                          <Award className="w-3.5 h-3.5 text-[#701010]" /> Grievance Officer
+                        </h4>
+                        <button
+                          onClick={() => setEditingGrievanceOfficer(prev => !prev)}
+                          className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 hover:text-[#701010] flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#701010]/5 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          {editingGrievanceOfficer ? "Done" : "Edit"}
+                        </button>
+                      </div>
+                      {editingGrievanceOfficer ? (
+                        <div className="space-y-2.5">
+                          {([
+                            { key: "name", label: "Officer Name", placeholder: "Full Name" },
+                            { key: "email", label: "Email", placeholder: "grievance@brand.com" },
+                            { key: "phone", label: "Phone", placeholder: "+91 98765 43210" }
+                          ] as const).map(field => (
+                            <div key={field.key}>
+                              <label className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400">{field.label}</label>
+                              <input
+                                value={grievanceOfficer[field.key]}
+                                onChange={e => setGrievanceOfficer(p => ({ ...p, [field.key]: e.target.value }))}
+                                placeholder={field.placeholder}
+                                className="w-full mt-0.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {grievanceOfficer.name && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Name</p><p className="text-sm text-gray-800">{grievanceOfficer.name}</p></div>}
+                          {grievanceOfficer.email && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Email</p><p className="text-sm text-gray-800">{grievanceOfficer.email}</p></div>}
+                          {grievanceOfficer.phone && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Phone</p><p className="text-sm text-gray-800">{grievanceOfficer.phone}</p></div>}
+                          {!grievanceOfficer.name && !grievanceOfficer.email && !grievanceOfficer.phone && (
+                            <p className="text-xs text-gray-400 italic">Click Edit to add grievance officer details</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* Product / Service Items */}
+                  {products.length > 0 ? (
+                    <div className="space-y-4">
+                      <h4 className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 pb-2 border-b border-gray-100">
+                        {userType === "obo" ? "Products" : "Services"} ({products.length})
+                      </h4>
+
+                      {products.map((product, idx) => {
+                        const isEditingThis = editingProductId === product.id;
+                        return (
+                          <div key={product.id} className={`border rounded-xl transition-all duration-200 overflow-hidden ${isEditingThis ? "border-[#701010]/25 ring-1 ring-[#701010]/10" : "border-gray-100 bg-white"}`}>
+
+                            {isEditingThis ? (
+                              /* ── Edit form ── */
+                              <div className="p-5 space-y-4 bg-[#701010]/[0.012]">
+                                {/* Header Row: Name Input + Controls */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                                  <input
+                                    value={product.name}
+                                    onChange={e => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, name: e.target.value } : p))}
+                                    placeholder={`Enter ${userType === "obo" ? "Product" : "Service"} Name`}
+                                    className="flex-1 text-sm font-serif font-bold text-gray-900 border-b border-transparent hover:border-gray-200 focus:border-[#701010] outline-none pb-0.5 bg-transparent transition-colors"
+                                  />
+                                  <div className="flex gap-2 flex-shrink-0">
+                                    <button
+                                      onClick={() => setEditingProductId(null)}
+                                      className="text-[9px] font-headline font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100 hover:bg-emerald-100 transition-colors"
+                                    >
+                                      <Check className="w-3 h-3" /> Done
+                                    </button>
+                                    <button
+                                      onClick={() => { setProducts(prev => prev.filter(p => p.id !== product.id)); setEditingProductId(null); }}
+                                      className="text-[9px] font-headline font-bold uppercase tracking-wider text-red-500 flex items-center gap-1 px-2.5 py-1.5 bg-red-50 rounded-lg border border-red-100 hover:bg-red-100 transition-colors"
+                                    >
+                                      <Trash2 className="w-3 h-3" /> Delete
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Side-by-side Layout: Photos (Left) & Specification (Right) */}
+                                <div className="flex flex-col md:flex-row gap-4">
+                                  {/* Photos — max 5 in a 2x3 vertical grid (width 152px) */}
+                                  <div className="flex-shrink-0 flex flex-col items-center">
+                                    <div className="grid grid-cols-2 gap-2 w-[152px]">
+                                      {product.photos.map((photo, pIdx) => (
+                                        <div key={pIdx} className="w-[72px] h-[72px] rounded-lg border border-gray-200 overflow-hidden relative group">
+                                          <img src={photo} alt="" className="w-full h-full object-cover" />
+                                          <button
+                                            onClick={() => { const u = [...product.photos]; u.splice(pIdx, 1); setProducts(prev => prev.map(p => p.id === product.id ? { ...p, photos: u } : p)); }}
+                                            className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                                          >
+                                            <X className="w-4 h-4 text-white" />
+                                          </button>
+                                        </div>
+                                      ))}
+                                      {product.photos.length < 5 && (
+                                        <label className="w-[72px] h-[72px] rounded-lg border-2 border-dashed border-gray-200 hover:border-[#701010]/30 cursor-pointer flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-[#701010] transition-colors">
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (!file || product.photos.length >= 5) return;
+                                              const reader = new FileReader();
+                                              reader.onloadend = () => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, photos: [...p.photos, reader.result as string] } : p));
+                                              reader.readAsDataURL(file);
+                                            }}
+                                          />
+                                          <ImageIcon className="w-4 h-4 text-gray-400" />
+                                          <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450">Add</span>
+                                        </label>
+                                      )}
+                                      {/* Padding placeholders to keep the 2x3 grid visual structure intact */}
+                                      {Array.from({ length: Math.max(0, 6 - product.photos.length - (product.photos.length < 5 ? 1 : 0)) }).map((_, i) => (
+                                        <div key={i} className="w-[72px] h-[72px] rounded-lg border border-dashed border-gray-100 bg-gray-50/50" />
+                                      ))}
+                                    </div>
+                                    <div className="text-[9px] text-gray-400 font-headline font-bold uppercase tracking-wider mt-2">
+                                      Photos {product.photos.length}/5
+                                    </div>
+                                  </div>
+
+                                  {/* Specification — Rich Text (Right side, matches grid height) */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="h-[232px] flex flex-col border border-gray-200 rounded-lg overflow-hidden focus-within:border-[#701010] transition-colors bg-white">
+                                      {/* Toolbar */}
+                                      <div className="flex-shrink-0 flex items-center gap-0.5 px-2 py-1.5 border-b border-gray-100 bg-gray-50/80">
+                                        {[
+                                          { cmd: "bold", label: <b>B</b>, title: "Bold" },
+                                          { cmd: "italic", label: <i>I</i>, title: "Italic" },
+                                          { cmd: "underline", label: <u>U</u>, title: "Underline" }
+                                        ].map(({ cmd, label, title }) => (
+                                          <button
+                                            key={cmd}
+                                            type="button"
+                                            onMouseDown={e => { e.preventDefault(); document.execCommand(cmd); }}
+                                            className="w-6 h-6 flex items-center justify-center rounded text-xs text-gray-600 hover:bg-white hover:shadow-sm transition-all"
+                                            title={title}
+                                          >{label}</button>
+                                        ))}
+                                        <div className="w-px h-4 bg-gray-200 mx-1" />
+                                        <button type="button" onMouseDown={e => { e.preventDefault(); document.execCommand("insertUnorderedList"); }} className="w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:bg-white hover:shadow-sm transition-all" title="Bullet list">
+                                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 16 16"><circle cx="3" cy="5" r="1.2" fill="currentColor" /><line x1="6" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.5" /><circle cx="3" cy="9" r="1.2" fill="currentColor" /><line x1="6" y1="9" x2="14" y2="9" stroke="currentColor" strokeWidth="1.5" /><circle cx="3" cy="13" r="1.2" fill="currentColor" /><line x1="6" y1="13" x2="14" y2="13" stroke="currentColor" strokeWidth="1.5" /></svg>
+                                        </button>
+                                        <button type="button" onMouseDown={e => { e.preventDefault(); document.execCommand("insertOrderedList"); }} className="w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:bg-white hover:shadow-sm transition-all" title="Numbered list">
+                                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16"><text x="1" y="6" fontSize="5">1.</text><line x1="6" y1="5" x2="14" y2="5" stroke="currentColor" strokeWidth="1.5" /><text x="1" y="10" fontSize="5">2.</text><line x1="6" y1="9" x2="14" y2="9" stroke="currentColor" strokeWidth="1.5" /><text x="1" y="14" fontSize="5">3.</text><line x1="6" y1="13" x2="14" y2="13" stroke="currentColor" strokeWidth="1.5" /></svg>
+                                        </button>
+                                      </div>
+                                      {/* Editable area */}
+                                      <div
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={e => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, specification: (e.target as HTMLDivElement).innerHTML } : p))}
+                                        placeholder="Enter Specifications / Details..."
+                                        className="flex-1 overflow-y-auto px-3 py-2.5 text-sm text-gray-800 outline-none empty:before:content-[attr(placeholder)] empty:before:text-gray-400 empty:before:italic empty:before:pointer-events-none"
+                                        style={{ lineHeight: "1.65" }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Reference Link */}
+                                <div className="relative">
+                                  <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                                  <input
+                                    value={product.referenceLink}
+                                    onChange={e => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, referenceLink: e.target.value } : p))}
+                                    placeholder="https://example.com/reference-link"
+                                    className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              /* ── View card ── */
+                              <div className="p-5">
+                                <div className="flex gap-4">
+                                  {/* Thumbnails */}
+                                  {product.photos.length > 0 ? (
+                                    <div className="flex gap-1.5 flex-shrink-0">
+                                      {product.photos.slice(0, 3).map((photo, pIdx) => (
+                                        <div key={pIdx} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0">
+                                          <img src={photo} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                      ))}
+                                      {product.photos.length > 3 && (
+                                        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                          <span className="text-xs font-headline font-bold text-gray-500">+{product.photos.length - 3}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-lg bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center flex-shrink-0">
+                                      <ImageIcon className="w-5 h-5 text-gray-300" />
+                                    </div>
+                                  )}
+                                  {/* Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2">
+                                      <h5 className="font-serif font-bold text-sm text-gray-900">
+                                        {product.name || <span className="text-gray-400 italic font-sans font-normal text-sm">Untitled</span>}
+                                      </h5>
+                                      <div className="flex items-center gap-1 flex-shrink-0">
+                                        <button
+                                          onClick={() => setEditingProductId(product.id)}
+                                          className="p-1.5 text-gray-400 hover:text-[#701010] hover:bg-[#701010]/5 rounded-lg transition-colors"
+                                          title="Edit"
+                                        >
+                                          <Pencil className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                          onClick={() => setProducts(prev => prev.filter(p => p.id !== product.id))}
+                                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                          title="Delete"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    {product.specification ? (
+                                      <div className="text-sm text-gray-600 mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: product.specification }} />
+                                    ) : (
+                                      <p className="text-xs text-gray-400 italic mt-1">No specification added</p>
+                                    )}
+                                    {product.referenceLink && (
+                                      <a
+                                        href={product.referenceLink.startsWith("http") ? product.referenceLink : `https://${product.referenceLink}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-[10px] text-[#701010] hover:underline mt-2 font-headline font-bold uppercase tracking-wider"
+                                      >
+                                        <ExternalLink className="w-3 h-3" /> Reference
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    /* Empty state */
+                    <div className="text-center py-10">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <FileText className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <p className="text-sm text-gray-500">No {userType === "obo" ? "products" : "services"} listed yet</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Click <span className="font-semibold text-gray-600">Add {userType === "obo" ? "Product" : "Service"}</span> above to start building your catalog
+                      </p>
+                    </div>
+                  )}
+
                 </div>
               </div>
             )}
