@@ -354,7 +354,10 @@ export default function ProfilePage() {
               <ArrowLeft className="w-4 h-4" /> Dashboard
             </Link>
             <div className="h-4 w-px bg-gray-200" />
-            <span className="font-serif font-bold text-[#701010] tracking-wide text-sm">Fractional Sales Portal</span>
+            <div className="flex flex-col items-start gap-0">
+              <span className="font-serif font-bold text-[#701010] tracking-wide text-sm leading-tight">Fractional Sales Portal</span>
+              <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Where Every Post is a Business</span>
+            </div>
           </div>
         </div>
       </header>
