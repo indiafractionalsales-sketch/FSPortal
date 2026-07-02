@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Building, Users, Globe, Award, Briefcase, Phone, Settings, FileText, Check, ChevronDown, ChevronUp, ImageIcon, ArrowLeft
+  Building, Users, Globe, Award, Briefcase, Phone, Settings, FileText, Check, ChevronDown, ChevronUp, ImageIcon, ArrowLeft, Pencil
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { saveDocument, getDocument } from "@/lib/firestore-rest";
+import { uploadImage } from "@/lib/storage-rest";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,6 +23,8 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState("");
   const [activeSectionIndex, setActiveSectionIndex] = useState<number>(0);
   const [isRoleLocked, setIsRoleLocked] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileFetched, setProfileFetched] = useState(false);
 
   // OBO Profile Form State
   const [oboData, setOboData] = useState({
@@ -177,8 +180,14 @@ export default function ProfilePage() {
           setIsRoleLocked(true);
           return;
         }
+
+        // No profile found — new user, go straight to edit mode
+        setIsEditing(true);
       } catch (err) {
         console.error("Error loading profiles:", err);
+        setIsEditing(true);
+      } finally {
+        setProfileFetched(true);
       }
     };
 
@@ -227,12 +236,14 @@ export default function ProfilePage() {
     setSaveError("");
     setSaveSuccess(false);
 
+    const wasCreatingProfile = !isRoleLocked;
+
     try {
       if (!userType) {
         throw new Error("Please select a profile type.");
       }
 
-      // Get a fresh ID token for Firestore REST authentication
+      // Get a fresh ID token for Firestore + Storage REST authentication
       const idToken = await user.getIdToken();
 
       if (!isRoleLocked) {
@@ -245,24 +256,58 @@ export default function ProfilePage() {
         setIsRoleLocked(true);
       }
 
+      // ── Upload images to Storage (if newly selected as base64) ──────────
+      // Base64 strings start with "data:" — Storage URLs start with "https:"
+      // We only upload when user has picked a new image, not when loading existing URL.
+
       if (userType === "obo") {
         if (!oboData.legalName || !oboData.brandName || !oboData.gstNumber || !oboData.incorporationDate || !oboData.revenueRange) {
           throw new Error("Please fill in all mandatory fields: Company Legal Name, Brand Name, GST/TAX Number, Incorporation Date, and Revenue Range.");
         }
-        await saveDocument("OBO_Profile", user.uid, oboData as unknown as Record<string, unknown>, idToken);
+        const finalObo = { ...oboData };
+        if (finalObo.logo?.startsWith("data:")) {
+          finalObo.logo = await uploadImage(finalObo.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
+        }
+        if (finalObo.banner?.startsWith("data:")) {
+          finalObo.banner = await uploadImage(finalObo.banner, `profiles/${user.uid}/banner.jpg`, idToken);
+        }
+        await saveDocument("OBO_Profile", user.uid, finalObo as unknown as Record<string, unknown>, idToken);
+        setOboData(finalObo); // update state with storage URLs
+
       } else if (userType === "sp") {
-        await saveDocument("SP_Profile", user.uid, spData as unknown as Record<string, unknown>, idToken);
+        const finalSp = { ...spData };
+        if (finalSp.profilePhoto?.startsWith("data:")) {
+          finalSp.profilePhoto = await uploadImage(finalSp.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
+        }
+        if (finalSp.banner?.startsWith("data:")) {
+          finalSp.banner = await uploadImage(finalSp.banner, `profiles/${user.uid}/banner.jpg`, idToken);
+        }
+        await saveDocument("SP_Profile", user.uid, finalSp as unknown as Record<string, unknown>, idToken);
+        setSpData(finalSp);
+
       } else if (userType === "tpsp") {
         if (!tpspData.companyName) {
           throw new Error("Company Name is mandatory for Third Party Service Providers.");
         }
-        await saveDocument("TPSP_Profile", user.uid, tpspData as unknown as Record<string, unknown>, idToken);
+        const finalTpsp = { ...tpspData };
+        if (finalTpsp.logo?.startsWith("data:")) {
+          finalTpsp.logo = await uploadImage(finalTpsp.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
+        }
+        if (finalTpsp.banner?.startsWith("data:")) {
+          finalTpsp.banner = await uploadImage(finalTpsp.banner, `profiles/${user.uid}/banner.jpg`, idToken);
+        }
+        await saveDocument("TPSP_Profile", user.uid, finalTpsp as unknown as Record<string, unknown>, idToken);
+        setTpspData(finalTpsp);
       }
 
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);
-        router.push("/dashboard");
+        if (wasCreatingProfile) {
+          router.push("/dashboard");
+        } else {
+          setIsEditing(false);
+        }
       }, 1500);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save profile.";
@@ -277,7 +322,7 @@ export default function ProfilePage() {
   const currentBanner = userType === "obo" ? oboData.banner : userType === "sp" ? spData.banner : userType === "tpsp" ? tpspData.banner : "";
   const currentName = userType === "obo" ? oboData.legalName : userType === "sp" ? spData.fullName : userType === "tpsp" ? tpspData.companyName : "";
 
-  if (loading) {
+  if (loading || !profileFetched) {
     return (
       <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#701010] border-t-transparent rounded-full animate-spin"></div>
@@ -318,23 +363,35 @@ export default function ProfilePage() {
                 <div className="w-full h-full opacity-35 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
               )}
 
-              {/* Banner Edit Trigger */}
-              <div className="absolute right-4 bottom-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerUpload}
-                  className="hidden"
-                  id="banner-file-input"
-                />
-                <label
-                  htmlFor="banner-file-input"
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg shadow-sm border border-gray-200/50 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] select-none"
+              {/* Banner Edit Trigger — edit mode only */}
+              {isEditing && (
+                <div className="absolute right-4 bottom-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerUpload}
+                    className="hidden"
+                    id="banner-file-input"
+                  />
+                  <label
+                    htmlFor="banner-file-input"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg shadow-sm border border-gray-200/50 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] select-none"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-gray-600" />
+                    {currentBanner ? "Change Banner" : "Upload Banner"}
+                  </label>
+                </div>
+              )}
+              {/* Edit Profile button — view mode only */}
+              {!isEditing && isRoleLocked && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg shadow-sm border border-gray-200/50 cursor-pointer transition-all duration-200 hover:scale-[1.02]"
                 >
-                  <ImageIcon className="w-3.5 h-3.5 text-gray-600" />
-                  {currentBanner ? "Change Banner" : "Upload Banner"}
-                </label>
-              </div>
+                  <Pencil className="w-3.5 h-3.5 text-gray-600" />
+                  Edit Profile
+                </button>
+              )}
             </div>
 
             {/* Avatar & Info Row */}
@@ -351,54 +408,86 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Avatar Edit Trigger */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                  id="avatar-file-input"
-                />
-                <label
-                  htmlFor="avatar-file-input"
-                  className="absolute bottom-0 right-0 p-2 bg-[#701010] hover:bg-[#580c0c] text-white rounded-full shadow-md border-2 border-white cursor-pointer transition-all duration-300 hover:scale-110 flex items-center justify-center"
-                >
-                  <ImageIcon className="w-3.5 h-3.5" />
-                </label>
+                {/* Avatar Edit Trigger — edit mode only */}
+                {isEditing && (
+                  <>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      id="avatar-file-input"
+                    />
+                    <label
+                      htmlFor="avatar-file-input"
+                      className="absolute bottom-0 right-0 p-2 bg-[#701010] hover:bg-[#580c0c] text-white rounded-full shadow-md border-2 border-white cursor-pointer transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" />
+                    </label>
+                  </>
+                )}
               </div>
 
-              {/* User details (Interactive Name Input) */}
+              {/* User details */}
               <div className="flex-1 sm:ml-4 pt-2">
-                <input
-                  type="text"
-                  value={currentName}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (userType === "obo") {
-                      setOboData(prev => ({ ...prev, legalName: val }));
-                    } else if (userType === "sp") {
-                      setSpData(prev => ({ ...prev, fullName: val }));
-                    } else if (userType === "tpsp") {
-                      setTpspData(prev => ({ ...prev, companyName: val }));
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={currentName}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (userType === "obo") {
+                        setOboData(prev => ({ ...prev, legalName: val }));
+                      } else if (userType === "sp") {
+                        setSpData(prev => ({ ...prev, fullName: val }));
+                      } else if (userType === "tpsp") {
+                        setTpspData(prev => ({ ...prev, companyName: val }));
+                      }
+                    }}
+                    placeholder={
+                      userType === "obo"
+                        ? "Enter Company Legal Name..."
+                        : userType === "sp"
+                          ? "Enter Full Name..."
+                          : "Enter Company Name..."
                     }
-                  }}
-                  placeholder={
-                    userType === "obo"
-                      ? "Enter Company Legal Name..."
-                      : userType === "sp"
-                        ? "Enter Full Name..."
-                        : "Enter Company Name..."
-                  }
-                  className="w-full bg-transparent text-xl md:text-2xl font-serif font-bold text-gray-900 border-b border-transparent hover:border-gray-250 focus:border-[#701010] focus:ring-0 outline-none pb-0.5 transition-all duration-300"
-                />
+                    className="w-full bg-transparent text-xl md:text-2xl font-serif font-bold text-gray-900 border-b border-transparent hover:border-gray-250 focus:border-[#701010] focus:ring-0 outline-none pb-0.5 transition-all duration-300"
+                  />
+                ) : (
+                  <h1 className="text-xl md:text-2xl font-serif font-bold text-gray-900 pb-0.5">{currentName || "—"}</h1>
+                )}
                 <p className="text-[10px] font-headline text-gray-500 mt-1.5 uppercase tracking-wider font-bold">
                   {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : "Third Party Service Provider"}
                 </p>
+                {/* View mode stat chips */}
+                {!isEditing && userType === "obo" && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {oboData.revenueRange && (
+                      <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-[#701010]/5 text-[#701010] px-2.5 py-1 rounded-full border border-[#701010]/15">{oboData.revenueRange}</span>
+                    )}
+                    {oboData.incorporationDate && (
+                      <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
+                        Est. {new Date(oboData.incorporationDate + "T00:00:00").getFullYear()}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {!isEditing && userType === "sp" && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {spData.employmentStatus && (
+                      <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-[#701010]/5 text-[#701010] px-2.5 py-1 rounded-full border border-[#701010]/15">{spData.employmentStatus}</span>
+                    )}
+                    {spData.yearsExperience && (
+                      <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">{spData.yearsExperience} yrs exp.</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
 
+        {isEditing && (<>
         {/* Role Modern Card Selector */}
         <div className="bg-white border border-gray-100 p-6 rounded-xl shadow-sm space-y-3">
           <div className="flex items-center justify-between">
@@ -1255,12 +1344,21 @@ export default function ProfilePage() {
         {/* Footer controls for non-SP roles */}
         {userType !== "sp" && userType !== "" && (
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-            <Link
-              href="/dashboard"
-              className="rounded-full px-6 py-2.5 font-headline text-[11px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-100 transition-colors text-gray-700 inline-flex items-center"
-            >
-              Cancel
-            </Link>
+            {isRoleLocked ? (
+              <button
+                onClick={() => setIsEditing(false)}
+                className="rounded-full px-6 py-2.5 font-headline text-[11px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-100 transition-colors text-gray-700 inline-flex items-center"
+              >
+                Cancel
+              </button>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="rounded-full px-6 py-2.5 font-headline text-[11px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-100 transition-colors text-gray-700 inline-flex items-center"
+              >
+                Cancel
+              </Link>
+            )}
             <button
               onClick={handleSaveProfile}
               disabled={saving}
@@ -1273,6 +1371,102 @@ export default function ProfilePage() {
                 </>
               ) : "Save Profile"}
             </button>
+          </div>
+        )}
+
+        {/* ─── Close edit mode wrapper ─── */}
+        </>)}
+
+        {/* ════════════════════ VIEW MODE PROFILE CARDS ════════════════════ */}
+        {!isEditing && isRoleLocked && (
+          <div className="space-y-6">
+
+            {/* OBO View Cards */}
+            {userType === "obo" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Building className="w-4 h-4 text-[#701010]" /> Business Details
+                  </h3>
+                  <div className="space-y-3.5">
+                    {oboData.brandName && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Brand Name</p><p className="text-sm text-gray-800">{oboData.brandName}</p></div>}
+                    {oboData.gstNumber && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">GST / TAX Number</p><p className="text-sm text-gray-800 font-mono">{oboData.gstNumber}</p></div>}
+                    {oboData.incorporationDate && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Incorporated</p><p className="text-sm text-gray-800">{new Date(oboData.incorporationDate + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p></div>}
+                    {oboData.revenueRange && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Annual Revenue</p><p className="text-sm text-gray-800">{oboData.revenueRange}</p></div>}
+                    {!oboData.brandName && !oboData.gstNumber && !oboData.incorporationDate && !oboData.revenueRange && <p className="text-xs text-gray-400 italic">No business details provided</p>}
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Phone className="w-4 h-4 text-[#701010]" /> Contact & Social
+                  </h3>
+                  <div className="space-y-3">
+                    {oboData.phone && <div className="flex items-center gap-3"><Phone className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" /><p className="text-sm text-gray-800">{oboData.phone}</p></div>}
+                    {oboData.website && <div className="flex items-center gap-3"><Globe className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" /><a href={oboData.website.startsWith("http") ? oboData.website : `https://${oboData.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#701010] hover:underline truncate">{oboData.website}</a></div>}
+                    {oboData.linkedinHandle && <div className="flex items-center gap-3"><Briefcase className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" /><p className="text-sm text-gray-700">{oboData.linkedinHandle}</p></div>}
+                    {oboData.instaHandle && <div className="flex items-center gap-3"><Award className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" /><p className="text-sm text-gray-700">@{oboData.instaHandle}</p></div>}
+                    {oboData.fbHandle && <div className="flex items-center gap-3"><Users className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" /><p className="text-sm text-gray-700">{oboData.fbHandle}</p></div>}
+                    {!oboData.phone && !oboData.website && !oboData.linkedinHandle && !oboData.instaHandle && !oboData.fbHandle && <p className="text-xs text-gray-400 italic">No contact details provided</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SP View Cards */}
+            {userType === "sp" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Users className="w-4 h-4 text-[#701010]" /> Personal Details
+                  </h3>
+                  <div className="space-y-3.5">
+                    {spData.preferredName && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Preferred Name</p><p className="text-sm text-gray-800">{spData.preferredName}</p></div>}
+                    {spData.nationality && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Nationality</p><p className="text-sm text-gray-800">{spData.nationality}</p></div>}
+                    {spData.city && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Location</p><p className="text-sm text-gray-800">{[spData.city, spData.country].filter(Boolean).join(", ")}</p></div>}
+                    {spData.mobilePrimary && <div className="flex items-center gap-3"><Phone className="w-3.5 h-3.5 text-gray-400" /><p className="text-sm text-gray-800">{spData.mobilePrimary}</p></div>}
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Briefcase className="w-4 h-4 text-[#701010]" /> Professional Details
+                  </h3>
+                  <div className="space-y-3.5">
+                    {spData.jobTitle && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Job Title</p><p className="text-sm text-gray-800">{spData.jobTitle}</p></div>}
+                    {spData.industryExperience && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Industry</p><p className="text-sm text-gray-800">{spData.industryExperience}</p></div>}
+                    {spData.yearsExperience && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Experience</p><p className="text-sm text-gray-800">{spData.yearsExperience} years</p></div>}
+                    {spData.salesChannels && spData.salesChannels.length > 0 && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-1.5">Sales Channels</p><div className="flex flex-wrap gap-1.5">{spData.salesChannels.map(ch => <span key={ch} className="text-[9px] font-headline font-bold uppercase tracking-wider bg-[#701010]/5 text-[#701010] px-2 py-0.5 rounded-full border border-[#701010]/20">{ch}</span>)}</div></div>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TPSP View Cards */}
+            {userType === "tpsp" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Building className="w-4 h-4 text-[#701010]" /> Company Details
+                  </h3>
+                  <div className="space-y-3.5">
+                    {tpspData.services && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Services</p><p className="text-sm text-gray-800">{tpspData.services}</p></div>}
+                    {tpspData.location && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Location</p><p className="text-sm text-gray-800">{tpspData.location}</p></div>}
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                  <h3 className="font-serif font-bold text-sm text-gray-900 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+                    <Phone className="w-4 h-4 text-[#701010]" /> Contact Details
+                  </h3>
+                  <div className="space-y-3.5">
+                    {tpspData.contactPerson && <div><p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-400 mb-0.5">Contact Person</p><p className="text-sm text-gray-800">{tpspData.contactPerson}</p></div>}
+                    {tpspData.phone && <div className="flex items-center gap-3"><Phone className="w-3.5 h-3.5 text-gray-400" /><p className="text-sm text-gray-800">{tpspData.phone}</p></div>}
+                    {tpspData.email && <div className="flex items-center gap-3"><FileText className="w-3.5 h-3.5 text-gray-400" /><p className="text-sm text-gray-800">{tpspData.email}</p></div>}
+                    {tpspData.website && <div className="flex items-center gap-3"><Globe className="w-3.5 h-3.5 text-gray-400" /><a href={tpspData.website.startsWith("http") ? tpspData.website : `https://${tpspData.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#701010] hover:underline truncate">{tpspData.website}</a></div>}
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </main>
