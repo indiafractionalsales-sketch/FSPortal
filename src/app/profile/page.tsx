@@ -315,7 +315,7 @@ export default function ProfilePage() {
       setTimeout(() => {
         setSaveSuccess(false);
         if (wasCreatingProfile) {
-          router.push("/dashboard");
+          router.push("/home");
         } else {
           setIsEditing(false);
         }
@@ -348,10 +348,10 @@ export default function ProfilePage() {
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
-              href="/dashboard"
+              href="/home"
               className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors text-xs font-headline uppercase font-bold tracking-wider"
             >
-              <ArrowLeft className="w-4 h-4" /> Dashboard
+              <ArrowLeft className="w-4 h-4" /> Home
             </Link>
             <div className="h-4 w-px bg-gray-200" />
             <div className="flex flex-col items-start gap-0">
@@ -1238,8 +1238,8 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <Link
-                    href="/dashboard"
-                    className="rounded-full px-5 py-2 font-headline text-[10px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-50 transition-colors text-gray-700 inline-flex items-center"
+                    href="/home"
+                    className="rounded-full px-5 py-2 font-headline text-[10px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-55 transition-colors text-gray-700 inline-flex items-center"
                   >
                     Cancel
                   </Link>
@@ -1367,7 +1367,7 @@ export default function ProfilePage() {
               </button>
             ) : (
               <Link
-                href="/dashboard"
+                href="/home"
                 className="rounded-full px-6 py-2.5 font-headline text-[11px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-100 transition-colors text-gray-700 inline-flex items-center"
               >
                 Cancel
