@@ -18,11 +18,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Redirect signed-in users to dashboard
+  // Redirect signed-in users to home
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        router.replace("/dashboard");
+        router.replace("/home");
       } else {
         setLoading(false);
       }
@@ -38,7 +38,7 @@ export default function LoginPage() {
       await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
-        router.replace("/dashboard");
+        router.replace("/home");
       } else {
         setLoading(false);
       }
