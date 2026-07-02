@@ -392,16 +392,24 @@ export default function HomePage() {
               </div>
 
               {/* Post Video/Image area */}
-              <div className="bg-black w-full aspect-video flex items-center justify-center relative cursor-pointer group">
-                <div className="w-full h-full bg-[#16161a] flex flex-col items-center justify-center p-6 relative">
-                  <div className="absolute inset-0 bg-radial-gradient opacity-20"></div>
-                  <h3 className="text-white font-serif font-bold text-lg md:text-xl mb-6 tracking-tight text-center z-10">The CEO's Risk Mindset</h3>
-                  <div className="relative w-28 h-28 bg-[#faf8f5]/10 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-all duration-300 z-10 shadow-lg">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-colors shadow">
-                      <div className="w-0 h-0 border-t-[6px] border-b-[6px] border-l-[10px] border-t-transparent border-b-transparent border-l-white ml-1"></div>
+              <div className="flex w-full h-40 border-t border-b border-gray-150 bg-gray-50/30">
+                {/* Left: 1/3rd Video Preview */}
+                <div className="w-1/3 h-full bg-black flex items-center justify-center relative cursor-pointer group overflow-hidden">
+                  <div className="w-full h-full bg-[#16161a] flex flex-col items-center justify-center p-4 relative">
+                    <div className="absolute inset-0 bg-radial-gradient opacity-20"></div>
+                    <h3 className="text-white font-serif font-bold text-xs mb-3 tracking-tight text-center z-10 px-2 line-clamp-2">The CEO's Risk Mindset</h3>
+                    <div className="relative w-16 h-16 bg-[#faf8f5]/10 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-all duration-300 z-10 shadow-md">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                      <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-colors shadow">
+                        <div className="w-0 h-0 border-t-[4px] border-b-[4px] border-l-[7px] border-t-transparent border-b-transparent border-l-white ml-0.5"></div>
+                      </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Right: 2/3rd Empty Area (to be decided later) */}
+                <div className="w-2/3 h-full bg-[#faf8f5]/20 border-l border-gray-100 flex items-center justify-center">
+                  {/* Empty for future specifications/content */}
                 </div>
               </div>
 
