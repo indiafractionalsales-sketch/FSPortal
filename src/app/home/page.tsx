@@ -54,6 +54,11 @@ export default function HomePage() {
     fullName: "",
     profilePhoto: ""
   });
+  const [tpspData, setTpspData] = useState({
+    companyName: "",
+    logo: "",
+    banner: ""
+  });
 
   // Monitor auth state changes
   useEffect(() => {
@@ -62,7 +67,6 @@ export default function HomePage() {
         router.replace("/login");
       } else {
         setUser(currentUser);
-        setLoading(false);
       }
     });
     return () => unsubscribe();
@@ -96,33 +100,51 @@ export default function HomePage() {
                 profilePhoto: (data.profilePhoto as string) || ""
               });
             }
+          } else if (userData.role === "tpsp") {
+            const data = await getDocument("TPSP_Profile", user.uid, idToken);
+            if (data) {
+              setTpspData({
+                companyName: (data.companyName as string) || "",
+                logo: (data.logo as string) || "",
+                banner: (data.banner as string) || ""
+              });
+            }
           }
-          return;
-        }
-
-        // Fallback checks
-        const oboData = await getDocument("OBO_Profile", user.uid, idToken);
-        if (oboData) {
-          setUserType("obo");
-          setOboData({
-            brandName: (oboData.brandName as string) || "",
-            logo: (oboData.logo as string) || "",
-            banner: (oboData.banner as string) || ""
-          });
-          return;
-        }
-
-        const spData = await getDocument("SP_Profile", user.uid, idToken);
-        if (spData) {
-          setUserType("sp");
-          setSpData({
-            fullName: (spData.fullName as string) || "",
-            profilePhoto: (spData.profilePhoto as string) || ""
-          });
-          return;
+        } else {
+          // Fallback checks
+          const oboData = await getDocument("OBO_Profile", user.uid, idToken);
+          if (oboData) {
+            setUserType("obo");
+            setOboData({
+              brandName: (oboData.brandName as string) || "",
+              logo: (oboData.logo as string) || "",
+              banner: (oboData.banner as string) || ""
+            });
+          } else {
+            const spData = await getDocument("SP_Profile", user.uid, idToken);
+            if (spData) {
+              setUserType("sp");
+              setSpData({
+                fullName: (spData.fullName as string) || "",
+                profilePhoto: (spData.profilePhoto as string) || ""
+              });
+            } else {
+              const tpspData = await getDocument("TPSP_Profile", user.uid, idToken);
+              if (tpspData) {
+                setUserType("tpsp");
+                setTpspData({
+                  companyName: (tpspData.companyName as string) || "",
+                  logo: (tpspData.logo as string) || "",
+                  banner: (tpspData.banner as string) || ""
+                });
+              }
+            }
+          }
         }
       } catch (err) {
         console.error("Error loading basic profile metadata: ", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -178,8 +200,8 @@ export default function HomePage() {
             >
               {spData.profilePhoto ? (
                 <img src={spData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-              ) : oboData.logo ? (
-                <img src={oboData.logo} alt="Profile" className="w-full h-full object-cover" />
+              ) : oboData.logo || tpspData.logo ? (
+                <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-full h-full object-cover" />
               ) : user?.photoURL ? (
                 <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -194,8 +216,8 @@ export default function HomePage() {
                 <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
                   {spData.profilePhoto ? (
                     <img src={spData.profilePhoto} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : oboData.logo ? (
-                    <img src={oboData.logo} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+                  ) : oboData.logo || tpspData.logo ? (
+                    <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
                   ) : user?.photoURL ? (
                     <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
@@ -204,7 +226,7 @@ export default function HomePage() {
                     </div>
                   )}
                   <div className="overflow-hidden">
-                    <p className="text-sm font-serif font-bold text-gray-900 truncate">{spData.fullName || oboData.brandName || user?.displayName || "Partner User"}</p>
+                    <p className="text-sm font-serif font-bold text-gray-900 truncate">{spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || "Partner User"}</p>
                     <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider truncate">{user?.email || ""}</p>
                   </div>
                 </div>
@@ -240,7 +262,7 @@ export default function HomePage() {
           <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
             {/* Banner */}
             <div className="h-16 bg-[#701010] relative overflow-hidden">
-              {oboData.banner && <img src={oboData.banner} alt="Banner" className="w-full h-full object-cover" />}
+              {(oboData.banner || tpspData.banner) && <img src={oboData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
             </div>
 
             {/* Avatar */}
@@ -252,9 +274,9 @@ export default function HomePage() {
                     alt="Profile"
                     className="w-16 h-16 rounded-full border-4 border-white shadow-sm object-cover"
                   />
-                ) : oboData.logo ? (
+                ) : oboData.logo || tpspData.logo ? (
                   <img
-                    src={oboData.logo}
+                    src={oboData.logo || tpspData.logo}
                     alt="Profile"
                     className="w-16 h-16 rounded-full border-4 border-white shadow-sm object-cover"
                   />
@@ -271,11 +293,11 @@ export default function HomePage() {
                 )}
               </div>
 
-              <button
-                onClick={() => router.push("/profile")}
+              <button 
+                onClick={() => router.push("/profile")} 
                 className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full"
               >
-                {spData.fullName || oboData.brandName || user?.displayName || user?.email || "Partner User"}
+                {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
               </button>
               <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider">
                 {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
