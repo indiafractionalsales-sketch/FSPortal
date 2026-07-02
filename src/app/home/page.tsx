@@ -8,7 +8,7 @@ import {
   Search, Home, Tv, Store, Users, Grid, MessageCircle, Bell,
   Settings, LogOut, MoreHorizontal, ThumbsUp, Share2, Plus,
   Bookmark, Clock, Calendar, Video, ImageIcon, ChevronDown, ChevronUp, Check, X, Phone, Globe, FileText, Briefcase, GraduationCap, Award,
-  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass
+  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass, MapPin, Star
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
@@ -42,6 +42,7 @@ export default function HomePage() {
   const [activeMarketingIndex, setActiveMarketingIndex] = useState(0);
   const [activeBizDevIndex, setActiveBizDevIndex] = useState(0);
   const [activeLegalIndex, setActiveLegalIndex] = useState(0);
+  const [isInterested, setIsInterested] = useState(false);
 
   // Core profile identity states (for displaying avatar/names)
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
@@ -391,16 +392,73 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Post Video/Image area */}
-              <div className="bg-black w-full aspect-video flex items-center justify-center relative cursor-pointer group">
-                <div className="w-full h-full bg-[#16161a] flex flex-col items-center justify-center p-6 relative">
-                  <div className="absolute inset-0 bg-radial-gradient opacity-20"></div>
-                  <h3 className="text-white font-serif font-bold text-lg md:text-xl mb-6 tracking-tight text-center z-10">The CEO's Risk Mindset</h3>
-                  <div className="relative w-28 h-28 bg-[#faf8f5]/10 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-all duration-300 z-10 shadow-lg">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-colors shadow">
-                      <div className="w-0 h-0 border-t-[6px] border-b-[6px] border-l-[10px] border-t-transparent border-b-transparent border-l-white ml-1"></div>
+              {/* Post Video/Image area (Event Invite Layout) */}
+              <div className="flex w-full h-40 border-t border-b border-gray-150 bg-gray-50/30">
+                {/* Left: 1/3rd Video Preview */}
+                <div className="w-1/3 h-full bg-black flex items-center justify-center relative cursor-pointer group overflow-hidden">
+                  <div className="w-full h-full bg-[#16161a] flex flex-col items-center justify-center p-4 relative">
+                    <div className="absolute inset-0 bg-radial-gradient opacity-20"></div>
+                    <h3 className="text-white font-serif font-bold text-xs mb-3 tracking-tight text-center z-10 px-2 line-clamp-2">The CEO's Risk Mindset</h3>
+                    <div className="relative w-16 h-16 bg-[#faf8f5]/10 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-all duration-300 z-10 shadow-md">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                      <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-colors shadow">
+                        <div className="w-0 h-0 border-t-[4px] border-b-[4px] border-l-[7px] border-t-transparent border-b-transparent border-l-white ml-0.5"></div>
+                      </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Right: 2/3rd Event Details Area */}
+                <div className="w-2/3 h-full bg-[#faf8f5]/40 border-l border-gray-100 p-3.5 flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-serif font-bold text-xs text-gray-900 leading-snug line-clamp-1 mt-0.5">
+                      Annual Fractional Sales Summit 2026
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-2 mt-2.5">
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                        <span className="text-[10px] text-gray-750 font-sans truncate">Oct 14, 2026</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                        <span className="text-[10px] text-gray-750 font-sans truncate">09:00 AM EST</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-gray-600 col-span-2">
+                        <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                        <span className="text-[10px] text-gray-750 font-sans truncate">
+                          Grand Hyatt, NY
+                        </span>
+                        <a 
+                          href="https://maps.google.com" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[9px] font-headline font-bold text-[#701010] hover:underline flex items-center gap-0.5 ml-1.5"
+                        >
+                          (View Map)
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <Users className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-600">
+                        Expected Footfall: <span className="text-[#701010] font-sans font-bold">500+</span>
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => setIsInterested(!isInterested)}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded text-[9px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm ${
+                        isInterested 
+                          ? "bg-amber-500 hover:bg-amber-600 text-white" 
+                          : "bg-[#701010] hover:bg-[#5a0c0c] text-white"
+                      }`}
+                    >
+                      <Star className={`w-3 h-3 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} /> 
+                      {isInterested ? "Interested ✓" : "Interested"}
+                    </button>
                   </div>
                 </div>
               </div>
