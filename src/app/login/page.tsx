@@ -12,17 +12,29 @@ import {
   browserLocalPersistence,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
+import { getDocument } from "@/lib/firestore-rest";
 
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Redirect signed-in users to home
+  // Redirect signed-in users based on profile existence
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        router.replace("/home");
+        try {
+          const idToken = await currentUser.getIdToken();
+          const profile = await getDocument("users", currentUser.uid, idToken);
+          if (profile && profile.role) {
+            router.replace("/home");
+          } else {
+            router.replace("/onboarding");
+          }
+        } catch (e) {
+          // If error or not found, go to onboarding
+          router.replace("/onboarding");
+        }
       } else {
         setLoading(false);
       }
@@ -37,11 +49,10 @@ export default function LoginPage() {
     try {
       await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, googleProvider);
-      if (result.user) {
-        router.replace("/home");
-      } else {
+      if (!result.user) {
         setLoading(false);
       }
+      // Redirection is handled by the onAuthStateChanged observer
     } catch (err: any) {
       console.error("Google sign-in error:", err);
       setError("Sign-in failed. Please try again.");
