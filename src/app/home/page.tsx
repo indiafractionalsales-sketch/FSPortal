@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import NextImage from "next/image";
@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { getDocument } from "@/lib/firestore-rest";
+import { getDocument, queryCollection } from "@/lib/firestore-rest";
 import Navbar from "@/components/Navbar";
+import SPCreatePostDrawer from "@/components/SPCreatePostDrawer";
+import SPPostCard from "@/components/SPPostCard";
 
 export default function HomePage() {
   const router = useRouter();
@@ -44,6 +46,15 @@ export default function HomePage() {
   const [activeBizDevIndex, setActiveBizDevIndex] = useState(0);
   const [activeLegalIndex, setActiveLegalIndex] = useState(0);
   const [isInterested, setIsInterested] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+
+  // Feed state
+  const [posts, setPosts] = useState<Record<string, unknown>[]>([]);
+  const [feedLoading, setFeedLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const lastDocRef = useRef<Record<string, unknown> | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const PAGE_SIZE = 10;
 
   // Core profile identity states (for displaying avatar/names)
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
@@ -154,6 +165,53 @@ export default function HomePage() {
 
     fetchProfiles();
   }, [user]);
+
+  const loadMorePosts = useCallback(async () => {
+    if (feedLoading || !hasMore) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    setFeedLoading(true);
+    try {
+      const idToken = await currentUser.getIdToken();
+      const { docs, lastDoc } = await queryCollection("SP_Posts", idToken, {
+        orderByField: "createdAt",
+        orderDirection: "DESCENDING",
+        limit: PAGE_SIZE,
+        startAfterDoc: lastDocRef.current,
+      });
+      setPosts(prev => [...prev, ...docs]);
+      lastDocRef.current = lastDoc;
+      setHasMore(docs.length === PAGE_SIZE);
+    } catch (err) {
+      console.error("Failed to load posts", err);
+    } finally {
+      setFeedLoading(false);
+    }
+  }, [feedLoading, hasMore]);
+
+  // Load initial posts once user is authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      loadMorePosts();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
+
+  // IntersectionObserver for infinite scroll sentinel
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMorePosts();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMorePosts]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -272,7 +330,10 @@ export default function HomePage() {
                 <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline">
                   {user?.email?.charAt(0).toUpperCase() ?? "P"}
                 </div>
-                <button className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full px-4 text-left text-gray-500 text-xs transition-colors flex items-center">
+                <button 
+                  onClick={() => userType === "sp" ? setIsCreatePostOpen(true) : alert("Post creation is currently available for Sales Partners only.")}
+                  className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full px-4 text-left text-gray-500 text-xs transition-colors flex items-center"
+                >
                   Start a post about fractional sales...
                 </button>
               </div>
@@ -289,139 +350,38 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Premium Post Card */}
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
-              {/* Post Author info */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg">F</div>
-                  <div>
-                    <h3 className="font-serif font-bold text-sm text-gray-900 leading-tight">Fractional Sales Portal</h3>
-                    <p className="text-[9px] font-headline text-gray-500 mt-0.5 uppercase tracking-wider">Official Updates & Insights</p>
-                  </div>
-                </div>
-                <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 rounded-full hover:bg-gray-50">
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
+            {/* Dynamic SP Posts Feed */}
+            {posts.length === 0 && !feedLoading && (
+              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
+                <p className="text-sm font-headline font-bold uppercase tracking-wider">No posts yet</p>
+                <p className="text-xs mt-1">Be the first to post an event!</p>
               </div>
+            )}
 
-              {/* Post Content */}
-              <div className="px-4 pb-3">
-                <p className="text-gray-800 text-xs leading-relaxed font-sans">
-                  Welcome to the premium Fractional Sales Portal! Our mission is to seamlessly bridge the gap between overseas business owners and expert local sales partners. Define your persona settings today to customize your experience.
-                </p>
+            {posts.map((post) => (
+              <SPPostCard
+                key={post.__id as string}
+                post={post as any}
+                authorName={post.authorName as string | undefined}
+                authorAvatar={post.authorAvatar as string | undefined}
+              />
+            ))}
+
+            {/* Loading spinner */}
+            {feedLoading && (
+              <div className="flex justify-center py-6">
+                <div className="w-6 h-6 border-2 border-[#701010] border-t-transparent rounded-full animate-spin" />
               </div>
+            )}
 
-              {/* Post Video/Image area (Event Invite Layout) */}
-              <div className="flex w-full h-40 border-t border-b border-gray-150 bg-gray-50/30">
-                {/* Left: 1/3rd Video Preview */}
-                <div className="w-1/3 h-full bg-black flex items-center justify-center relative cursor-pointer group overflow-hidden">
-                  <div className="w-full h-full bg-[#16161a] flex flex-col items-center justify-center p-4 relative">
-                    <div className="absolute inset-0 bg-radial-gradient opacity-20"></div>
-                    <h3 className="text-white font-serif font-bold text-xs mb-3 tracking-tight text-center z-10 px-2 line-clamp-2">The CEO's Risk Mindset</h3>
-                    <div className="relative w-16 h-16 bg-[#faf8f5]/10 border border-white/20 flex items-center justify-center group-hover:scale-105 transition-all duration-300 z-10 shadow-md">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                      <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-colors shadow">
-                        <div className="w-0 h-0 border-t-[4px] border-b-[4px] border-l-[7px] border-t-transparent border-b-transparent border-l-white ml-0.5"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Invisible sentinel element — triggers next page load when scrolled into view */}
+            {hasMore && <div ref={sentinelRef} className="h-4" />}
 
-                {/* Right: 2/3rd Event Details Area */}
-                <div className="w-2/3 h-full bg-[#faf8f5]/40 border-l border-gray-100 p-3.5 flex flex-col justify-between relative">
-                  <div className="pr-24">
-                    <h4 className="font-serif font-bold text-xs text-gray-900 leading-snug line-clamp-1 mt-0.5">
-                      Annual Fractional Sales Summit 2026
-                    </h4>
-                    
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-2 mt-2.5">
-                      <div className="flex items-center gap-1.5 text-gray-600">
-                        <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-750 font-sans truncate">Oct 14, 2026</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-gray-600">
-                        <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-750 font-sans truncate">09:00 AM EST</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-gray-600 col-span-2">
-                        <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-750 font-sans truncate flex items-center flex-wrap gap-1">
-                          Grand Hyatt, NY
-                          <a 
-                            href="https://maps.google.com" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-headline font-bold text-[#701010] hover:underline inline-block"
-                          >
-                            (View Map)
-                          </a>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute top-3.5 right-3.5">
-                    <button 
-                      onClick={() => setIsInterested(!isInterested)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[9px] font-bold transition-all duration-200 shadow-sm ${
-                        isInterested 
-                          ? 'bg-[#701010] text-white border-[#701010]' 
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                      }`}
-                    >
-                      <Star className={`w-3 h-3 ${isInterested ? 'fill-white text-white' : 'text-gray-400'}`} />
-                      {isInterested ? 'Interested' : 'Interested?'}
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 pt-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-gray-500">
-                      <Users className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-600">
-                        Expected Footfall: <span className="text-[#701010] font-sans font-bold">500+</span>
-                      </span>
-                    </div>
-                    <button 
-                      onClick={() => setIsInterested(!isInterested)}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded text-[9px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm ${
-                        isInterested 
-                          ? "bg-amber-500 hover:bg-amber-600 text-white" 
-                          : "bg-[#701010] hover:bg-[#5a0c0c] text-white"
-                      }`}
-                    >
-                      <Star className={`w-3 h-3 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} /> 
-                      {isInterested ? "Interested ✓" : "Interested"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Engagement Stats */}
-              <div className="px-4 py-3 flex items-center justify-between text-gray-500 border-b border-gray-100 mx-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 bg-[#701010] rounded-full flex items-center justify-center"><ThumbsUp className="w-2.5 h-2.5 text-white fill-current" /></div>
-                  <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 hover:underline cursor-pointer">1.3K Likes</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 hover:underline cursor-pointer">12 comments</span>
-                  <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 hover:underline cursor-pointer">96 shares</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between px-2 py-2 mx-4 gap-2">
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all duration-300 rounded-lg">
-                  <ThumbsUp className="w-3.5 h-3.5" /> Like
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all duration-300 rounded-lg">
-                  <MessageCircle className="w-3.5 h-3.5" /> Comment
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all duration-300 rounded-lg">
-                  <Share2 className="w-3.5 h-3.5" /> Share
-                </button>
-              </div>
-            </div>
+            {!hasMore && posts.length > 0 && (
+              <p className="text-center text-[10px] font-headline font-bold uppercase tracking-widest text-gray-400 py-4">
+                You&apos;ve reached the end
+              </p>
+            )}
 
           </div>
         </div>
@@ -629,6 +589,17 @@ export default function HomePage() {
           background-color: #0d0e12;
         }
       `}} />
+
+      {/* SP Post Creation Drawer */}
+      <SPCreatePostDrawer 
+        isOpen={isCreatePostOpen} 
+        onClose={() => setIsCreatePostOpen(false)} 
+        onSuccess={() => {
+          setIsCreatePostOpen(false);
+          // In a real app we would fetch the feed again here
+          alert("Post created successfully!");
+        }} 
+      />
     </main>
   );
 }
