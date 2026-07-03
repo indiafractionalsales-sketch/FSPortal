@@ -397,6 +397,7 @@ export default function HomePage() {
                 </div>
               </div>
 
+
               {/* Engagement Stats */}
               <div className="px-4 py-3 flex items-center justify-between text-gray-500 border-b border-gray-100 mx-4">
                 <div className="flex items-center gap-1.5">
@@ -405,7 +406,6 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 hover:underline cursor-pointer">12 comments</span>
-                  <span className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 hover:underline cursor-pointer">96 shares</span>
                 </div>
               </div>
 
@@ -416,9 +416,6 @@ export default function HomePage() {
                 </button>
                 <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all duration-300 rounded-lg">
                   <MessageCircle className="w-3.5 h-3.5" /> Comment
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all duration-300 rounded-lg">
-                  <Share2 className="w-3.5 h-3.5" /> Share
                 </button>
               </div>
             </div>

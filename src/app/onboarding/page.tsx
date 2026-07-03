@@ -48,6 +48,7 @@ export default function OnboardingWizard() {
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [gdprConsent, setGdprConsent] = useState(false);
 
   // Data States
   const [oboData, setOboData] = useState({
@@ -116,21 +117,23 @@ export default function OnboardingWizard() {
         email: user.email || "",
         role: userType,
         createdAt: new Date().toISOString(),
+        gdprConsent: gdprConsent,
+        gdprConsentDate: new Date().toISOString(),
       }, idToken);
 
       // Save Profile Doc
       if (userType === "obo") {
-        const finalData = { ...oboData };
+        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString() };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("OBO_Profile", user.uid, finalData as any, idToken);
       } else if (userType === "sp") {
-        const finalData = { ...spData };
+        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString() };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("SP_Profile", user.uid, finalData as any, idToken);
       } else if (userType === "tpsp") {
-        const finalData = { ...tpspData };
+        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString() };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken);
@@ -328,6 +331,26 @@ export default function OnboardingWizard() {
                     )}
                   </label>
                 </div>
+                
+                {/* GDPR Consent */}
+                <div className="pt-6 mt-6 border-t border-gray-200">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        checked={gdprConsent} 
+                        onChange={(e) => setGdprConsent(e.target.checked)}
+                        className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-600 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer"
+                      />
+                      <svg className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" viewBox="0 0 14 10" fill="none">
+                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="text-sm text-gray-600 leading-relaxed">
+                      I consent to Fractional Sales Portal storing and processing my personal information, including my name, images, and product/service details, for the purpose of sales and marketing on the platform as per GDPR guidelines. <span className="text-red-500">*</span>
+                    </div>
+                  </label>
+                </div>
               </div>
             )}
 
@@ -345,8 +368,8 @@ export default function OnboardingWizard() {
 
             <button
               onClick={handleNext}
-              disabled={saving || (currentStep === 0 && !userType)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
+              disabled={saving || (currentStep === 0 && !userType) || (currentStep > 0 && currentStep === steps.length && !gdprConsent)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {saving ? "Saving..." : currentStep === steps.length ? "Finish & Go to Portal" : "Continue"}
               {!saving && currentStep !== steps.length && <ArrowRight className="w-4 h-4" />}
