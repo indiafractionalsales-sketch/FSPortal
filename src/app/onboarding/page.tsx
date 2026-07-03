@@ -97,6 +97,27 @@ export default function OnboardingWizard() {
     }
   };
 
+  const isStepValid = () => {
+    if (currentStep === 0) return !!userType;
+    
+    if (userType === "obo") {
+      if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber;
+      if (currentStep === 2) return !!oboData.phone && !!oboData.website;
+      if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent;
+    }
+    if (userType === "sp") {
+      if (currentStep === 1) return !!spData.fullName;
+      if (currentStep === 2) return !!spData.mobilePrimary;
+      if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent;
+    }
+    if (userType === "tpsp") {
+      if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson;
+      if (currentStep === 2) return !!tpspData.phone && !!tpspData.website;
+      if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent;
+    }
+    return true;
+  };
+
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
@@ -238,8 +259,8 @@ export default function OnboardingWizard() {
             )}
             {userType === "obo" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Phone Number" value={oboData.phone} onChange={(v: string) => setOboData(p => ({...p, phone: v}))} />
-                <Input label="Website" value={oboData.website} onChange={(v: string) => setOboData(p => ({...p, website: v}))} />
+                <Input label="Phone Number" required value={oboData.phone} onChange={(v: string) => setOboData(p => ({...p, phone: v}))} />
+                <Input label="Website" required value={oboData.website} onChange={(v: string) => setOboData(p => ({...p, website: v}))} />
                 <Input label="LinkedIn Profile" value={oboData.linkedinHandle} onChange={(v: string) => setOboData(p => ({...p, linkedinHandle: v}))} />
                 <Input label="Instagram Handle" value={oboData.instaHandle} onChange={(v: string) => setOboData(p => ({...p, instaHandle: v}))} />
                 <Input label="Facebook Page" value={oboData.fbHandle} onChange={(v: string) => setOboData(p => ({...p, fbHandle: v}))} />
@@ -299,9 +320,9 @@ export default function OnboardingWizard() {
             )}
             {userType === "tpsp" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Phone Number" value={tpspData.phone} onChange={(v: string) => setTpspData(p => ({...p, phone: v}))} />
+                <Input label="Phone Number" required value={tpspData.phone} onChange={(v: string) => setTpspData(p => ({...p, phone: v}))} />
                 <Input label="Email Address" type="email" value={tpspData.email} onChange={(v: string) => setTpspData(p => ({...p, email: v}))} />
-                <Input label="Website" value={tpspData.website} onChange={(v: string) => setTpspData(p => ({...p, website: v}))} />
+                <Input label="Website" required value={tpspData.website} onChange={(v: string) => setTpspData(p => ({...p, website: v}))} />
                 <Input label="Location / City" value={tpspData.location} onChange={(v: string) => setTpspData(p => ({...p, location: v}))} />
               </div>
             )}
@@ -310,7 +331,7 @@ export default function OnboardingWizard() {
             {currentStep > 0 && currentStep === steps.length && (
               <div className="space-y-6">
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">Profile Avatar / Logo</label>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">Profile Avatar / Logo <span className="text-red-500">*</span></label>
                   <label className="flex items-center justify-center w-32 h-32 rounded-full border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 overflow-hidden relative group">
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, userType === "sp" ? "profilePhoto" : "logo")} />
                     {(userType === "obo" ? oboData.logo : userType === "sp" ? spData.profilePhoto : tpspData.logo) ? (
@@ -321,7 +342,7 @@ export default function OnboardingWizard() {
                   </label>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">Cover Banner</label>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">Cover Banner <span className="text-red-500">*</span></label>
                   <label className="flex items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 overflow-hidden relative">
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, "banner")} />
                     {(userType === "obo" ? oboData.banner : userType === "sp" ? spData.banner : tpspData.banner) ? (
@@ -368,7 +389,7 @@ export default function OnboardingWizard() {
 
             <button
               onClick={handleNext}
-              disabled={saving || (currentStep === 0 && !userType) || (currentStep > 0 && currentStep === steps.length && !gdprConsent)}
+              disabled={saving || !isStepValid()}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {saving ? "Saving..." : currentStep === steps.length ? "Finish & Go to Portal" : "Continue"}

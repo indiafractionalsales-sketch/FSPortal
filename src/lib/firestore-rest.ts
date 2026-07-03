@@ -152,6 +152,7 @@ export async function queryCollection(
     orderDirection?: "ASCENDING" | "DESCENDING";
     limit?: number;
     startAfterDoc?: Record<string, unknown> | null;
+    where?: { field: string; op: "EQUAL"; value: any }[];
   } = {}
 ): Promise<{ docs: Record<string, unknown>[]; lastDoc: Record<string, unknown> | null }> {
   const {
@@ -159,6 +160,7 @@ export async function queryCollection(
     orderDirection = "DESCENDING",
     limit = 10,
     startAfterDoc = null,
+    where = [],
   } = options;
 
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/default/documents:runQuery`;
@@ -168,6 +170,21 @@ export async function queryCollection(
     orderBy: [{ field: { fieldPath: orderByField }, direction: orderDirection }],
     limit,
   };
+
+  if (where.length > 0) {
+    structuredQuery.where = {
+      compositeFilter: {
+        op: "AND",
+        filters: where.map(w => ({
+          fieldFilter: {
+            field: { fieldPath: w.field },
+            op: w.op,
+            value: toFsValue(w.value)
+          }
+        }))
+      }
+    };
+  }
 
   // Cursor pagination: startAfter the last document's value for the order field
   if (startAfterDoc && startAfterDoc[orderByField] !== undefined) {

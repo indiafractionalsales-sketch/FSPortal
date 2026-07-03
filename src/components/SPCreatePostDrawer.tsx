@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Image as ImageIcon, MapPin, Calendar, Clock, Globe, Video, Users, Check } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { saveDocument } from "@/lib/firestore-rest";
@@ -10,6 +10,7 @@ interface SPCreatePostDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editPostData?: Record<string, any> | null;
 }
 
 const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "text" }: any) => (
@@ -28,7 +29,7 @@ const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "
   </div>
 );
 
-export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCreatePostDrawerProps) {
+export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData }: SPCreatePostDrawerProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -50,6 +51,34 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCre
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (editPostData && isOpen) {
+      setFormData({
+        eventName: editPostData.eventName || "",
+        eventUrl: editPostData.eventUrl || "",
+        date: editPostData.date || "",
+        time: editPostData.time || "",
+        country: editPostData.country || "",
+        city: editPostData.city || "",
+        pincode: editPostData.pincode || "",
+        venue: editPostData.venue || "",
+        googleMapLink: editPostData.googleMapLink || "",
+        expectedFootfall: editPostData.expectedFootfall || "",
+        videoUrl: editPostData.videoUrl || "",
+        description: editPostData.description || "",
+      });
+      setImagePreview(editPostData.mediaUrl || null);
+    } else if (isOpen) {
+      // Reset when opening in create mode
+      setFormData({
+        eventName: "", eventUrl: "", date: "", time: "", country: "", city: "", 
+        pincode: "", venue: "", googleMapLink: "", expectedFootfall: "", videoUrl: "", description: ""
+      });
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  }, [editPostData, isOpen]);
+
   if (!isOpen) return null;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,8 +98,13 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCre
       return;
     }
 
-    if (!formData.eventName || !formData.date || !formData.description) {
-      setError("Event Name, Date, and Description are required.");
+    const missingFields: string[] = [];
+    if (!formData.eventName) missingFields.push("Event Name");
+    if (!formData.date) missingFields.push("Date");
+    if (!formData.description) missingFields.push("Description");
+
+    if (missingFields.length > 0) {
+      setError(`Please fill in all mandatory fields. Missing: ${missingFields.join(", ")}`);
       return;
     }
 
@@ -81,23 +115,28 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCre
       const idToken = await user.getIdToken();
       let uploadedImageUrl = "";
       
-      // Upload image if provided
+      // Upload image if provided and it's a new file (data url)
       if (imagePreview && imagePreview.startsWith("data:")) {
         const timestamp = Date.now();
         uploadedImageUrl = await uploadImage(imagePreview, `sp_posts/${user.uid}_${timestamp}.jpg`, idToken);
+      } else if (imagePreview) {
+        // Keep existing URL if we didn't change the image
+        uploadedImageUrl = imagePreview;
       }
 
       // Prepare payload
       const postPayload = {
         ...formData,
+        postType: "sp",
         ownerUid: user.uid,
+        authorName: user.displayName || user.email || "User",
+        authorAvatar: user.photoURL || "",
         mediaUrl: uploadedImageUrl,
-        createdAt: new Date().toISOString(),
+        createdAt: editPostData?.createdAt || new Date().toISOString(),
       };
 
-      // We use a generated ID for the post
-      const postId = `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      await saveDocument("SP_Posts", postId, postPayload as any, idToken);
+      const postId = editPostData?.__id || `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await saveDocument("Posts", postId, postPayload as any, idToken);
 
       // Reset and close
       setFormData({
@@ -130,8 +169,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCre
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100/50 bg-white/50">
           <div>
-            <h2 className="text-xl font-serif font-bold text-gray-900">Create Partner Post</h2>
-            <p className="text-xs text-gray-500 font-headline uppercase tracking-wider mt-0.5">Sales Partner Event Details</p>
+            <h2 className="text-xl font-serif font-bold text-gray-900">{editPostData ? "Edit Post" : "Create Event Post"}</h2>
+            <p className="text-xs text-gray-500 font-headline uppercase tracking-wider mt-0.5">Share with Sales Partners</p>
           </div>
           <button 
             onClick={onClose} 
@@ -241,25 +280,25 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess }: SPCre
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-100/50 bg-white/80 backdrop-blur flex items-center justify-end gap-3">
+        <div className="p-4 border-t border-gray-100/50 bg-white/50 flex justify-end gap-3">
           <button 
             onClick={onClose}
             disabled={saving}
-            className="px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-headline uppercase tracking-wider disabled:opacity-50"
           >
             Cancel
           </button>
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
+            className="px-6 py-2.5 text-sm font-bold text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-lg transition-colors shadow-sm font-headline uppercase tracking-wider flex items-center gap-2 disabled:opacity-50"
           >
             {saving ? (
               <span className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...
               </span>
             ) : (
-              <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Post Update</span>
+              <span className="flex items-center gap-2">{editPostData ? "Save Changes" : "Create Post"}</span>
             )}
           </button>
         </div>
