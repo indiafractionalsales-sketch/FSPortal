@@ -55,33 +55,17 @@ export default function SPPostCard({ post, authorName, authorAvatar }: SPPostCar
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsInterested(!isInterested)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-headline font-bold uppercase tracking-widest transition-all duration-200 ${
-              isInterested
-                ? "bg-amber-500 border-amber-500 text-white"
-                : "bg-[#701010] border-[#701010] text-white hover:bg-[#5a0c0c]"
-            }`}
-          >
-            <Star className={`w-2.5 h-2.5 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} />
-            {isInterested ? "Interested ✓" : "Interested?"}
-          </button>
-          {post.eventUrl ? (
-            <a
-              href={post.eventUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors"
-            >
-              Event ↗
-            </a>
-          ) : (
-            <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
-              Event
-            </span>
-          )}
-        </div>
+        <button
+          onClick={() => setIsInterested(!isInterested)}
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-headline font-bold uppercase tracking-widest transition-all duration-200 ${
+            isInterested
+              ? "bg-amber-500 border-amber-500 text-white"
+              : "bg-[#701010] border-[#701010] text-white hover:bg-[#5a0c0c]"
+          }`}
+        >
+          <Star className={`w-2.5 h-2.5 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} />
+          {isInterested ? "Interested ✓" : "Interested?"}
+        </button>
       </div>
 
       {/* Description — shown prominently above media */}
@@ -115,17 +99,27 @@ export default function SPPostCard({ post, authorName, authorAvatar }: SPPostCar
                     <span className="text-[10px] text-gray-700 font-sans truncate">{post.time}</span>
                   </div>
                 )}
-                {(post.city || post.country) && (
-                  <div className="flex items-center gap-1.5 col-span-2">
-                    <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                    <span className="text-[10px] text-gray-700 font-sans truncate">
-                      {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
-                      {post.googleMapLink && (
-                        <a href={post.googleMapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#701010] font-bold hover:underline">(Map)</a>
-                      )}
+                {/* Location col1, Event capsule col2 — same grid row */}
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                  <span className="text-[10px] text-gray-700 font-sans truncate">
+                    {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+                    {post.googleMapLink && (
+                      <a href={post.googleMapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#701010] font-bold hover:underline">(Map)</a>
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {post.eventUrl ? (
+                    <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+                      Event ↗
+                    </a>
+                  ) : (
+                    <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+                      Event
                     </span>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-between mt-1">
@@ -157,14 +151,24 @@ export default function SPPostCard({ post, authorName, authorAvatar }: SPPostCar
                 <span className="text-[10px] text-gray-700 font-sans">{post.time}</span>
               </div>
             )}
-            {(post.city || post.country) && (
-              <div className="flex items-center gap-1.5 col-span-2">
-                <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                <span className="text-[10px] text-gray-700 font-sans">
-                  {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+            {/* Location col1, Event capsule col2 — same grid row */}
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+              <span className="text-[10px] text-gray-700 font-sans truncate">
+                {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+              </span>
+            </div>
+            <div className="flex items-center">
+              {post.eventUrl ? (
+                <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+                  Event ↗
+                </a>
+              ) : (
+                <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+                  Event
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
