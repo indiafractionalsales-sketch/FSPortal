@@ -508,6 +508,16 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+              {!isEditing && (
+                <div className="flex-shrink-0 mb-2 sm:mb-0">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 text-[10px] font-headline font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    <Pencil className="w-3.5 h-3.5" /> Edit Profile
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1246,6 +1256,14 @@ export default function ProfilePage() {
                     className="rounded-full px-5 py-2 font-headline text-[10px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-55 transition-colors cursor-pointer"
                   >
                     ← Back
+                  </button>
+                ) : isRoleLocked ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-full px-5 py-2 font-headline text-[10px] uppercase tracking-wider font-bold border border-gray-200 hover:bg-gray-55 transition-colors text-gray-700 inline-flex items-center cursor-pointer"
+                  >
+                    Cancel
                   </button>
                 ) : (
                   <Link
