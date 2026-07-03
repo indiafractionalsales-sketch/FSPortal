@@ -138,3 +138,72 @@ export async function getDocument(
   if (!doc.fields) return null;
   return fromFsDoc(doc);
 }
+
+/**
+ * Query a Firestore collection via REST API with ordering and cursor-based pagination.
+ * Equivalent to SDK's query() + startAfter() + limit().
+ * Returns an array of plain JS objects plus the raw last document for use as next cursor.
+ */
+export async function queryCollection(
+  collection: string,
+  idToken: string,
+  options: {
+    orderByField?: string;
+    orderDirection?: "ASCENDING" | "DESCENDING";
+    limit?: number;
+    startAfterDoc?: Record<string, unknown> | null;
+  } = {}
+): Promise<{ docs: Record<string, unknown>[]; lastDoc: Record<string, unknown> | null }> {
+  const {
+    orderByField = "createdAt",
+    orderDirection = "DESCENDING",
+    limit = 10,
+    startAfterDoc = null,
+  } = options;
+
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/default/documents:runQuery`;
+
+  const structuredQuery: Record<string, unknown> = {
+    from: [{ collectionId: collection }],
+    orderBy: [{ field: { fieldPath: orderByField }, direction: orderDirection }],
+    limit,
+  };
+
+  // Cursor pagination: startAfter the last document's value for the order field
+  if (startAfterDoc && startAfterDoc[orderByField] !== undefined) {
+    structuredQuery.startAt = {
+      values: [toFsValue(startAfterDoc[orderByField])],
+      before: false, // startAfter semantics
+    };
+  }
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ structuredQuery }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `Firestore query failed (${res.status})`);
+  }
+
+  const results = await res.json();
+
+  const docs: Record<string, unknown>[] = [];
+  for (const result of results) {
+    if (result.document?.fields) {
+      const data = fromFsDoc(result.document);
+      // Attach the document name/path as __id for reference
+      const nameParts = (result.document.name as string).split("/");
+      data.__id = nameParts[nameParts.length - 1];
+      docs.push(data);
+    }
+  }
+
+  const lastDoc = docs.length > 0 ? docs[docs.length - 1] : null;
+  return { docs, lastDoc };
+}
