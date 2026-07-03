@@ -13,6 +13,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getDocument } from "@/lib/firestore-rest";
+import Navbar from "@/components/Navbar";
 
 export default function HomePage() {
   const router = useRouter();
@@ -138,6 +139,8 @@ export default function HomePage() {
                   logo: (tpspData.logo as string) || "",
                   banner: (tpspData.banner as string) || ""
                 });
+              } else {
+                router.replace("/onboarding");
               }
             }
           }
@@ -168,90 +171,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf8f5] text-[#0d0e12] font-body antialiased overflow-hidden h-screen flex flex-col text-sm">
       {/* Top Navbar */}
-      <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
-        {/* Left: Logo */}
-        <div className="flex flex-col items-start gap-0 w-1/4">
-          <Link href="/home" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-            Fractional Sales
-            <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1">
-              Portal
-            </span>
-          </Link>
-          <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Where Every Post is a Business</span>
-        </div>
-
-        {/* Center: Nav icons */}
-        <div className="hidden md:flex items-center justify-center gap-1 w-2/4 h-full">
-          <button className="px-8 h-full border-b-2 border-[#701010] text-[#701010] hover:bg-gray-55 transition-colors">
-            <Home className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Right: Profile & Actions */}
-        <div className="flex items-center justify-end gap-3 w-1/4">
-          <button className="w-9 h-9 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors relative">
-            <Bell className="w-4 h-4 text-gray-700" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>
-          </button>
-
-          <div className="relative ml-1">
-            <button
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden hover:border-gray-400 transition-colors"
-            >
-              {spData.profilePhoto ? (
-                <img src={spData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-              ) : oboData.logo || tpspData.logo ? (
-                <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-full h-full object-cover" />
-              ) : user?.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm font-headline">
-                  {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                </div>
-              )}
-            </button>
-
-            {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg py-2 z-50 shadow-lg">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
-                  {spData.profilePhoto ? (
-                    <img src={spData.profilePhoto} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : oboData.logo || tpspData.logo ? (
-                    <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : user?.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex flex-shrink-0 items-center justify-center text-gray-700 font-bold text-base font-headline">
-                      {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                    </div>
-                  )}
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-serif font-bold text-gray-900 truncate">{spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || "Partner User"}</p>
-                    <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider truncate">{user?.email || ""}</p>
-                  </div>
-                </div>
-                <div className="p-1">
-                  <button
-                    onClick={() => { router.push("/profile"); setShowProfileMenu(false); }}
-                    className="w-full text-left px-3 py-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors rounded-md"
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                    My Profile
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-700 hover:bg-red-55 hover:text-red-700 flex items-center gap-3 transition-colors rounded-md"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    Log Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} profileData={{ spData, oboData, tpspData }} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
@@ -409,8 +329,8 @@ export default function HomePage() {
                 </div>
 
                 {/* Right: 2/3rd Event Details Area */}
-                <div className="w-2/3 h-full bg-[#faf8f5]/40 border-l border-gray-100 p-3.5 flex flex-col justify-between">
-                  <div>
+                <div className="w-2/3 h-full bg-[#faf8f5]/40 border-l border-gray-100 p-3.5 flex flex-col justify-between relative">
+                  <div className="pr-24">
                     <h4 className="font-serif font-bold text-xs text-gray-900 leading-snug line-clamp-1 mt-0.5">
                       Annual Fractional Sales Summit 2026
                     </h4>
@@ -426,19 +346,33 @@ export default function HomePage() {
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-600 col-span-2">
                         <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-750 font-sans truncate">
+                        <span className="text-[10px] text-gray-750 font-sans truncate flex items-center flex-wrap gap-1">
                           Grand Hyatt, NY
+                          <a 
+                            href="https://maps.google.com" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[10px] font-headline font-bold text-[#701010] hover:underline inline-block"
+                          >
+                            (View Map)
+                          </a>
                         </span>
-                        <a 
-                          href="https://maps.google.com" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-[9px] font-headline font-bold text-[#701010] hover:underline flex items-center gap-0.5 ml-1.5"
-                        >
-                          (View Map)
-                        </a>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="absolute top-3.5 right-3.5">
+                    <button 
+                      onClick={() => setIsInterested(!isInterested)}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[9px] font-bold transition-all duration-200 shadow-sm ${
+                        isInterested 
+                          ? 'bg-[#701010] text-white border-[#701010]' 
+                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      <Star className={`w-3 h-3 ${isInterested ? 'fill-white text-white' : 'text-gray-400'}`} />
+                      {isInterested ? 'Interested' : 'Interested?'}
+                    </button>
                   </div>
 
                   <div className="border-t border-gray-100 pt-2 flex items-center justify-between">

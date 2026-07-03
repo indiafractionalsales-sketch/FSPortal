@@ -11,6 +11,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { saveDocument, getDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
+import Navbar from "@/components/Navbar";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState("");
   const [activeSectionIndex, setActiveSectionIndex] = useState<number>(0);
   const [isRoleLocked, setIsRoleLocked] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Force view-only in profile page
   const [profileFetched, setProfileFetched] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -226,11 +227,11 @@ export default function ProfilePage() {
           return;
         }
 
-        // No profile found — new user, go straight to edit mode
-        setIsEditing(true);
+        // No profile found — new user, redirect to onboarding
+        router.replace("/onboarding");
       } catch (err) {
         console.error("Error loading profiles:", err);
-        setIsEditing(true);
+        router.replace("/onboarding");
       } finally {
         setProfileFetched(true);
       }
@@ -377,91 +378,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-[#0d0e12] font-body antialiased flex flex-col pb-16">
-      {/* Top Header */}
-      <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100 sticky top-0">
-        {/* Left: Logo */}
-        <div className="flex flex-col items-start gap-0 w-1/4">
-          <Link href="/home" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-            Fractional Sales
-            <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1">
-              Portal
-            </span>
-          </Link>
-          <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Where Every Post is a Business</span>
-        </div>
-
-        {/* Center: Nav icons */}
-        <div className="hidden md:flex items-center justify-center gap-1 w-2/4 h-full">
-          <button className="px-8 h-full border-b-2 border-transparent text-gray-400 hover:text-gray-900 hover:bg-gray-55 transition-colors" onClick={() => router.push("/home")}>
-            <Home className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Right: Profile & Actions */}
-        <div className="flex items-center justify-end gap-3 w-1/4">
-          <button className="w-9 h-9 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors relative">
-            <Bell className="w-4 h-4 text-gray-700" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>
-          </button>
-
-          <div className="relative ml-1">
-            <button
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden hover:border-gray-400 transition-colors"
-            >
-              {spData.profilePhoto ? (
-                <img src={spData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-              ) : oboData.logo || tpspData.logo ? (
-                <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-full h-full object-cover" />
-              ) : user?.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-sm font-headline">
-                  {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                </div>
-              )}
-            </button>
-
-            {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg py-2 z-50 shadow-lg">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
-                  {spData.profilePhoto ? (
-                    <img src={spData.profilePhoto} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : oboData.logo || tpspData.logo ? (
-                    <img src={oboData.logo || tpspData.logo} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : user?.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex flex-shrink-0 items-center justify-center text-gray-700 font-bold text-base font-headline">
-                      {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                    </div>
-                  )}
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-serif font-bold text-gray-900 truncate">{spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || "Partner User"}</p>
-                    <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider truncate">{user?.email || ""}</p>
-                  </div>
-                </div>
-                <div className="p-1">
-                  <button
-                    onClick={() => { router.push("/profile"); setShowProfileMenu(false); }}
-                    className="w-full text-left px-3 py-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors rounded-md"
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                    My Profile
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-700 hover:bg-red-55 hover:text-red-700 flex items-center gap-3 transition-colors rounded-md"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    Log Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} profileData={{ spData, oboData, tpspData }} />
 
       {/* Main Content Area */}
       <main className="max-w-5xl mx-auto px-6 py-10 flex-1 w-full flex gap-8">
@@ -499,16 +416,7 @@ export default function ProfilePage() {
                   </label>
                 </div>
               )}
-              {/* Edit Profile button — view mode only */}
-              {!isEditing && isRoleLocked && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg shadow-sm border border-gray-200/50 cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-600" />
-                  Edit Profile
-                </button>
-              )}
+              
             </div>
 
             {/* Avatar & Info Row */}
@@ -1824,8 +1732,8 @@ export default function ProfilePage() {
                                         contentEditable
                                         suppressContentEditableWarning
                                         onInput={e => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, specification: (e.target as HTMLDivElement).innerHTML } : p))}
-                                        placeholder="Enter Specifications / Details..."
-                                        className="flex-1 overflow-y-auto px-3 py-2.5 text-sm text-gray-800 outline-none empty:before:content-[attr(placeholder)] empty:before:text-gray-400 empty:before:italic empty:before:pointer-events-none"
+                                        data-placeholder="Enter Specifications / Details..."
+                                        className="flex-1 overflow-y-auto px-3 py-2.5 text-sm text-gray-800 outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400 empty:before:italic empty:before:pointer-events-none"
                                         style={{ lineHeight: "1.65" }}
                                       />
                                     </div>
