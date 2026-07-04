@@ -8,7 +8,7 @@ export default function TermsPage() {
           
           <section>
             <h2 className="font-bold text-lg mb-2 text-gray-900 uppercase tracking-wider">1. Scope of Agreement</h2>
-            <p>This Agreement is made for using the Fractional Sales Partner platform (the "Website") managed by Biztribe Trading & Consultancy India Private limited. The Website acts as a marketplace to connect Overseas Business Owners ("OBOs") with Sales Partners ("SPs") and Third Party Service Providers ("TPSPs"). This Agreement governs your registration and use of the Services.</p>
+            <p>This Agreement is made for using the Fractional Sales Partner platform (the "Website") managed by Biztribe Trading & Consultancy India Private limited. The Website acts as a marketplace to connect Business Owners ("BOs") with Sales Partners ("SPs") and Third Party Service Providers ("TPSPs"). This Agreement governs your registration and use of the Services.</p>
           </section>
 
           <section>
@@ -16,7 +16,7 @@ export default function TermsPage() {
             <ul className="list-disc pl-5 space-y-2">
               <li>To use the Services, users must open an account on the Website. Users must complete all details in the registration/onboarding form accurately.</li>
               <li>An Account can only be created by a person aged 18 years or above representing a valid legal entity or operating as an independent consultant.</li>
-              <li>Any person creating the Account on behalf of an OBO or TPSP binds that entity to these terms and conditions.</li>
+              <li>Any person creating the Account on behalf of a BO or TPSP binds that entity to these terms and conditions.</li>
               <li>All information provided shall be current, complete, and accurate. The user must keep it updated at all times.</li>
               <li>Users shall not use the Website for unlawful, prohibited, defamatory, obscene, or fraudulent activities.</li>
               <li>We reserve the right to refuse or cancel Registration without giving any reason.</li>
@@ -26,9 +26,9 @@ export default function TermsPage() {
           <section>
             <h2 className="font-bold text-lg mb-2 text-gray-900 uppercase tracking-wider">3. Services and Arrangements</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>Once an Account is created, OBOs can view and engage with Sales Partners or Service Providers listed on the Website.</li>
+              <li>Once an Account is created, BOs can view and engage with Sales Partners or Service Providers listed on the Website.</li>
               <li>Users shall make their own independent enquiries and background checks before entering into any professional engagement.</li>
-              <li>Any financial or professional arrangement, including commission structures or retainer fees, is a separate contract solely between the OBO and the SP/TPSP. Biztribe Trading & Consultancy India Pvt Ltd is not a party to these independent arrangements.</li>
+              <li>Any financial or professional arrangement, including commission structures or retainer fees, is a separate contract solely between the BO and the SP/TPSP. Biztribe Trading & Consultancy India Pvt Ltd is not a party to these independent arrangements.</li>
               <li>We do not guarantee the performance, sales targets, or quality of the Sales Partners and shall not be responsible for underperformance or breach of agreement between the parties.</li>
             </ul>
           </section>
@@ -37,7 +37,7 @@ export default function TermsPage() {
             <h2 className="font-bold text-lg mb-2 text-gray-900 uppercase tracking-wider">4. Covenants of Users</h2>
             <ul className="list-disc pl-5 space-y-2">
               <li>Users acknowledge that we only provide the Website as a discovery and matching platform. We shall not be held responsible for low sales volumes or business losses.</li>
-              <li>Any communication, legal commitments, or agreements between OBOs and SPs are their internal matters.</li>
+              <li>Any communication, legal commitments, or agreements between BOs and SPs are their internal matters.</li>
               <li>Users shall keep all necessary permissions, licenses, and certifications updated as required for their specific business operations.</li>
               <li>Users shall use their own copyrighted material. We shall not be held responsible for claims arising from unauthorized use of third-party intellectual property uploaded on the Website.</li>
               <li>Users shall indemnify and keep indemnified Biztribe Trading & Consultancy India Pvt Ltd against all losses, liabilities, costs, and risks arising from their covenants.</li>
@@ -49,7 +49,7 @@ export default function TermsPage() {
             <ul className="list-disc pl-5 space-y-2">
               <li>Any platform fees, subscription charges, or matching fees payable to the Website will be collected via our secure payment gateway.</li>
               <li>Taxes (such as GST), if applicable, will be borne by the user as per Indian tax regulations.</li>
-              <li>Settlement of accounts or refunds for platform services will be governed strictly by our Refund Policy. We do not intermediate commission payouts between OBOs and SPs unless explicitly contracted otherwise.</li>
+              <li>Settlement of accounts or refunds for platform services will be governed strictly by our Refund Policy. We do not intermediate commission payouts between BOs and SPs unless explicitly contracted otherwise.</li>
             </ul>
           </section>
 
