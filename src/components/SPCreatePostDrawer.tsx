@@ -232,8 +232,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
               <InputHelper icon={Video} label="Video URL" value={formData.videoUrl} onChange={(v: string) => setFormData({...formData, videoUrl: v})} placeholder="https://..." />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="flex flex-col gap-1 md:col-span-2">
                 <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">What I can do for you? *</label>
                 <textarea 
                   value={formData.description}
