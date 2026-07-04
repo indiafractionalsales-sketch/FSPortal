@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil } from "lucide-react";
+import { MapPin, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 interface SPPost {
@@ -120,7 +120,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
                   onClick={() => setViewingPackage(pkg)}
                   className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="text-gray-500 font-sans opacity-75">P{idx + 1}</span>
+                  <Tag className="w-3 h-3 text-[#701010] opacity-75 mr-0.5" />
                   {calculateTotalCost(pkg.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
                 </button>
               ))}
