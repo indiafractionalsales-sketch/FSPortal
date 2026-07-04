@@ -8,7 +8,7 @@ export function Footer() {
     <footer className="bg-[#1a1a1a] text-white py-12 md:py-16">
       <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-12 border-b border-white/10 pb-12 mb-8">
-          
+
           {/* Logo & Tagline */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <Link href="/">
@@ -41,7 +41,7 @@ export function Footer() {
             <p>© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
             <p className="text-white/40">"Fractional Sales Partner" is a brand of Biztribe Trading & Consultancy India Private Limited.</p>
             <p className="mt-1">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
-            <p>Email: hrishikesh.pangarkar@gmail.com | CIN: U62020PN2026PTC251766</p>
+            <p>Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
             <Link href="/legal/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>

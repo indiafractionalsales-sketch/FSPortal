@@ -172,7 +172,7 @@ export default function PrivacyPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4">To exercise any of the above rights, please contact our Data Protection Officer at <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a>. We shall respond to all verifiable requests within <strong>30 days</strong>.</p>
+            <p className="mt-4">To exercise any of the above rights, please contact our Data Protection Officer at <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a>. We shall respond to all verifiable requests within <strong>30 days</strong>.</p>
           </section>
 
           {/* 9. Security */}
@@ -210,7 +210,7 @@ export default function PrivacyPage() {
               <p><strong>Designation:</strong> Grievance Officer / Data Protection Officer</p>
               <p><strong>Company:</strong> Biztribe Trading & Consultancy India Private Limited</p>
               <p><strong>Address:</strong> B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
-              <p><strong>Email:</strong> <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a></p>
               <p><strong>Response Time:</strong> We shall acknowledge your grievance within 48 hours and endeavour to resolve it within 30 days of receipt.</p>
             </div>
           </section>
