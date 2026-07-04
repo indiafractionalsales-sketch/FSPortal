@@ -80,7 +80,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-bold text-lg mb-2 text-gray-900 uppercase tracking-wider">11. Dispute Resolution & Governing Law</h2>
-            <p>Any disputes shall be raised within 15 days of arising via email. Both parties will attempt to resolve the dispute via negotiation. This Agreement is governed by the laws of India, and the courts of Pune, Maharashtra shall have exclusive jurisdiction.</p>
+            <p>Any disputes shall be raised within 45 days of arising via email. Both parties will attempt to resolve the dispute via negotiation. This Agreement is governed by the laws of India, and the courts of Pune, Maharashtra shall have exclusive jurisdiction.</p>
             <div className="mt-4 p-4 bg-gray-50 rounded border border-gray-200">
               <p><strong>Company:</strong> Biztribe Trading & Consultancy India Private limited</p>
               <p><strong>Address:</strong> B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune 411045, India</p>
