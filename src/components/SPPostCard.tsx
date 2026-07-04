@@ -88,7 +88,8 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const handleCheckout = async (packageId: string) => {
     try {
       setIsCheckingOut(true);
-      const cashfree = await load({ mode: "sandbox" });
+      const isProd = process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === 'PRODUCTION';
+      const cashfree = await load({ mode: isProd ? "production" : "sandbox" });
       const token = await auth.currentUser?.getIdToken();
       
       const res = await fetch('/api/checkout', {

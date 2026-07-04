@@ -57,8 +57,8 @@ export async function POST(req: Request) {
         // Calculate cost based on line items or a direct price field
         if (pkg.price) {
           packagePrice = Number(pkg.price);
-        } else if (pkg.lineItems) {
-          packagePrice = pkg.lineItems.reduce((acc: number, item: any) => acc + (Number(item.cost) || 0), 0);
+        } else if (pkg.items) {
+          packagePrice = pkg.items.reduce((acc: number, item: any) => acc + (Number(item.cost) || 0), 0);
         } else {
           packagePrice = 100; // Fallback
         }
@@ -98,6 +98,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: txErr.message }, { status: 409 });
     }
 
+    let returnUrl = `${req.headers.get('origin') || 'http://localhost:9002'}/payment-status?order_id={order_id}`;
+    if (process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' && returnUrl.startsWith('http://')) {
+      returnUrl = returnUrl.replace('http://', 'https://');
+    }
+
     // 3. Create Cashfree Order
     const request = {
       order_amount: packagePrice,
@@ -110,12 +115,11 @@ export async function POST(req: Request) {
         customer_name: "Customer"
       },
       order_meta: {
-        // You can set this to return to the app if Cashfree redirects
-        return_url: `${req.headers.get('origin')}/payment-status?order_id={order_id}`
+        return_url: returnUrl
       }
     };
 
-    const response = await cashfree.PGCreateOrder(request);
+    const response = await cashfree.PGCreateOrder(request as any);
     
     // Return the session ID to the client so they can open the checkout modal
     return NextResponse.json({
@@ -124,7 +128,7 @@ export async function POST(req: Request) {
     });
 
   } catch (err: any) {
-    console.error("Checkout error:", err);
+    console.error("Checkout error:", err.response?.data || err.message || err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
