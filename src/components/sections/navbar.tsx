@@ -43,7 +43,7 @@ export function Navbar() {
                 Portal
               </span>
             </Link>
-            <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Where Every Post is a Business</span>
+            <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Every Post is a Business</span>
           </div>
 
           {/* Right: Profile */}
@@ -79,7 +79,7 @@ export function Navbar() {
                   Portal
                 </span>
               </Link>
-              <span className="text-[9px] font-sans text-white/60 italic mt-[1px] leading-none">Where Every Post is a Business</span>
+              <span className="text-[9px] font-sans text-white/60 italic mt-[1px] leading-none">Every Post is a Business</span>
             </div>
 
             {/* Right: Profile */}
