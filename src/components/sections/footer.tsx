@@ -38,9 +38,10 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] md:text-xs font-sans text-white/50 tracking-widest uppercase">
           <div className="flex flex-col gap-1 text-center md:text-left text-[9px] normal-case opacity-70">
-            <p>© {new Date().getFullYear()} Fractional Sales Partner. All rights reserved.</p>
-            <p>123 Business Avenue, Tech Park Phase 2, Hinjewadi, Pune, MH 411057, India</p>
-            <p>Email: support@fractionalsales.com | Phone: +91 98765 43210</p>
+            <p>© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
+            <p className="text-white/40">"Fractional Sales Partner" is a brand of Biztribe Trading & Consultancy India Private Limited.</p>
+            <p className="mt-1">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
+            <p>Email: hrishikesh.pangarkar@gmail.com | CIN: [Your CIN Here]</p>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
             <Link href="/legal/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
