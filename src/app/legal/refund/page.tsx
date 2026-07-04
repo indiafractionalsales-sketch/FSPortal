@@ -59,7 +59,7 @@ export default function RefundPage() {
           <section>
             <h2 className="font-bold text-lg mb-3 text-gray-900 uppercase tracking-wider border-b border-gray-200 pb-2">2. Subscription Cancellation</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>Users may cancel their subscription at any time by navigating to their Account Settings on the Platform or by submitting a written cancellation request to <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a>.</li>
+              <li>Users may cancel their subscription at any time by navigating to their Account Settings on the Platform or by submitting a written cancellation request to <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a>.</li>
               <li>Upon cancellation, the subscription will remain active until the <strong>end of the current billing cycle</strong> (monthly or annual, as applicable). The User will continue to have access to the subscribed features through the end of the paid period.</li>
               <li>Cancellation takes effect at the end of the current billing cycle. <strong>No partial refunds will be issued for the unused portion of a billing cycle</strong>, except as expressly provided under Section 3 of this Policy.</li>
               <li>For annual subscriptions, cancellation requests submitted within <strong>7 days of the renewal date</strong> will be processed without charge for the renewed cycle, subject to the User not having used the Platform's premium features during those 7 days.</li>
@@ -112,7 +112,7 @@ export default function RefundPage() {
                 <div className="flex-shrink-0 w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
                 <div>
                   <p className="font-semibold text-gray-800">Submit a Written Request</p>
-                  <p className="mt-1">Email your refund request to <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a> with the subject line: <em>"Refund Request – [Your Registered Email] – [Transaction ID]"</em>. Your request must include: your full name, registered email address, transaction ID, date of payment, amount paid, reason for the refund request, and any supporting documentation.</p>
+                  <p className="mt-1">Email your refund request to <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a> with the subject line: <em>"Refund Request – [Your Registered Email] – [Transaction ID]"</em>. Your request must include: your full name, registered email address, transaction ID, date of payment, amount paid, reason for the refund request, and any supporting documentation.</p>
                 </div>
               </div>
               <div className="flex gap-4 items-start">
@@ -184,7 +184,7 @@ export default function RefundPage() {
               <p><strong>Grievance Officer:</strong> Hrishikesh Pangarkar</p>
               <p><strong>Company:</strong> Biztribe Trading & Consultancy India Private Limited</p>
               <p><strong>Address:</strong> B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
-              <p><strong>Email:</strong> <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a></p>
               <p><strong>Acknowledgement:</strong> Within 48 hours of receipt</p>
               <p><strong>Resolution Target:</strong> Within 30 business days of receipt</p>
             </div>

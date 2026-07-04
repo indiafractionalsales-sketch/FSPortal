@@ -67,7 +67,7 @@ export default function TermsPage() {
               <li>Any person registering on behalf of a company, LLP, firm, or other legal entity represents and warrants that they have full authority to bind that entity to these Terms.</li>
               <li>Users must maintain accurate, current, and complete information in their Profile at all times. The Company reserves the right to suspend or terminate accounts found to contain false, misleading, or incomplete information.</li>
               <li>Each User is solely responsible for maintaining the confidentiality and security of their account credentials. Any activity that occurs under a User's account is deemed to be the act of that User.</li>
-              <li>Users must immediately notify the Company of any suspected unauthorised access to or breach of their account at <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a>.</li>
+              <li>Users must immediately notify the Company of any suspected unauthorised access to or breach of their account at <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a>.</li>
               <li>The Company reserves the right to refuse, suspend, or permanently revoke registration of any User, without assigning any reason, if the Company determines that the User's presence poses a risk to the Platform, other Users, or the Company's reputation.</li>
             </ul>
           </section>
@@ -219,7 +219,7 @@ export default function TermsPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">B. Termination by the User</h3>
-                <p>A User may terminate their account at any time by submitting a written request to <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a>. Termination shall take effect within 10 business days of receipt of the request. Termination does not relieve the User of any outstanding obligations, including payment obligations or indemnification duties arising from events prior to termination.</p>
+                <p>A User may terminate their account at any time by submitting a written request to <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a>. Termination shall take effect within 10 business days of receipt of the request. Termination does not relieve the User of any outstanding obligations, including payment obligations or indemnification duties arising from events prior to termination.</p>
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">C. Survival of Obligations</h3>
@@ -274,7 +274,7 @@ export default function TermsPage() {
               <p><strong>Brand:</strong> Fractional Sales Partner</p>
               <p><strong>Registered Address:</strong> B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
               <p><strong>Grievance Contact:</strong> Hrishikesh Pangarkar</p>
-              <p><strong>Email:</strong> <a href="mailto:hrishikesh.pangarkar@gmail.com" className="text-indigo-600 hover:underline">hrishikesh.pangarkar@gmail.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:sales@fractionalsalespartner.com" className="text-indigo-600 hover:underline">sales@fractionalsalespartner.com</a></p>
               <p><strong>Response Time:</strong> We shall acknowledge all written queries within 48 hours and aim to resolve grievances within 30 business days.</p>
             </div>
           </section>
