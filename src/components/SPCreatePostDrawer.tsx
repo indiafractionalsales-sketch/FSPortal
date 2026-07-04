@@ -204,8 +204,14 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
               <Calendar className="w-4 h-4" /> Event Basics & Pitch
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <InputHelper label="Event Name *" value={formData.eventName} onChange={(v: string) => setFormData({...formData, eventName: v})} placeholder="e.g. Tech Summit" />
               <InputHelper type="date" label="Date *" value={formData.date} onChange={(v: string) => setFormData({...formData, date: v})} />
               <InputHelper type="time" icon={Clock} label="Time" value={formData.time} onChange={(v: string) => setFormData({...formData, time: v})} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <InputHelper icon={Globe} label="Event URL" value={formData.eventUrl} onChange={(v: string) => setFormData({...formData, eventUrl: v})} placeholder="https://..." />
+              <InputHelper icon={Video} label="Video URL" value={formData.videoUrl} onChange={(v: string) => setFormData({...formData, videoUrl: v})} placeholder="https://..." />
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">Footfall</label>
                 <div className="relative">
@@ -227,22 +233,6 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <InputHelper label="Event Name *" value={formData.eventName} onChange={(v: string) => setFormData({...formData, eventName: v})} placeholder="e.g. Tech Summit" />
-              <InputHelper icon={Globe} label="Event URL" value={formData.eventUrl} onChange={(v: string) => setFormData({...formData, eventUrl: v})} placeholder="https://..." />
-              <InputHelper icon={Video} label="Video URL" value={formData.videoUrl} onChange={(v: string) => setFormData({...formData, videoUrl: v})} placeholder="https://..." />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">What I can do for you? *</label>
-                <textarea 
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Describe your offering..."
-                  rows={3}
-                  className="w-full h-full border border-gray-200 rounded-lg p-2 bg-white/50 focus:bg-white text-xs text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all resize-none"
-                />
-              </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">Cover Image *</label>
                 <label className="flex flex-col items-center justify-center w-full h-[76px] rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50/50 bg-white/30 overflow-hidden relative transition-colors group">
@@ -261,6 +251,16 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                     </div>
                   )}
                 </label>
+              </div>
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">What I can do for you? *</label>
+                <textarea 
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Describe your offering..."
+                  rows={3}
+                  className="w-full h-full border border-gray-200 rounded-lg p-2 bg-white/50 focus:bg-white text-xs text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all resize-none"
+                />
               </div>
             </div>
           </div>
