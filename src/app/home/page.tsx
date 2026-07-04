@@ -339,14 +339,15 @@ export default function HomePage() {
 
               <button
                 onClick={() => router.push("/profile")}
-                className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full"
+                className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full truncate"
+                title={spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
               >
                 {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
               </button>
-              <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider">
+              <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider truncate">
                 {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
               </p>
-              <p className="text-xs text-gray-500 mt-1 leading-snug">{user?.email || ""}</p>
+              <p className="text-xs text-gray-500 mt-1 leading-snug truncate" title={user?.email || ""}>{user?.email || ""}</p>
             </div>
           </div>
 
