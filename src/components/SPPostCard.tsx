@@ -82,7 +82,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     }, 0);
   };
 
-  const currencyStr = post.preferredCurrency || currentUserCurrency || "USD";
+  const currencyStr = post.preferredCurrency || "USD";
 
   const handleCheckout = async (packageId: string) => {
     try {
