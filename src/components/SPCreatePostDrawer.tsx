@@ -101,7 +101,9 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     const missingFields: string[] = [];
     if (!formData.eventName) missingFields.push("Event Name");
     if (!formData.date) missingFields.push("Date");
+    if (!formData.googleMapLink) missingFields.push("Google Map Link");
     if (!formData.description) missingFields.push("Description");
+    if (!imagePreview) missingFields.push("Cover Image");
 
     if (missingFields.length > 0) {
       setError(`Please fill in all mandatory fields. Missing: ${missingFields.join(", ")}`);
@@ -233,7 +235,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
               <InputHelper label="Country" value={formData.country} onChange={(v: string) => setFormData({...formData, country: v})} placeholder="USA" />
               <InputHelper label="Pincode / ZIP" value={formData.pincode} onChange={(v: string) => setFormData({...formData, pincode: v})} placeholder="10001" />
             </div>
-            <InputHelper icon={MapPin} label="Google Map Link" value={formData.googleMapLink} onChange={(v: string) => setFormData({...formData, googleMapLink: v})} placeholder="https://maps.google.com/..." />
+            <InputHelper icon={MapPin} label="Google Map Link *" value={formData.googleMapLink} onChange={(v: string) => setFormData({...formData, googleMapLink: v})} placeholder="https://maps.google.com/..." />
           </div>
 
           {/* Section: Pitch & Media */}
@@ -256,7 +258,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
             <InputHelper icon={Video} label="Reference Video URL" value={formData.videoUrl} onChange={(v: string) => setFormData({...formData, videoUrl: v})} placeholder="https://youtube.com/..." />
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider font-headline">Cover Image</label>
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider font-headline">Cover Image *</label>
               <label className="flex flex-col items-center justify-center w-full h-32 rounded-xl border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50/50 bg-white/30 overflow-hidden relative transition-colors group">
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                 {imagePreview ? (
