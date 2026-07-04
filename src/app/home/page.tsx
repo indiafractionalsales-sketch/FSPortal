@@ -719,7 +719,6 @@ export default function HomePage() {
           refreshFeed();
         }}
         editPostData={editingPost}
-        companyName={oboData?.legalName || oboData?.brandName}
         authorName={oboData?.brandName || oboData?.legalName || user?.displayName || user?.email || undefined}
         authorAvatar={oboData?.logo || user?.photoURL || undefined}
       />

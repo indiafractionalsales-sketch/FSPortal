@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
+// @ts-ignore
 import { load } from '@cashfreepayments/cashfree-js';
 
 interface SPPost {

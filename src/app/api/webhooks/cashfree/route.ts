@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { admin, adminDb } from '@/lib/firebase-admin';
-import { Cashfree } from 'cashfree-pg';
+import { Cashfree, CFEnvironment } from 'cashfree-pg';
 
-Cashfree.XClientId = process.env.NEXT_PUBLIC_CASHFREE_APP_ID || '';
-Cashfree.XClientSecret = process.env.CASHFREE_SECRET_KEY || '';
-Cashfree.XEnvironment = process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' 
-  ? Cashfree.Environment.PRODUCTION 
-  : Cashfree.Environment.SANDBOX;
+const cashfree = new Cashfree(
+  process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX,
+  process.env.NEXT_PUBLIC_CASHFREE_APP_ID || '',
+  process.env.CASHFREE_SECRET_KEY || ''
+);
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     try {
-      Cashfree.PGVerifyWebhookSignature(signature, rawBody, timestamp);
+      cashfree.PGVerifyWebhookSignature(signature, rawBody, timestamp);
     } catch (err) {
       console.error("Webhook signature verification failed:", err);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
