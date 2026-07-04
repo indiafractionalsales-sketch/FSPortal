@@ -344,17 +344,6 @@ export default function HomePage() {
                 {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
               </p>
               <p className="text-xs text-gray-500 mt-1 leading-snug">{user?.email || ""}</p>
-
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex justify-between items-center py-1.5 cursor-pointer hover:bg-gray-50 px-2 rounded-md transition-colors">
-                  <span className="text-xs font-headline font-bold text-gray-700 uppercase tracking-wider">Interests Shown</span>
-                  <span className="text-xs font-bold text-[#701010] font-headline">12</span>
-                </div>
-                <div className="flex justify-between items-center py-1.5 cursor-pointer hover:bg-gray-50 px-2 rounded-md transition-colors">
-                  <span className="text-xs font-headline font-bold text-gray-700 uppercase tracking-wider">Interests Received</span>
-                  <span className="text-xs font-bold text-[#701010] font-headline">8</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -387,6 +376,25 @@ export default function HomePage() {
                   </button>
                 </li>
               ))}
+              <div className="h-px bg-gray-100 my-2" />
+              <li>
+                <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">⭐</span>
+                    <span className="text-xs font-headline font-bold uppercase tracking-wider">Interests Shown</span>
+                  </div>
+                  <span className="text-xs font-bold text-[#701010] font-headline">12</span>
+                </button>
+              </li>
+              <li>
+                <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">📥</span>
+                    <span className="text-xs font-headline font-bold uppercase tracking-wider">Interests Received</span>
+                  </div>
+                  <span className="text-xs font-bold text-[#701010] font-headline">8</span>
+                </button>
+              </li>
             </ul>
           </div>
         </div>

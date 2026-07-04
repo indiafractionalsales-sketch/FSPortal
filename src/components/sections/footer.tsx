@@ -36,13 +36,17 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Links & Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] md:text-xs font-sans text-white/50 tracking-widest uppercase">
-          <p>© {new Date().getFullYear()} Fractional Sales Partner. All rights reserved.</p>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+          <div className="flex flex-col gap-1 text-center md:text-left text-[9px] normal-case opacity-70">
+            <p>© {new Date().getFullYear()} Fractional Sales Partner. All rights reserved.</p>
+            <p>123 Business Avenue, Tech Park Phase 2, Hinjewadi, Pune, MH 411057, India</p>
+            <p>Email: support@fractionalsales.com | Phone: +91 98765 43210</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+            <Link href="/legal/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
+            <Link href="/legal/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/legal/refund" className="hover:text-white transition-colors">Refund & Cancellation</Link>
+            <Link href="/legal/contact" className="hover:text-white transition-colors">Contact Us</Link>
           </div>
         </div>
       </div>
