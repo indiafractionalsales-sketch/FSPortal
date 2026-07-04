@@ -438,16 +438,22 @@ export default function HomePage() {
               </div>
             )}
 
-            {posts.map((post) => (
-              <SPPostCard
-                key={post.__id as string}
-                post={post as any}
-                authorName={post.authorName as string | undefined}
-                authorAvatar={post.authorAvatar as string | undefined}
-                onEdit={() => handleEditPost(post)}
-                onViewDetails={() => setViewingPost(post)}
-              />
-            ))}
+            {posts.map((post) => {
+              const isMine = post.ownerUid === user?.uid;
+              const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
+              const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+
+              return (
+                <SPPostCard
+                  key={post.__id as string}
+                  post={post as any}
+                  authorName={(dynamicName || post.authorName) as string | undefined}
+                  authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                  onEdit={() => handleEditPost(post)}
+                  onViewDetails={() => setViewingPost(post)}
+                />
+              );
+            })}
 
             {/* Loading spinner */}
             {feedLoading && hasMore && (
