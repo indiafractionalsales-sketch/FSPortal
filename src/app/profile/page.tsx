@@ -524,6 +524,9 @@ export default function ProfilePage() {
                     {spData.yearsExperience && (
                       <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">{spData.yearsExperience} yrs exp.</span>
                     )}
+                    {spData.preferredCurrency && (
+                      <span className="text-[10px] font-headline font-bold uppercase tracking-wider bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">Currency: {spData.preferredCurrency}</span>
+                    )}
                   </div>
                 )}
               </div>
