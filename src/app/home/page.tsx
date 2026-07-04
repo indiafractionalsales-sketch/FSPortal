@@ -75,7 +75,8 @@ export default function HomePage() {
   const [spData, setSpData] = useState({
     fullName: "",
     profilePhoto: "",
-    banner: ""
+    banner: "",
+    preferredCurrency: ""
   });
   const [tpspData, setTpspData] = useState({
     companyName: "",
@@ -123,7 +124,8 @@ export default function HomePage() {
               setSpData({
                 fullName: (data.fullName as string) || "",
                 profilePhoto: (data.profilePhoto as string) || "",
-                banner: (data.banner as string) || ""
+                banner: (data.banner as string) || "",
+                preferredCurrency: (data.preferredCurrency as string) || ""
               });
             }
           } else if (userData.role === "tpsp") {
@@ -154,7 +156,8 @@ export default function HomePage() {
               setSpData({
                 fullName: (spData.fullName as string) || "",
                 profilePhoto: (spData.profilePhoto as string) || "",
-                banner: (spData.banner as string) || ""
+                banner: (spData.banner as string) || "",
+                preferredCurrency: (spData.preferredCurrency as string) || ""
               });
             } else {
               const tpspData = await getDocument("TPSP_Profile", user.uid, idToken, "default");
@@ -457,6 +460,7 @@ export default function HomePage() {
                   post={post as any}
                   authorName={(dynamicName || post.authorName) as string | undefined}
                   authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                  currentUserCurrency={spData.preferredCurrency}
                   onEdit={() => handleEditPost(post)}
                   onViewDetails={() => setViewingPost(post)}
                 />
@@ -701,6 +705,7 @@ export default function HomePage() {
         }} 
         authorName={spData.fullName || user?.displayName || user?.email || undefined}
         authorAvatar={spData.profilePhoto || user?.photoURL || undefined}
+        preferredCurrency={spData.preferredCurrency || "USD"}
       />
 
       {/* OBO Post Creation Drawer */}

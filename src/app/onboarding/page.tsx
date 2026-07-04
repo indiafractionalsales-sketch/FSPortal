@@ -63,7 +63,7 @@ export default function OnboardingWizard() {
     salesChannels: [] as string[], avgDealSize: "", pastBrands: "", productCategories: "",
     engagementType: "", commissionStructure: "",
     whatsappGroups: "", socialFollowing: "", communityAccess: "", tradeFairExp: "", retailConnections: "",
-    rightToWork: "", companyName: "", companyRegNo: "", gdprCompliant: "", status: "Active", performanceRating: "", notes: ""
+    rightToWork: "", companyName: "", companyRegNo: "", gdprCompliant: "", status: "Active", performanceRating: "", notes: "", preferredCurrency: ""
   });
 
   const [tpspData, setTpspData] = useState({
@@ -109,6 +109,7 @@ export default function OnboardingWizard() {
       if (currentStep === 1) return !!spData.fullName;
       if (currentStep === 2) return !!spData.mobilePrimary && !!spData.country && !!spData.city;
       if (currentStep === 3) return !!spData.yearsExperience;
+      if (currentStep === 4) return !!spData.preferredCurrency;
       if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent;
     }
     if (userType === "tpsp") {
@@ -308,6 +309,7 @@ export default function OnboardingWizard() {
                 <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({...p, linkedinProfile: v}))} />
                 <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({...p, socialFollowing: v}))} />
                 <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({...p, avgDealSize: v}))} />
+                <Select label="Preferred Currency *" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
                 <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({...p, pastBrands: v}))} />
               </div>
             )}
