@@ -152,17 +152,17 @@ export default function OnboardingWizard() {
 
       // Save Profile Doc
       if (userType === "obo") {
-        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "sp") {
-        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "tpsp") {
-        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);

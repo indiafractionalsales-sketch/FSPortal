@@ -325,7 +325,7 @@ export default function ProfilePage() {
         if (!oboData.legalName || !oboData.brandName || !oboData.gstNumber || !oboData.incorporationDate || !oboData.revenueRange) {
           throw new Error("Please fill in all mandatory fields: Company Legal Name, Brand Name, GST/TAX Number, Incorporation Date, and Revenue Range.");
         }
-        const finalObo = { ...oboData };
+        const finalObo = { ...oboData, registeredEmail: user.email || "" };
         if (finalObo.logo?.startsWith("data:")) {
           finalObo.logo = await uploadImage(finalObo.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         }
@@ -339,7 +339,7 @@ export default function ProfilePage() {
         if (!spData.city || !spData.yearsExperience) {
           throw new Error("Please fill in all mandatory fields: City and Years of Experience.");
         }
-        const finalSp = { ...spData };
+        const finalSp = { ...spData, registeredEmail: user.email || "" };
         if (finalSp.profilePhoto?.startsWith("data:")) {
           finalSp.profilePhoto = await uploadImage(finalSp.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         }
@@ -353,7 +353,7 @@ export default function ProfilePage() {
         if (!tpspData.companyName) {
           throw new Error("Company Name is mandatory for Third Party Service Providers.");
         }
-        const finalTpsp = { ...tpspData };
+        const finalTpsp = { ...tpspData, registeredEmail: user.email || "" };
         if (finalTpsp.logo?.startsWith("data:")) {
           finalTpsp.logo = await uploadImage(finalTpsp.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         }
