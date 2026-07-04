@@ -303,7 +303,7 @@ export default function HomePage() {
           <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
             {/* Banner */}
             <div className="h-16 bg-[#701010] relative overflow-hidden">
-              {(oboData.banner || tpspData.banner) && <img src={oboData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
+              {(oboData.banner || spData.banner || tpspData.banner) && <img src={oboData.banner || spData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
             </div>
 
             {/* Avatar */}
@@ -398,9 +398,13 @@ export default function HomePage() {
             {/* Share Post Card */}
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
               <div className="flex gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline">
-                  {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                </div>
+                {spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL ? (
+                  <img src={spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL || ""} alt="Profile" className="w-9 h-9 rounded-full object-cover shadow-sm" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline shadow-sm">
+                    {user?.email?.charAt(0).toUpperCase() ?? "P"}
+                  </div>
+                )}
                 <button 
                   onClick={() => {
                     if (userType === "sp") setIsCreatePostOpen(true);
