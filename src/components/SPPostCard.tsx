@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag } from "lucide-react";
+import { MapPin, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
+// @ts-ignore
+import { load } from '@cashfreepayments/cashfree-js';
 
 interface SPPost {
   __id?: string;
@@ -52,6 +54,7 @@ interface SPPostCardProps {
 
 export default function SPPostCard({ post, authorName, authorAvatar, currentUserCurrency, onEdit, onViewDetails }: SPPostCardProps) {
   const [viewingPackage, setViewingPackage] = useState<any | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const isOwner = auth.currentUser?.uid === post.ownerUid;
 
   const initials = authorName
@@ -80,7 +83,45 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     }, 0);
   };
 
-  const currencyStr = post.preferredCurrency || currentUserCurrency || "USD";
+  const currencyStr = post.preferredCurrency || "USD";
+
+  const handleCheckout = async (packageId: string) => {
+    try {
+      setIsCheckingOut(true);
+      const isProd = process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === 'PRODUCTION';
+      const cashfree = await load({ mode: isProd ? "production" : "sandbox" });
+      const token = await auth.currentUser?.getIdToken();
+      
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId: post.__id,
+          packageId: packageId,
+          idToken: token
+        })
+      });
+
+      const data = await res.json();
+      
+      if (data.error) {
+        alert(data.error);
+        setIsCheckingOut(false);
+        return;
+      }
+
+      if (data.payment_session_id) {
+        cashfree.checkout({
+          paymentSessionId: data.payment_session_id
+        });
+      }
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      alert("Checkout failed. Please try again.");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   return (
     <>
@@ -466,13 +507,26 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               </div>
             </div>
             
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setViewingPackage(null)}
-                className="px-4 py-2 bg-[#701010] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#5a0c0c] transition-colors shadow-sm"
+                className="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors shadow-sm"
               >
                 Close
               </button>
+              {!isOwner && (
+                <button
+                  onClick={() => handleCheckout(viewingPackage.id)}
+                  disabled={isCheckingOut}
+                  className="px-6 py-2 bg-[#701010] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#5a0c0c] transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[140px]"
+                >
+                  {isCheckingOut ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    "Pay to Confirm"
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
