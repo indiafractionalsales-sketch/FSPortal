@@ -336,6 +336,9 @@ export default function ProfilePage() {
         setOboData(finalObo); // update state with storage URLs
 
       } else if (userType === "sp") {
+        if (!spData.city || !spData.yearsExperience) {
+          throw new Error("Please fill in all mandatory fields: City and Years of Experience.");
+        }
         const finalSp = { ...spData };
         if (finalSp.profilePhoto?.startsWith("data:")) {
           finalSp.profilePhoto = await uploadImage(finalSp.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
@@ -910,7 +913,7 @@ export default function ProfilePage() {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">City</label>
+                      <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">City *</label>
                       <input value={spData.city} onChange={e => setSpData({ ...spData, city: e.target.value })} placeholder="City" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none" />
                     </div>
                     <div>
@@ -985,7 +988,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Years of Exp</label>
+                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Years of Exp *</label>
                         <input
                           value={spData.yearsExperience}
                           onChange={e => setSpData({ ...spData, yearsExperience: e.target.value })}

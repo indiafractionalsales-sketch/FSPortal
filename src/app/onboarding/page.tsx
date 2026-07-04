@@ -107,7 +107,8 @@ export default function OnboardingWizard() {
     }
     if (userType === "sp") {
       if (currentStep === 1) return !!spData.fullName;
-      if (currentStep === 2) return !!spData.mobilePrimary && !!spData.country;
+      if (currentStep === 2) return !!spData.mobilePrimary && !!spData.country && !!spData.city;
+      if (currentStep === 3) return !!spData.yearsExperience;
       if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent;
     }
     if (userType === "tpsp") {
@@ -290,7 +291,7 @@ export default function OnboardingWizard() {
                 <Input label="Primary Mobile" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
                 <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({...p, mobileWhatsapp: v}))} />
                 <Input label="Personal Email" type="email" value={spData.emailPersonal} onChange={(v: string) => setSpData(p => ({...p, emailPersonal: v}))} />
-                <Input label="City" value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
+                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
                 <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
               </div>
             )}
@@ -298,7 +299,7 @@ export default function OnboardingWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                 <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Freelance", "Employed", "Part-time"]} />
                 <Input label="Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
-                <Input label="Years of Experience" type="number" value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} />
+                <Input label="Years of Experience" type="number" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} />
                 <Select label="Focus Area" value={spData.b2bB2cExperience} onChange={(v: string) => setSpData(p => ({...p, b2bB2cExperience: v}))} options={["B2B", "B2C", "Both"]} />
               </div>
             )}
