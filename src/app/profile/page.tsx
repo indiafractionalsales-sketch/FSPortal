@@ -71,6 +71,7 @@ export default function ProfilePage() {
   const [grievanceOfficer, setGrievanceOfficer] = useState({ name: "", email: "", phone: "" });
   const [editingCustomerCare, setEditingCustomerCare] = useState(false);
   const [editingGrievanceOfficer, setEditingGrievanceOfficer] = useState(false);
+  const [databaseId, setDatabaseId] = useState("default");
 
   // OBO Profile Form State
   const [oboData, setOboData] = useState({
@@ -85,7 +86,8 @@ export default function ProfilePage() {
     fbHandle: "",
     linkedinHandle: "",
     logo: "",
-    banner: ""
+    banner: "",
+    country: ""
   });
 
   // SP Profile Form State
@@ -159,7 +161,8 @@ export default function ProfilePage() {
     website: "",
     location: "",
     logo: "",
-    banner: ""
+    banner: "",
+    country: ""
   });
 
   // Monitor auth state
@@ -183,20 +186,22 @@ export default function ProfilePage() {
       try {
         const idToken = await user.getIdToken();
 
-        const userData = await getDocument("users", user.uid, idToken);
+        const userData = await getDocument("users", user.uid, idToken, "default");
         if (userData?.role) {
           const role = userData.role as "obo" | "sp" | "tpsp";
+          const dbId = (userData.databaseId as string) || "default";
+          setDatabaseId(dbId);
           setUserType(role);
           setIsRoleLocked(true);
 
           if (role === "obo") {
-            const oboData = await getDocument("OBO_Profile", user.uid, idToken);
+            const oboData = await getDocument("OBO_Profile", user.uid, idToken, dbId);
             if (oboData) setOboData(prev => ({ ...prev, ...oboData }));
           } else if (role === "sp") {
-            const spData = await getDocument("SP_Profile", user.uid, idToken);
+            const spData = await getDocument("SP_Profile", user.uid, idToken, dbId);
             if (spData) setSpData(prev => ({ ...prev, ...spData, salesChannels: (spData.salesChannels as string[]) || [] }));
           } else if (role === "tpsp") {
-            const tpspData = await getDocument("TPSP_Profile", user.uid, idToken);
+            const tpspData = await getDocument("TPSP_Profile", user.uid, idToken, dbId);
             if (tpspData) setTpspData(prev => ({ ...prev, ...tpspData, logo: (tpspData.logo as string) || "", banner: (tpspData.banner as string) || "" }));
           }
           return;
@@ -292,13 +297,23 @@ export default function ProfilePage() {
       // Get a fresh ID token for Firestore + Storage REST authentication
       const idToken = await user.getIdToken();
 
+      let currentDbId = databaseId;
+      
       if (!isRoleLocked) {
+        let userCountry = "";
+        if (userType === "obo") userCountry = oboData.country;
+        else if (userType === "sp") userCountry = spData.country;
+        else if (userType === "tpsp") userCountry = tpspData.country;
+        
+        currentDbId = userCountry.toLowerCase() === "india" ? "fsindiadb" : "default";
+        setDatabaseId(currentDbId);
+
         await saveDocument("users", user.uid, {
           uid: user.uid,
-          email: user.email || "",
           role: userType,
+          databaseId: currentDbId,
           createdAt: new Date().toISOString(),
-        }, idToken);
+        }, idToken, "default");
         setIsRoleLocked(true);
       }
 
@@ -317,7 +332,7 @@ export default function ProfilePage() {
         if (finalObo.banner?.startsWith("data:")) {
           finalObo.banner = await uploadImage(finalObo.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         }
-        await saveDocument("OBO_Profile", user.uid, finalObo as unknown as Record<string, unknown>, idToken);
+        await saveDocument("OBO_Profile", user.uid, finalObo as unknown as Record<string, unknown>, idToken, currentDbId);
         setOboData(finalObo); // update state with storage URLs
 
       } else if (userType === "sp") {
@@ -328,7 +343,7 @@ export default function ProfilePage() {
         if (finalSp.banner?.startsWith("data:")) {
           finalSp.banner = await uploadImage(finalSp.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         }
-        await saveDocument("SP_Profile", user.uid, finalSp as unknown as Record<string, unknown>, idToken);
+        await saveDocument("SP_Profile", user.uid, finalSp as unknown as Record<string, unknown>, idToken, currentDbId);
         setSpData(finalSp);
 
       } else if (userType === "tpsp") {
@@ -342,7 +357,7 @@ export default function ProfilePage() {
         if (finalTpsp.banner?.startsWith("data:")) {
           finalTpsp.banner = await uploadImage(finalTpsp.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         }
-        await saveDocument("TPSP_Profile", user.uid, finalTpsp as unknown as Record<string, unknown>, idToken);
+        await saveDocument("TPSP_Profile", user.uid, finalTpsp as unknown as Record<string, unknown>, idToken, currentDbId);
         setTpspData(finalTpsp);
       }
 
@@ -586,14 +601,35 @@ export default function ProfilePage() {
               <h3 className="font-serif font-bold text-base text-gray-900">Overseas Business Owner Details</h3>
             </div>
 
-            <div>
-              <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Brand Name *</label>
-              <input
-                value={oboData.brandName}
-                onChange={e => setOboData({ ...oboData, brandName: e.target.value })}
-                placeholder="Brand/Trading Name"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Brand Name *</label>
+                <input
+                  value={oboData.brandName}
+                  onChange={e => setOboData({ ...oboData, brandName: e.target.value })}
+                  placeholder="Brand/Trading Name"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Country *</label>
+                <div className="relative">
+                  <select
+                    value={oboData.country}
+                    onChange={e => setOboData({ ...oboData, country: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors appearance-none"
+                  >
+                    <option value="">Select Country</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="India">India</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -883,7 +919,18 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-550 block mb-1">Country</label>
-                      <input value={spData.country} onChange={e => setSpData({ ...spData, country: e.target.value })} placeholder="Country" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none" />
+                      <div className="relative">
+                        <select value={spData.country} onChange={e => setSpData({ ...spData, country: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none appearance-none">
+                          <option value="">Select Country</option>
+                          <option value="United States">United States</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="India">India</option>
+                          <option value="Australia">Australia</option>
+                          <option value="Canada">Canada</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none" />
+                      </div>
                     </div>
                     <div>
                       <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-550 block mb-1">Postcode</label>
@@ -1330,7 +1377,7 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 block mb-1">Contact Person</label>
                 <input
@@ -1341,12 +1388,31 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
+                <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Country *</label>
+                <div className="relative">
+                  <select
+                    value={tpspData.country}
+                    onChange={e => setTpspData({ ...tpspData, country: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors appearance-none"
+                  >
+                    <option value="">Select Country</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="India">India</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                </div>
+              </div>
+              <div>
                 <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-700 block mb-1">Location</label>
                 <input
                   value={tpspData.location}
                   onChange={e => setTpspData({ ...tpspData, location: e.target.value })}
-                  placeholder="City, Country"
-                  className="w-full border border-[#701010]/20 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
+                  placeholder="City, State"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] bg-white transition-colors"
                 />
               </div>
             </div>
