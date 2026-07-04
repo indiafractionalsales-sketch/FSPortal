@@ -17,7 +17,7 @@ interface SPPost {
   googleMapLink?: string;
   expectedFootfall?: string;
   description?: string;
-  
+
   // OBO specific
   targetCountry?: string;
   targetIndustry?: string;
@@ -73,7 +73,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
             <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug">
               {authorName || "User"}
               {post.postType === "obo" && (
-                <span 
+                <span
                   className="font-sans font-normal text-xs text-gray-600 ml-1.5 cursor-pointer hover:underline"
                   onClick={onViewDetails}
                 >
@@ -98,11 +98,10 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
           )}
           <button
             onClick={() => setIsInterested(!isInterested)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-headline font-bold uppercase tracking-widest transition-all duration-200 ${
-              isInterested
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-headline font-bold uppercase tracking-widest transition-all duration-200 ${isInterested
                 ? "bg-amber-500 border-amber-500 text-white"
                 : "bg-[#701010] border-[#701010] text-white hover:bg-[#5a0c0c]"
-            }`}
+              }`}
           >
             <Star className={`w-2.5 h-2.5 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} />
             {isInterested ? "Interested ✓" : "Interested?"}
@@ -269,7 +268,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
               {/* Details */}
               <div className="flex-1 p-3 flex flex-col justify-between">
                 <div>
-                  <h4 
+                  <h4
                     className="font-serif font-bold text-sm text-gray-900 leading-snug line-clamp-2 cursor-pointer hover:text-[#701010] hover:underline transition-colors"
                     onClick={onViewDetails}
                   >
@@ -326,7 +325,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
           ) : (
             /* No media: text-only card */
             <div className="px-4 pb-3 border-t border-gray-50 pt-3">
-              <h4 
+              <h4
                 className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-[#701010] hover:underline transition-colors"
                 onClick={onViewDetails}
               >
@@ -384,9 +383,8 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
       <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
         <button
           onClick={() => setIsInterested(!isInterested)}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${
-            isInterested ? "text-amber-500 hover:bg-amber-50" : "text-gray-700 hover:bg-gray-50 hover:text-[#701010]"
-          }`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isInterested ? "text-amber-500 hover:bg-amber-50" : "text-gray-700 hover:bg-gray-50 hover:text-[#701010]"
+            }`}
         >
           <Star className={`w-3.5 h-3.5 ${isInterested ? "fill-amber-400 text-amber-500" : ""}`} />
           {isInterested ? "Interested ✓" : "Interested"}

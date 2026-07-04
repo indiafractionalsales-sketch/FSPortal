@@ -74,7 +74,8 @@ export default function HomePage() {
   });
   const [spData, setSpData] = useState({
     fullName: "",
-    profilePhoto: ""
+    profilePhoto: "",
+    banner: ""
   });
   const [tpspData, setTpspData] = useState({
     companyName: "",
@@ -102,28 +103,31 @@ export default function HomePage() {
       try {
         const idToken = await user.getIdToken();
 
-        const userData = await getDocument("users", user.uid, idToken);
+        const userData = await getDocument("users", user.uid, idToken, "default");
         if (userData?.role) {
+          const dbId = (userData.databaseId as string) || "default";
           setUserType(userData.role as "obo" | "sp" | "tpsp");
           if (userData.role === "obo") {
-            const data = await getDocument("OBO_Profile", user.uid, idToken);
+            const data = await getDocument("OBO_Profile", user.uid, idToken, dbId);
             if (data) {
               setOboData({
                 brandName: (data.brandName as string) || "",
+                legalName: (data.legalName as string) || "",
                 logo: (data.logo as string) || "",
                 banner: (data.banner as string) || ""
               });
             }
           } else if (userData.role === "sp") {
-            const data = await getDocument("SP_Profile", user.uid, idToken);
+            const data = await getDocument("SP_Profile", user.uid, idToken, dbId);
             if (data) {
               setSpData({
                 fullName: (data.fullName as string) || "",
-                profilePhoto: (data.profilePhoto as string) || ""
+                profilePhoto: (data.profilePhoto as string) || "",
+                banner: (data.banner as string) || ""
               });
             }
           } else if (userData.role === "tpsp") {
-            const data = await getDocument("TPSP_Profile", user.uid, idToken);
+            const data = await getDocument("TPSP_Profile", user.uid, idToken, dbId);
             if (data) {
               setTpspData({
                 companyName: (data.companyName as string) || "",
@@ -134,7 +138,7 @@ export default function HomePage() {
           }
         } else {
           // Fallback checks
-          const oboData = await getDocument("OBO_Profile", user.uid, idToken);
+          const oboData = await getDocument("OBO_Profile", user.uid, idToken, "default");
           if (oboData) {
             setUserType("obo");
             setOboData({
@@ -144,15 +148,16 @@ export default function HomePage() {
               banner: (oboData.banner as string) || ""
             });
           } else {
-            const spData = await getDocument("SP_Profile", user.uid, idToken);
+            const spData = await getDocument("SP_Profile", user.uid, idToken, "default");
             if (spData) {
               setUserType("sp");
               setSpData({
                 fullName: (spData.fullName as string) || "",
-                profilePhoto: (spData.profilePhoto as string) || ""
+                profilePhoto: (spData.profilePhoto as string) || "",
+                banner: (spData.banner as string) || ""
               });
             } else {
-              const tpspData = await getDocument("TPSP_Profile", user.uid, idToken);
+              const tpspData = await getDocument("TPSP_Profile", user.uid, idToken, "default");
               if (tpspData) {
                 setUserType("tpsp");
                 setTpspData({
@@ -298,7 +303,7 @@ export default function HomePage() {
           <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
             {/* Banner */}
             <div className="h-16 bg-[#701010] relative overflow-hidden">
-              {(oboData.banner || tpspData.banner) && <img src={oboData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
+              {(oboData.banner || spData.banner || tpspData.banner) && <img src={oboData.banner || spData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
             </div>
 
             {/* Avatar */}
@@ -393,9 +398,13 @@ export default function HomePage() {
             {/* Share Post Card */}
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
               <div className="flex gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline">
-                  {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                </div>
+                {spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL ? (
+                  <img src={spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL || ""} alt="Profile" className="w-9 h-9 rounded-full object-cover shadow-sm" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline shadow-sm">
+                    {user?.email?.charAt(0).toUpperCase() ?? "P"}
+                  </div>
+                )}
                 <button 
                   onClick={() => {
                     if (userType === "sp") setIsCreatePostOpen(true);
@@ -429,16 +438,22 @@ export default function HomePage() {
               </div>
             )}
 
-            {posts.map((post) => (
-              <SPPostCard
-                key={post.__id as string}
-                post={post as any}
-                authorName={post.authorName as string | undefined}
-                authorAvatar={post.authorAvatar as string | undefined}
-                onEdit={() => handleEditPost(post)}
-                onViewDetails={() => setViewingPost(post)}
-              />
-            ))}
+            {posts.map((post) => {
+              const isMine = post.ownerUid === user?.uid;
+              const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
+              const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+
+              return (
+                <SPPostCard
+                  key={post.__id as string}
+                  post={post as any}
+                  authorName={(dynamicName || post.authorName) as string | undefined}
+                  authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                  onEdit={() => handleEditPost(post)}
+                  onViewDetails={() => setViewingPost(post)}
+                />
+              );
+            })}
 
             {/* Loading spinner */}
             {feedLoading && hasMore && (
@@ -676,6 +691,8 @@ export default function HomePage() {
           setEditingPost(null);
           refreshFeed();
         }} 
+        authorName={spData.fullName || user?.displayName || user?.email || undefined}
+        authorAvatar={spData.profilePhoto || user?.photoURL || undefined}
       />
 
       {/* OBO Post Creation Drawer */}
@@ -689,6 +706,8 @@ export default function HomePage() {
         }}
         editPostData={editingPost}
         companyName={oboData?.legalName || oboData?.brandName}
+        authorName={oboData?.brandName || oboData?.legalName || user?.displayName || user?.email || undefined}
+        authorAvatar={oboData?.logo || user?.photoURL || undefined}
       />
 
       {/* Post Details Drawer */}

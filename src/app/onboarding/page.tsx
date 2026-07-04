@@ -53,7 +53,7 @@ export default function OnboardingWizard() {
   // Data States
   const [oboData, setOboData] = useState({
     legalName: "", brandName: "", gstNumber: "", incorporationDate: "", revenueRange: "",
-    phone: "", website: "", instaHandle: "", fbHandle: "", linkedinHandle: "", logo: "", banner: ""
+    phone: "", website: "", instaHandle: "", fbHandle: "", linkedinHandle: "", logo: "", banner: "", country: ""
   });
 
   const [spData, setSpData] = useState({
@@ -67,7 +67,7 @@ export default function OnboardingWizard() {
   });
 
   const [tpspData, setTpspData] = useState({
-    companyName: "", services: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: ""
+    companyName: "", services: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: "", country: ""
   });
 
   useEffect(() => {
@@ -101,17 +101,18 @@ export default function OnboardingWizard() {
     if (currentStep === 0) return !!userType;
     
     if (userType === "obo") {
-      if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber;
+      if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber && !!oboData.country;
       if (currentStep === 2) return !!oboData.phone && !!oboData.website;
       if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent;
     }
     if (userType === "sp") {
       if (currentStep === 1) return !!spData.fullName;
-      if (currentStep === 2) return !!spData.mobilePrimary;
+      if (currentStep === 2) return !!spData.mobilePrimary && !!spData.country && !!spData.city;
+      if (currentStep === 3) return !!spData.yearsExperience;
       if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent;
     }
     if (userType === "tpsp") {
-      if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson;
+      if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
       if (currentStep === 2) return !!tpspData.phone && !!tpspData.website;
       if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent;
     }
@@ -132,32 +133,39 @@ export default function OnboardingWizard() {
     try {
       const idToken = await user.getIdToken();
 
+      let userCountry = "";
+      if (userType === "obo") userCountry = oboData.country;
+      else if (userType === "sp") userCountry = spData.country;
+      else if (userType === "tpsp") userCountry = tpspData.country;
+
+      const databaseId = userCountry.toLowerCase() === "india" ? "fsindiadb" : "default";
+
       // Save User Doc
       await saveDocument("users", user.uid, {
         uid: user.uid,
-        email: user.email || "",
         role: userType,
+        databaseId: databaseId,
         createdAt: new Date().toISOString(),
         gdprConsent: gdprConsent,
         gdprConsentDate: new Date().toISOString(),
-      }, idToken);
+      }, idToken, "default");
 
       // Save Profile Doc
       if (userType === "obo") {
-        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("OBO_Profile", user.uid, finalData as any, idToken);
+        await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "sp") {
-        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("SP_Profile", user.uid, finalData as any, idToken);
+        await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "tpsp") {
-        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString() };
+        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken);
+        await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);
       }
 
       router.push("/home");
@@ -252,6 +260,7 @@ export default function OnboardingWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                 <Input label="Legal Company Name" required value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
                 <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
+                <Select label="Country" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
                 <Input label="GST/TAX Number" required value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
                 <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
                 <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
@@ -282,15 +291,15 @@ export default function OnboardingWizard() {
                 <Input label="Primary Mobile" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
                 <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({...p, mobileWhatsapp: v}))} />
                 <Input label="Personal Email" type="email" value={spData.emailPersonal} onChange={(v: string) => setSpData(p => ({...p, emailPersonal: v}))} />
-                <Input label="City" value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
-                <Input label="Country" value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} />
+                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
+                <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
               </div>
             )}
             {userType === "sp" && currentStep === 3 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                 <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Freelance", "Employed", "Part-time"]} />
                 <Input label="Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
-                <Input label="Years of Experience" type="number" value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} />
+                <Input label="Years of Experience" type="number" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} />
                 <Select label="Focus Area" value={spData.b2bB2cExperience} onChange={(v: string) => setSpData(p => ({...p, b2bB2cExperience: v}))} options={["B2B", "B2C", "Both"]} />
               </div>
             )}
@@ -314,6 +323,7 @@ export default function OnboardingWizard() {
             {userType === "tpsp" && currentStep === 1 && (
               <div className="grid grid-cols-1 gap-x-4">
                 <Input label="Company Name" required value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+                <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
                 <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing..." />
                 <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
               </div>

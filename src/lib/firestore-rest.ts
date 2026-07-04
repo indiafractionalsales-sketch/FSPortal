@@ -7,7 +7,10 @@
  */
 
 const PROJECT_ID = "fractional-sales-4436e";
-const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/default/documents`;
+
+// Helper to construct the dynamic base URL
+const getBaseUrl = (databaseId: string = "default") => 
+  `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${databaseId}/documents`;
 
 // ─── Type Conversion: JS → Firestore REST format ────────────────────────────
 
@@ -87,9 +90,10 @@ export async function saveDocument(
   collection: string,
   docId: string,
   data: Record<string, unknown>,
-  idToken: string
+  idToken: string,
+  databaseId: string = "default"
 ): Promise<void> {
-  const url = `${BASE_URL}/${collection}/${docId}`;
+  const url = `${getBaseUrl(databaseId)}/${collection}/${docId}`;
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
@@ -115,9 +119,10 @@ export async function saveDocument(
 export async function getDocument(
   collection: string,
   docId: string,
-  idToken: string
+  idToken: string,
+  databaseId: string = "default"
 ): Promise<Record<string, unknown> | null> {
-  const url = `${BASE_URL}/${collection}/${docId}`;
+  const url = `${getBaseUrl(databaseId)}/${collection}/${docId}`;
   const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -153,6 +158,7 @@ export async function queryCollection(
     limit?: number;
     startAfterDoc?: Record<string, unknown> | null;
     where?: { field: string; op: "EQUAL"; value: any }[];
+    databaseId?: string;
   } = {}
 ): Promise<{ docs: Record<string, unknown>[]; lastDoc: Record<string, unknown> | null }> {
   const {
@@ -161,9 +167,10 @@ export async function queryCollection(
     limit = 10,
     startAfterDoc = null,
     where = [],
+    databaseId = "default",
   } = options;
 
-  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/default/documents:runQuery`;
+  const url = `${getBaseUrl(databaseId)}:runQuery`;
 
   const structuredQuery: Record<string, unknown> = {
     from: [{ collectionId: collection }],
