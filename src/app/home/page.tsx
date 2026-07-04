@@ -303,7 +303,7 @@ export default function HomePage() {
         <div className={`w-full md:w-[260px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : 'hidden'} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100`}>
 
           {/* Profile Card */}
-          <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
             {/* Banner */}
             <div className="h-16 bg-[#701010] relative overflow-hidden">
               {(oboData.banner || spData.banner || tpspData.banner) && <img src={oboData.banner || spData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
@@ -339,14 +339,15 @@ export default function HomePage() {
 
               <button
                 onClick={() => router.push("/profile")}
-                className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full"
+                className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full truncate"
+                title={spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
               >
                 {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
               </button>
-              <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider">
+              <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider truncate">
                 {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
               </p>
-              <p className="text-xs text-gray-500 mt-1 leading-snug">{user?.email || ""}</p>
+              <p className="text-xs text-gray-500 mt-1 leading-snug truncate" title={user?.email || ""}>{user?.email || ""}</p>
             </div>
           </div>
 
