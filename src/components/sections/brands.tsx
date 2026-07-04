@@ -1,17 +1,8 @@
 "use client";
 
-import { Hexagon, Triangle, Circle, Square, Sparkles, Command, Globe, Activity } from "lucide-react";
-
 export function Brands() {
   const brands = [
-    { name: "Acme Corp", Icon: Hexagon, color: "text-blue-500", bg: "bg-blue-50" },
-    { name: "Globex", Icon: Globe, color: "text-green-500", bg: "bg-green-50" },
-    { name: "Soylent", Icon: Circle, color: "text-red-500", bg: "bg-red-50" },
-    { name: "Initech", Icon: Square, color: "text-purple-500", bg: "bg-purple-50" },
-    { name: "Umbrella", Icon: Triangle, color: "text-orange-500", bg: "bg-orange-50" },
-    { name: "Stark", Icon: Sparkles, color: "text-yellow-500", bg: "bg-yellow-50" },
-    { name: "Wayne", Icon: Command, color: "text-indigo-500", bg: "bg-indigo-50" },
-    { name: "Massive", Icon: Activity, color: "text-pink-500", bg: "bg-pink-50" },
+    { name: "Age Aayurveda", subtitle: "Associate of Baidyanath Group", color: "text-amber-600", bg: "bg-amber-50", emoji: "🌿" },
   ];
 
   const marqueeItems = [...brands, ...brands, ...brands, ...brands];
@@ -23,16 +14,21 @@ export function Brands() {
           key={i} 
           className="shrink-0 group/card relative flex flex-row items-center justify-center gap-3 md:gap-4 px-6 py-3 md:px-8 md:py-4 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden cursor-pointer"
         >
-          {/* Hover background color that floods in */}
+          {/* Hover background color */}
           <div className={`absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 ${brand.bg} -z-10`}></div>
           
-          <div className="flex items-center justify-center bg-white rounded-full p-2 shadow-sm group-hover/card:scale-110 transition-transform duration-500 ease-out border border-gray-50 relative z-10">
-            <brand.Icon className={`w-5 h-5 md:w-6 md:h-6 ${brand.color} transition-transform duration-700 group-hover/card:rotate-12`} strokeWidth={2} />
+          <div className="flex items-center justify-center bg-white rounded-full p-2 shadow-sm group-hover/card:scale-110 transition-transform duration-500 ease-out border border-gray-50 relative z-10 text-xl">
+            {brand.emoji}
           </div>
           
-          <h3 className="font-sans font-bold text-sm md:text-base text-gray-800 group-hover/card:text-black transition-colors relative z-10 whitespace-nowrap">
-            {brand.name}
-          </h3>
+          <div className="flex flex-col relative z-10">
+            <h3 className="font-sans font-bold text-sm md:text-base text-gray-800 group-hover/card:text-black transition-colors whitespace-nowrap">
+              {brand.name}
+            </h3>
+            {brand.subtitle && (
+              <p className={`text-[10px] font-medium ${brand.color} whitespace-nowrap`}>{brand.subtitle}</p>
+            )}
+          </div>
         </div>
       ))}
     </>
@@ -50,7 +46,7 @@ export function Brands() {
           </h2>
           <div className="hidden md:block w-12 h-[2px] bg-gray-200"></div>
           <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase text-orange-500">
-            Trusted by the Best
+            Growing Together
           </span>
         </div>
       </div>
