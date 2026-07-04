@@ -149,7 +149,7 @@ export default function ProfilePage() {
     status: "Active",
     performanceRating: "",
     notes: "",
-    preferredCurrency: "USD"
+    preferredCurrency: ""
   });
 
   // TPSP Form State
@@ -1083,7 +1083,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Preferred Currency</label>
+                      <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Preferred Currency *</label>
                       <div className="relative">
                         <select
                           value={spData.preferredCurrency}
