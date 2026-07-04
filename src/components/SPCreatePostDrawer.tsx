@@ -220,6 +220,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       const postPayload = {
         ...formData,
         packages,
+        preferredCurrency,
         postType: "sp",
         ownerUid: user.uid,
         authorName: authorName || user.displayName || user.email || "User",
