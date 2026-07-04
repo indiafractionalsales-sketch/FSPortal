@@ -118,9 +118,9 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                 <button
                   key={pkg.id || idx}
                   onClick={() => setViewingPackage(pkg)}
-                  className="px-2.5 py-1 bg-[#701010] hover:bg-[#5a0c0c] rounded-md text-white text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                  <Tag className="w-3 h-3 text-white fill-white/80" />
+                  <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
                   {calculateTotalCost(pkg.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
                 </button>
               ))}
