@@ -71,7 +71,7 @@ export default function LoginPage() {
               Portal
             </span>
           </Link>
-          <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Where Every Post is a Business</span>
+          <span className="text-[9px] font-sans text-gray-500 italic leading-none mt-[1px]">Every Post is a Business</span>
         </div>
       </header>
 
