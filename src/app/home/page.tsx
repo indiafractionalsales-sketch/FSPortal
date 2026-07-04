@@ -701,6 +701,7 @@ export default function HomePage() {
         }} 
         authorName={spData.fullName || user?.displayName || user?.email || undefined}
         authorAvatar={spData.profilePhoto || user?.photoURL || undefined}
+        preferredCurrency={spData.preferredCurrency || "USD"}
       />
 
       {/* OBO Post Creation Drawer */}

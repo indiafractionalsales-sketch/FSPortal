@@ -63,7 +63,7 @@ export default function OnboardingWizard() {
     salesChannels: [] as string[], avgDealSize: "", pastBrands: "", productCategories: "",
     engagementType: "", commissionStructure: "",
     whatsappGroups: "", socialFollowing: "", communityAccess: "", tradeFairExp: "", retailConnections: "",
-    rightToWork: "", companyName: "", companyRegNo: "", gdprCompliant: "", status: "Active", performanceRating: "", notes: ""
+    rightToWork: "", companyName: "", companyRegNo: "", gdprCompliant: "", status: "Active", performanceRating: "", notes: "", preferredCurrency: "USD"
   });
 
   const [tpspData, setTpspData] = useState({
@@ -308,6 +308,7 @@ export default function OnboardingWizard() {
                 <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({...p, linkedinProfile: v}))} />
                 <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({...p, socialFollowing: v}))} />
                 <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({...p, avgDealSize: v}))} />
+                <Select label="Preferred Currency" value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
                 <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({...p, pastBrands: v}))} />
               </div>
             )}

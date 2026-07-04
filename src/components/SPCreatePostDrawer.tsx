@@ -13,6 +13,7 @@ interface SPCreatePostDrawerProps {
   editPostData?: Record<string, any> | null;
   authorName?: string;
   authorAvatar?: string;
+  preferredCurrency?: string;
 }
 
 interface LineItem {
@@ -43,7 +44,7 @@ const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "
   </div>
 );
 
-export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, authorName, authorAvatar }: SPCreatePostDrawerProps) {
+export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, authorName, authorAvatar, preferredCurrency = "USD" }: SPCreatePostDrawerProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
@@ -161,7 +162,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     return items.reduce((total, item) => {
       const cost = parseFloat(item.cost) || 0;
       return total + cost;
-    }, 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    }, 0).toLocaleString('en-US', { style: 'currency', currency: preferredCurrency });
   };
 
   const handleNext = () => {
@@ -422,7 +423,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                       <div className="p-4 bg-white space-y-3">
                         <div className="grid grid-cols-12 gap-3 pb-2 border-b border-gray-100">
                           <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item Description</div>
-                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost (USD)</div>
+                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost ({preferredCurrency})</div>
                           <div className="col-span-1"></div>
                         </div>
                         

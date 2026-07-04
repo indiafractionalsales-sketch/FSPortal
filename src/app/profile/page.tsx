@@ -148,7 +148,8 @@ export default function ProfilePage() {
     gdprCompliant: "",
     status: "Active",
     performanceRating: "",
-    notes: ""
+    notes: "",
+    preferredCurrency: "USD"
   });
 
   // TPSP Form State
@@ -1077,6 +1078,25 @@ export default function ProfilePage() {
                         placeholder="e.g. £10K"
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010]"
                       />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Preferred Currency</label>
+                      <div className="relative">
+                        <select
+                          value={spData.preferredCurrency}
+                          onChange={e => setSpData({ ...spData, preferredCurrency: e.target.value })}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#701010] appearance-none disabled:bg-gray-50 disabled:text-gray-500"
+                          disabled={!isEditing}
+                        >
+                          <option value="USD">USD</option>
+                          <option value="EUR">EUR</option>
+                          <option value="GBP">GBP</option>
+                          <option value="INR">INR</option>
+                          <option value="AUD">AUD</option>
+                          <option value="CAD">CAD</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                      </div>
                     </div>
                     <div>
                       <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 block mb-1">Past Brands Represented</label>
