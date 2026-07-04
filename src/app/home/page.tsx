@@ -685,6 +685,8 @@ export default function HomePage() {
           setEditingPost(null);
           refreshFeed();
         }} 
+        authorName={spData.fullName || user?.displayName || user?.email || undefined}
+        authorAvatar={spData.profilePhoto || user?.photoURL || undefined}
       />
 
       {/* OBO Post Creation Drawer */}
@@ -698,6 +700,8 @@ export default function HomePage() {
         }}
         editPostData={editingPost}
         companyName={oboData?.legalName || oboData?.brandName}
+        authorName={oboData?.brandName || oboData?.legalName || user?.displayName || user?.email || undefined}
+        authorAvatar={oboData?.logo || user?.photoURL || undefined}
       />
 
       {/* Post Details Drawer */}

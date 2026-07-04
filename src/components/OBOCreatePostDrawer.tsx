@@ -11,6 +11,8 @@ interface OBOCreatePostDrawerProps {
   onClose: () => void;
   onSuccess: () => void;
   editPostData?: Record<string, any> | null;
+  authorName?: string;
+  authorAvatar?: string;
 }
 
 const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "text", required = false, info }: any) => (
@@ -121,7 +123,7 @@ const CheckboxHelper = ({ label, checked, onChange, required = false, info }: an
 );
 
 
-export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, companyName }: { isOpen: boolean; onClose: () => void; onSuccess: () => void; editPostData?: any; companyName?: string; }) {
+export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, authorName, authorAvatar }: OBOCreatePostDrawerProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState(1);

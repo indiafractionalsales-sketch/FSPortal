@@ -11,6 +11,8 @@ interface SPCreatePostDrawerProps {
   onClose: () => void;
   onSuccess: () => void;
   editPostData?: Record<string, any> | null;
+  authorName?: string;
+  authorAvatar?: string;
 }
 
 const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "text" }: any) => (
@@ -29,7 +31,7 @@ const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "
   </div>
 );
 
-export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData }: SPCreatePostDrawerProps) {
+export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, authorName, authorAvatar }: SPCreatePostDrawerProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -135,8 +137,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
         ...formData,
         postType: "sp",
         ownerUid: user.uid,
-        authorName: user.displayName || user.email || "User",
-        authorAvatar: user.photoURL || "",
+        authorName: authorName || user.displayName || user.email || "User",
+        authorAvatar: authorAvatar || user.photoURL || "",
         mediaUrl: uploadedImageUrl,
         createdAt: editPostData?.createdAt || new Date().toISOString(),
       };
