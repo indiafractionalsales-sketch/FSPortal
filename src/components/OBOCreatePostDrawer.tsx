@@ -248,7 +248,7 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
         ...formData,
         postType: "obo",
         ownerUid: user.uid,
-        authorName: companyName || user.displayName || user.email || "User",
+        authorName: authorName || user.displayName || user.email || "User",
         authorAvatar: user.photoURL || "",
         mediaUrl: uploadedImageUrl,
         createdAt: editPostData?.createdAt || new Date().toISOString(),
