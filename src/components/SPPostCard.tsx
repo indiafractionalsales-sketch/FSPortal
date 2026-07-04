@@ -411,14 +411,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
       {/* Action Buttons */}
       <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
-        <button
-          onClick={() => setIsInterested(!isInterested)}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isInterested ? "text-amber-500 hover:bg-amber-50" : "text-gray-700 hover:bg-gray-50 hover:text-[#701010]"
-            }`}
-        >
-          <Star className={`w-3.5 h-3.5 ${isInterested ? "fill-amber-400 text-amber-500" : ""}`} />
-          {isInterested ? "Interested ✓" : "Interested"}
-        </button>
+
         <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
           <ThumbsUp className="w-3.5 h-3.5" /> Like
         </button>
