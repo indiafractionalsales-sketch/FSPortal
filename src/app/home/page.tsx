@@ -460,6 +460,7 @@ export default function HomePage() {
                   post={post as any}
                   authorName={(dynamicName || post.authorName) as string | undefined}
                   authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                  currentUserCurrency={spData.preferredCurrency}
                   onEdit={() => handleEditPost(post)}
                   onViewDetails={() => setViewingPost(post)}
                 />

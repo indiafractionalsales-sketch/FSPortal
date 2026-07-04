@@ -45,12 +45,12 @@ interface SPPostCardProps {
   post: SPPost;
   authorName?: string;
   authorAvatar?: string;
+  currentUserCurrency?: string;
   onEdit?: () => void;
   onViewDetails?: () => void;
 }
 
-export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onViewDetails }: SPPostCardProps) {
-  const [isInterested, setIsInterested] = useState(false);
+export default function SPPostCard({ post, authorName, authorAvatar, currentUserCurrency, onEdit, onViewDetails }: SPPostCardProps) {
   const [viewingPackage, setViewingPackage] = useState<any | null>(null);
   const isOwner = auth.currentUser?.uid === post.ownerUid;
 
@@ -80,7 +80,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
     }, 0);
   };
 
-  const currencyStr = post.preferredCurrency || "USD";
+  const currencyStr = post.preferredCurrency || currentUserCurrency || "USD";
 
   return (
     <>
@@ -136,16 +136,6 @@ export default function SPPostCard({ post, authorName, authorAvatar, onEdit, onV
               <Pencil className="w-3.5 h-3.5" />
             </button>
           )}
-          <button
-            onClick={() => setIsInterested(!isInterested)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[8px] font-headline font-bold uppercase tracking-widest transition-all duration-200 ${isInterested
-                ? "bg-amber-500 border-amber-500 text-white"
-                : "bg-[#701010] border-[#701010] text-white hover:bg-[#5a0c0c]"
-              }`}
-          >
-            <Star className={`w-2.5 h-2.5 ${isInterested ? "fill-white text-white" : "fill-current text-amber-400"}`} />
-            {isInterested ? "Interested ✓" : "Interested?"}
-          </button>
         </div>
       </div>
 
