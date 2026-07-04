@@ -101,6 +101,10 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     const missingFields: string[] = [];
     if (!formData.eventName) missingFields.push("Event Name");
     if (!formData.date) missingFields.push("Date");
+    if (!formData.venue) missingFields.push("Venue");
+    if (!formData.city) missingFields.push("City");
+    if (!formData.country) missingFields.push("Country");
+    if (!formData.pincode) missingFields.push("Pincode/ZIP");
     if (!formData.googleMapLink) missingFields.push("Google Map Link");
     if (!formData.description) missingFields.push("Description");
     if (!imagePreview) missingFields.push("Cover Image");
@@ -230,10 +234,10 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
               <MapPin className="w-4 h-4" /> Location Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InputHelper label="Venue" value={formData.venue} onChange={(v: string) => setFormData({...formData, venue: v})} placeholder="Grand Hyatt" />
-              <InputHelper label="City" value={formData.city} onChange={(v: string) => setFormData({...formData, city: v})} placeholder="New York" />
-              <InputHelper label="Country" value={formData.country} onChange={(v: string) => setFormData({...formData, country: v})} placeholder="USA" />
-              <InputHelper label="Pincode / ZIP" value={formData.pincode} onChange={(v: string) => setFormData({...formData, pincode: v})} placeholder="10001" />
+              <InputHelper label="Venue *" value={formData.venue} onChange={(v: string) => setFormData({...formData, venue: v})} placeholder="Grand Hyatt" />
+              <InputHelper label="City *" value={formData.city} onChange={(v: string) => setFormData({...formData, city: v})} placeholder="New York" />
+              <InputHelper label="Country *" value={formData.country} onChange={(v: string) => setFormData({...formData, country: v})} placeholder="USA" />
+              <InputHelper label="Pincode / ZIP *" value={formData.pincode} onChange={(v: string) => setFormData({...formData, pincode: v})} placeholder="10001" />
             </div>
             <InputHelper icon={MapPin} label="Google Map Link *" value={formData.googleMapLink} onChange={(v: string) => setFormData({...formData, googleMapLink: v})} placeholder="https://maps.google.com/..." />
           </div>
