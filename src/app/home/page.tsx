@@ -74,7 +74,8 @@ export default function HomePage() {
   });
   const [spData, setSpData] = useState({
     fullName: "",
-    profilePhoto: ""
+    profilePhoto: "",
+    banner: ""
   });
   const [tpspData, setTpspData] = useState({
     companyName: "",
@@ -102,28 +103,31 @@ export default function HomePage() {
       try {
         const idToken = await user.getIdToken();
 
-        const userData = await getDocument("users", user.uid, idToken);
+        const userData = await getDocument("users", user.uid, idToken, "default");
         if (userData?.role) {
+          const dbId = (userData.databaseId as string) || "default";
           setUserType(userData.role as "obo" | "sp" | "tpsp");
           if (userData.role === "obo") {
-            const data = await getDocument("OBO_Profile", user.uid, idToken);
+            const data = await getDocument("OBO_Profile", user.uid, idToken, dbId);
             if (data) {
               setOboData({
                 brandName: (data.brandName as string) || "",
+                legalName: (data.legalName as string) || "",
                 logo: (data.logo as string) || "",
                 banner: (data.banner as string) || ""
               });
             }
           } else if (userData.role === "sp") {
-            const data = await getDocument("SP_Profile", user.uid, idToken);
+            const data = await getDocument("SP_Profile", user.uid, idToken, dbId);
             if (data) {
               setSpData({
                 fullName: (data.fullName as string) || "",
-                profilePhoto: (data.profilePhoto as string) || ""
+                profilePhoto: (data.profilePhoto as string) || "",
+                banner: (data.banner as string) || ""
               });
             }
           } else if (userData.role === "tpsp") {
-            const data = await getDocument("TPSP_Profile", user.uid, idToken);
+            const data = await getDocument("TPSP_Profile", user.uid, idToken, dbId);
             if (data) {
               setTpspData({
                 companyName: (data.companyName as string) || "",
@@ -134,7 +138,7 @@ export default function HomePage() {
           }
         } else {
           // Fallback checks
-          const oboData = await getDocument("OBO_Profile", user.uid, idToken);
+          const oboData = await getDocument("OBO_Profile", user.uid, idToken, "default");
           if (oboData) {
             setUserType("obo");
             setOboData({
@@ -144,15 +148,16 @@ export default function HomePage() {
               banner: (oboData.banner as string) || ""
             });
           } else {
-            const spData = await getDocument("SP_Profile", user.uid, idToken);
+            const spData = await getDocument("SP_Profile", user.uid, idToken, "default");
             if (spData) {
               setUserType("sp");
               setSpData({
                 fullName: (spData.fullName as string) || "",
-                profilePhoto: (spData.profilePhoto as string) || ""
+                profilePhoto: (spData.profilePhoto as string) || "",
+                banner: (spData.banner as string) || ""
               });
             } else {
-              const tpspData = await getDocument("TPSP_Profile", user.uid, idToken);
+              const tpspData = await getDocument("TPSP_Profile", user.uid, idToken, "default");
               if (tpspData) {
                 setUserType("tpsp");
                 setTpspData({
