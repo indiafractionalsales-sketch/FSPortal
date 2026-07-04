@@ -44,6 +44,17 @@ const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "
   </div>
 );
 
+const getCurrencySymbol = (currency: string) => {
+  switch(currency) {
+    case 'EUR': return '€';
+    case 'GBP': return '£';
+    case 'INR': return '₹';
+    case 'AUD': return 'A$';
+    case 'CAD': return 'C$';
+    case 'USD': default: return '$';
+  }
+};
+
 export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPostData, authorName, authorAvatar, preferredCurrency = "USD" }: SPCreatePostDrawerProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -162,7 +173,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     return items.reduce((total, item) => {
       const cost = parseFloat(item.cost) || 0;
       return total + cost;
-    }, 0).toLocaleString('en-US', { style: 'currency', currency: preferredCurrency });
+    }, 0).toLocaleString(preferredCurrency === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: preferredCurrency });
   };
 
   const handleNext = () => {
@@ -423,7 +434,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                       <div className="p-4 bg-white space-y-3">
                         <div className="grid grid-cols-12 gap-3 pb-2 border-b border-gray-100">
                           <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item Description</div>
-                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost ({preferredCurrency})</div>
+                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost ({getCurrencySymbol(preferredCurrency)})</div>
                           <div className="col-span-1"></div>
                         </div>
                         
