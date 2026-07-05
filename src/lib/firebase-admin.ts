@@ -23,27 +23,28 @@ if (!admin.apps.length) {
   }
 }
 
-// Export the initialized firestore database instance targeting 'default' explicitly
-const adminDb = admin.apps.length ? getFirestore(admin.apps[0], 'default') : null;
+// Export the initialized firestore database instance targeting '(default)' explicitly
+const adminDb = admin.apps.length ? getFirestore(admin.apps[0], '(default)') : null;
 
 // Get a Firestore instance for a specific database ID
 export function getDbForId(databaseId: string) {
   if (!admin.apps.length) return null;
-  return getFirestore(admin.apps[0], databaseId || 'default');
+  const targetDbId = !databaseId || databaseId === 'default' ? '(default)' : databaseId;
+  return getFirestore(admin.apps[0], targetDbId);
 }
 
-// Helper to look up a user's configured database ID from 'default' DB users collection
+// Helper to look up a user's configured database ID from '(default)' DB users collection
 export async function getUserDatabaseId(uid: string): Promise<string> {
-  if (!adminDb) return 'default';
+  if (!adminDb) return '(default)';
   try {
     const userDoc = await adminDb.collection('users').doc(uid).get();
     if (userDoc.exists) {
-      return userDoc.data()?.databaseId || 'default';
+      return userDoc.data()?.databaseId || '(default)';
     }
   } catch (err) {
     console.error(`Error fetching database ID for user ${uid}:`, err);
   }
-  return 'default';
+  return '(default)';
 }
 
 export { adminDb, admin };
