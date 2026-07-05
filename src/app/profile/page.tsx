@@ -197,13 +197,22 @@ export default function ProfilePage() {
 
           if (role === "obo") {
             const oboData = await getDocument("OBO_Profile", user.uid, idToken, dbId);
-            if (oboData) setOboData(prev => ({ ...prev, ...oboData }));
+            if (oboData) {
+              setOboData(prev => ({ ...prev, ...oboData }));
+              if (oboData.products) setProducts(oboData.products as any);
+            }
           } else if (role === "sp") {
             const spData = await getDocument("SP_Profile", user.uid, idToken, dbId);
-            if (spData) setSpData(prev => ({ ...prev, ...spData, salesChannels: (spData.salesChannels as string[]) || [] }));
+            if (spData) {
+              setSpData(prev => ({ ...prev, ...spData, salesChannels: (spData.salesChannels as string[]) || [] }));
+              if (spData.products) setProducts(spData.products as any);
+            }
           } else if (role === "tpsp") {
             const tpspData = await getDocument("TPSP_Profile", user.uid, idToken, dbId);
-            if (tpspData) setTpspData(prev => ({ ...prev, ...tpspData, logo: (tpspData.logo as string) || "", banner: (tpspData.banner as string) || "" }));
+            if (tpspData) {
+              setTpspData(prev => ({ ...prev, ...tpspData, logo: (tpspData.logo as string) || "", banner: (tpspData.banner as string) || "" }));
+              if (tpspData.products) setProducts(tpspData.products as any);
+            }
           }
           return;
         }
@@ -213,6 +222,7 @@ export default function ProfilePage() {
         if (oboData) {
           setUserType("obo");
           setOboData(prev => ({ ...prev, ...oboData }));
+          if (oboData.products) setProducts(oboData.products as any);
           setIsRoleLocked(true);
           return;
         }
@@ -221,6 +231,7 @@ export default function ProfilePage() {
         if (spData) {
           setUserType("sp");
           setSpData(prev => ({ ...prev, ...spData, salesChannels: (spData.salesChannels as string[]) || [] }));
+          if (spData.products) setProducts(spData.products as any);
           setIsRoleLocked(true);
           return;
         }
@@ -229,6 +240,7 @@ export default function ProfilePage() {
         if (tpspData) {
           setUserType("tpsp");
           setTpspData(prev => ({ ...prev, ...tpspData, logo: (tpspData.logo as string) || "", banner: (tpspData.banner as string) || "" }));
+          if (tpspData.products) setProducts(tpspData.products as any);
           setIsRoleLocked(true);
           return;
         }
@@ -326,7 +338,7 @@ export default function ProfilePage() {
         if (!oboData.legalName || !oboData.brandName || !oboData.gstNumber || !oboData.incorporationDate || !oboData.revenueRange) {
           throw new Error("Please fill in all mandatory fields: Company Legal Name, Brand Name, GST/TAX Number, Incorporation Date, and Revenue Range.");
         }
-        const finalObo = { ...oboData, registeredEmail: user.email || "" };
+        const finalObo = { ...oboData, products, registeredEmail: user.email || "" };
         if (finalObo.logo?.startsWith("data:")) {
           finalObo.logo = await uploadImage(finalObo.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         }
@@ -340,7 +352,7 @@ export default function ProfilePage() {
         if (!spData.city || !spData.yearsExperience) {
           throw new Error("Please fill in all mandatory fields: City and Years of Experience.");
         }
-        const finalSp = { ...spData, registeredEmail: user.email || "" };
+        const finalSp = { ...spData, products, registeredEmail: user.email || "" };
         if (finalSp.profilePhoto?.startsWith("data:")) {
           finalSp.profilePhoto = await uploadImage(finalSp.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         }
@@ -354,7 +366,7 @@ export default function ProfilePage() {
         if (!tpspData.companyName) {
           throw new Error("Company Name is mandatory for Third Party Service Providers.");
         }
-        const finalTpsp = { ...tpspData, registeredEmail: user.email || "" };
+        const finalTpsp = { ...tpspData, products, registeredEmail: user.email || "" };
         if (finalTpsp.logo?.startsWith("data:")) {
           finalTpsp.logo = await uploadImage(finalTpsp.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Briefcase, Building, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Briefcase, Building, Loader2, ExternalLink, ImageIcon, FileText } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -92,7 +92,13 @@ export default function PublicProfilePage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Header Banner */}
-          <div className="h-32 bg-gradient-to-r from-gray-900 to-[#701010] relative" />
+          <div className="h-32 bg-gradient-to-r from-gray-900 to-[#701010] relative overflow-hidden">
+            {profileData.banner ? (
+              <img src={profileData.banner} alt="Profile Banner" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full opacity-35 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            )}
+          </div>
           
           {/* Avatar & Info Row */}
           <div className="px-8 pb-8 relative">
@@ -147,6 +153,51 @@ export default function PublicProfilePage() {
                 <p className="text-gray-700 font-sans leading-relaxed whitespace-pre-wrap">
                   {profileData.about}
                 </p>
+              </div>
+            )}
+
+            {/* Catalog Section */}
+            {profileData.products && profileData.products.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <h2 className="text-sm font-headline font-bold text-gray-900 uppercase tracking-wider mb-4">
+                  {profileData.userType === "obo" ? "Product Catalog" : "Service Catalog"}
+                </h2>
+                <div className="grid grid-cols-1 gap-4">
+                  {profileData.products.map((product: any, idx: number) => (
+                    <div key={product.id || idx} className="border border-gray-150 rounded-xl p-4 bg-white flex gap-4 items-start shadow-sm">
+                      {/* Image Thumbnail */}
+                      {product.photos && product.photos.length > 0 ? (
+                        <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-100 flex-shrink-0 bg-gray-50">
+                          <img src={product.photos[0]} alt={product.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 rounded-lg bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <ImageIcon className="w-6 h-6 text-gray-300" />
+                        </div>
+                      )}
+
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-serif font-bold text-base text-gray-900 truncate">
+                          {product.name || "Untitled Product"}
+                        </h3>
+                        {product.specification && (
+                          <div className="text-xs text-gray-550 mt-1.5 line-clamp-2" dangerouslySetInnerHTML={{ __html: product.specification }} />
+                        )}
+                        {product.referenceLink && (
+                          <a
+                            href={product.referenceLink.startsWith("http") ? product.referenceLink : `https://${product.referenceLink}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[9px] text-[#701010] hover:underline mt-3 font-headline font-bold uppercase tracking-wider"
+                          >
+                            <ExternalLink className="w-3 h-3" /> View Reference
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
