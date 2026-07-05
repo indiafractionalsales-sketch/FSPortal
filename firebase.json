@@ -4,13 +4,6 @@
     "indexes": "firestore.indexes.json"
   },
   "apphosting": {
-    "backendId": "impexprod",
-    "rootDir": "./",
-    "ignore": [
-      "node_modules",
-      ".git",
-      ".next",
-      "firebase-debug.log"
-    ]
+    "backendId": "fractionalsalesdev"
   }
 }
