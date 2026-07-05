@@ -55,7 +55,7 @@ export default function HomePage() {
   const [viewingPost, setViewingPost] = useState<Record<string, unknown> | null>(null);
 
   // Feed state
-  const [feedTab, setFeedTab] = useState<"global" | "mine">("global");
+  const [feedTab, setFeedTab] = useState<"global" | "mine" | "deals">("global");
   const [posts, setPosts] = useState<Record<string, unknown>[]>([]);
   const [feedLoading, setFeedLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -192,7 +192,7 @@ export default function HomePage() {
     setFeedLoading(true);
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+      const whereClause = (feedTab === "mine" || feedTab === "deals") ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
       
       const { docs, lastDoc } = await queryCollection("Posts", idToken, {
         orderByField: "createdAt",
@@ -222,7 +222,7 @@ export default function HomePage() {
     lastDocRef.current = null;
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+      const whereClause = (feedTab === "mine" || feedTab === "deals") ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
 
       const { docs, lastDoc } = await queryCollection("Posts", idToken, {
         orderByField: "createdAt",
@@ -367,10 +367,15 @@ export default function HomePage() {
                   <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
                 </button>
               </li>
+              <li>
+                <button onClick={() => setFeedTab("deals")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "deals" ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+                  <span className="text-base">💼</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
+                </button>
+              </li>
               <div className="h-px bg-gray-100 my-2" />
               {[
                 { label: 'My Network', icon: '🤝' },
-                { label: 'My Deals', icon: '💼' },
                 { label: 'Saved Items', icon: '🔖' },
               ].map((item) => (
                 <li key={item.label}>
@@ -444,30 +449,48 @@ export default function HomePage() {
 
 
             {/* Dynamic Posts Feed */}
-            {posts.length === 0 && !feedLoading && (
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
-                <p className="text-sm font-headline font-bold uppercase tracking-wider">No posts yet</p>
-                <p className="text-xs mt-1">Be the first to post an event!</p>
-              </div>
-            )}
-
-            {posts.map((post) => {
-              const isMine = post.ownerUid === user?.uid;
-              const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
-              const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+            {(() => {
+              const displayedPosts = posts.filter((post) => {
+                if (feedTab === "mine") return post.paymentStatus !== "sold";
+                if (feedTab === "deals") return post.paymentStatus === "sold";
+                return true;
+              });
 
               return (
-                <SPPostCard
-                  key={post.__id as string}
-                  post={post as any}
-                  authorName={(dynamicName || post.authorName) as string | undefined}
-                  authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
-                  currentUserCurrency={spData.preferredCurrency}
-                  onEdit={() => handleEditPost(post)}
-                  onViewDetails={() => setViewingPost(post)}
-                />
+                <>
+                  {displayedPosts.length === 0 && !feedLoading && (
+                    <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
+                      <p className="text-sm font-headline font-bold uppercase tracking-wider">
+                        {feedTab === "deals" ? "No deals yet" : "No posts yet"}
+                      </p>
+                      <p className="text-xs mt-1">
+                        {feedTab === "deals" 
+                          ? "Your completed business transactions will appear here." 
+                          : "Be the first to post an event!"}
+                      </p>
+                    </div>
+                  )}
+
+                  {displayedPosts.map((post) => {
+                    const isMine = post.ownerUid === user?.uid;
+                    const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
+                    const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+
+                    return (
+                      <SPPostCard
+                        key={post.__id as string}
+                        post={post as any}
+                        authorName={(dynamicName || post.authorName) as string | undefined}
+                        authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                        currentUserCurrency={spData.preferredCurrency}
+                        onEdit={() => handleEditPost(post)}
+                        onViewDetails={() => setViewingPost(post)}
+                      />
+                    );
+                  })}
+                </>
               );
-            })}
+            })()}
 
             {/* Loading spinner */}
             {feedLoading && hasMore && (
