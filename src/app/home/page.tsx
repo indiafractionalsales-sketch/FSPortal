@@ -55,7 +55,7 @@ export default function HomePage() {
   const [viewingPost, setViewingPost] = useState<Record<string, unknown> | null>(null);
 
   // Feed state
-  const [feedTab, setFeedTab] = useState<"global" | "mine">("global");
+  const [feedTab, setFeedTab] = useState<"global" | "mine" | "deals">("global");
   const [posts, setPosts] = useState<Record<string, unknown>[]>([]);
   const [feedLoading, setFeedLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -192,18 +192,23 @@ export default function HomePage() {
     setFeedLoading(true);
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
-      
-      const { docs, lastDoc } = await queryCollection("Posts", idToken, {
-        orderByField: "createdAt",
-        orderDirection: "DESCENDING",
-        limit: PAGE_SIZE,
-        startAfterDoc: lastDocRef.current,
-        where: whereClause,
-      });
-      setPosts(prev => [...prev, ...docs]);
-      lastDocRef.current = lastDoc;
-      setHasMore(docs.length === PAGE_SIZE);
+      if (feedTab === "deals") {
+        // Pagination is disabled/simplified for deals
+        setHasMore(false);
+      } else {
+        const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+        
+        const { docs, lastDoc } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          limit: PAGE_SIZE,
+          startAfterDoc: lastDocRef.current,
+          where: whereClause,
+        });
+        setPosts(prev => [...prev, ...docs]);
+        lastDocRef.current = lastDoc;
+        setHasMore(docs.length === PAGE_SIZE);
+      }
     } catch (err) {
       console.error("Failed to load posts", err);
     } finally {
@@ -222,17 +227,49 @@ export default function HomePage() {
     lastDocRef.current = null;
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+      if (feedTab === "deals") {
+        // Fetch posts owned by user
+        const { docs: ownedDocs } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          where: [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }],
+        });
 
-      const { docs, lastDoc } = await queryCollection("Posts", idToken, {
-        orderByField: "createdAt",
-        orderDirection: "DESCENDING",
-        limit: PAGE_SIZE,
-        where: whereClause,
-      });
-      setPosts(docs);
-      lastDocRef.current = lastDoc;
-      setHasMore(docs.length === PAGE_SIZE);
+        // Fetch posts bought by user
+        const { docs: boughtDocs } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          where: [{ field: "paymentLockedBy", op: "EQUAL" as const, value: currentUser.uid }],
+        });
+
+        // Merge, deduplicate, and sort by createdAt descending
+        const mergedMap = new Map<string, any>();
+        [...ownedDocs, ...boughtDocs].forEach(doc => {
+          if (doc.__id) mergedMap.set(doc.__id as string, doc);
+        });
+
+        const mergedDocs = Array.from(mergedMap.values()).sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        setPosts(mergedDocs);
+        lastDocRef.current = null;
+        setHasMore(false);
+      } else {
+        const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+
+        const { docs, lastDoc } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          limit: PAGE_SIZE,
+          where: whereClause,
+        });
+        setPosts(docs);
+        lastDocRef.current = lastDoc;
+        setHasMore(docs.length === PAGE_SIZE);
+      }
     } catch (err) {
       console.error("Failed to refresh posts", err);
     } finally {
@@ -367,10 +404,15 @@ export default function HomePage() {
                   <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
                 </button>
               </li>
+              <li>
+                <button onClick={() => setFeedTab("deals")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "deals" ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+                  <span className="text-base">💼</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
+                </button>
+              </li>
               <div className="h-px bg-gray-100 my-2" />
               {[
                 { label: 'My Network', icon: '🤝' },
-                { label: 'My Deals', icon: '💼' },
                 { label: 'Saved Items', icon: '🔖' },
               ].map((item) => (
                 <li key={item.label}>
@@ -428,45 +470,64 @@ export default function HomePage() {
                   Start a post about fractional sales...
                 </button>
               </div>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>🖼️</span> Media
-                </button>
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>📅</span> Event
-                </button>
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>📝</span> Write article
+              <div className="flex items-center justify-center border-t border-gray-100 pt-3">
+                <button 
+                  onClick={() => {
+                    if (userType === "sp") setIsCreatePostOpen(true);
+                    else if (userType === "obo") setIsOBOCreatePostOpen(true);
+                    else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
+                  }}
+                  className="flex items-center justify-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-[#701010] hover:bg-[#701010]/5 border border-[#701010]/15 rounded-lg py-2 transition-all w-full bg-[#701010]/3 shadow-sm hover:shadow-md hover:scale-[1.01] duration-200"
+                >
+                  <span>💼</span> Post My Business
                 </button>
               </div>
             </div>
 
 
             {/* Dynamic Posts Feed */}
-            {posts.length === 0 && !feedLoading && (
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
-                <p className="text-sm font-headline font-bold uppercase tracking-wider">No posts yet</p>
-                <p className="text-xs mt-1">Be the first to post an event!</p>
-              </div>
-            )}
-
-            {posts.map((post) => {
-              const isMine = post.ownerUid === user?.uid;
-              const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
-              const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+            {(() => {
+              const displayedPosts = posts.filter((post) => {
+                if (feedTab === "mine") return post.paymentStatus !== "sold";
+                if (feedTab === "deals") return post.paymentStatus === "sold";
+                return true;
+              });
 
               return (
-                <SPPostCard
-                  key={post.__id as string}
-                  post={post as any}
-                  authorName={(dynamicName || post.authorName) as string | undefined}
-                  authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
-                  currentUserCurrency={spData.preferredCurrency}
-                  onEdit={() => handleEditPost(post)}
-                  onViewDetails={() => setViewingPost(post)}
-                />
+                <>
+                  {displayedPosts.length === 0 && !feedLoading && (
+                    <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
+                      <p className="text-sm font-headline font-bold uppercase tracking-wider">
+                        {feedTab === "deals" ? "No deals yet" : "No posts yet"}
+                      </p>
+                      <p className="text-xs mt-1">
+                        {feedTab === "deals" 
+                          ? "Your completed business transactions will appear here." 
+                          : "Be the first to post an event!"}
+                      </p>
+                    </div>
+                  )}
+
+                  {displayedPosts.map((post) => {
+                    const isMine = post.ownerUid === user?.uid;
+                    const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
+                    const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+
+                    return (
+                      <SPPostCard
+                        key={post.__id as string}
+                        post={post as any}
+                        authorName={(dynamicName || post.authorName) as string | undefined}
+                        authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                        currentUserCurrency={spData.preferredCurrency}
+                        onEdit={() => handleEditPost(post)}
+                        onViewDetails={() => setViewingPost(post)}
+                      />
+                    );
+                  })}
+                </>
               );
-            })}
+            })()}
 
             {/* Loading spinner */}
             {feedLoading && hasMore && (
