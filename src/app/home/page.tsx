@@ -428,15 +428,16 @@ export default function HomePage() {
                   Start a post about fractional sales...
                 </button>
               </div>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>🖼️</span> Media
-                </button>
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>📅</span> Event
-                </button>
-                <button className="flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-                  <span>📝</span> Write article
+              <div className="flex items-center justify-center border-t border-gray-100 pt-3">
+                <button 
+                  onClick={() => {
+                    if (userType === "sp") setIsCreatePostOpen(true);
+                    else if (userType === "obo") setIsOBOCreatePostOpen(true);
+                    else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
+                  }}
+                  className="flex items-center justify-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-[#701010] hover:bg-[#701010]/5 border border-[#701010]/15 rounded-lg py-2 transition-all w-full bg-[#701010]/3 shadow-sm hover:shadow-md hover:scale-[1.01] duration-200"
+                >
+                  <span>💼</span> Post My Business
                 </button>
               </div>
             </div>
