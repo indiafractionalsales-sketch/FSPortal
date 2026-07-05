@@ -192,18 +192,23 @@ export default function HomePage() {
     setFeedLoading(true);
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = (feedTab === "mine" || feedTab === "deals") ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
-      
-      const { docs, lastDoc } = await queryCollection("Posts", idToken, {
-        orderByField: "createdAt",
-        orderDirection: "DESCENDING",
-        limit: PAGE_SIZE,
-        startAfterDoc: lastDocRef.current,
-        where: whereClause,
-      });
-      setPosts(prev => [...prev, ...docs]);
-      lastDocRef.current = lastDoc;
-      setHasMore(docs.length === PAGE_SIZE);
+      if (feedTab === "deals") {
+        // Pagination is disabled/simplified for deals
+        setHasMore(false);
+      } else {
+        const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+        
+        const { docs, lastDoc } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          limit: PAGE_SIZE,
+          startAfterDoc: lastDocRef.current,
+          where: whereClause,
+        });
+        setPosts(prev => [...prev, ...docs]);
+        lastDocRef.current = lastDoc;
+        setHasMore(docs.length === PAGE_SIZE);
+      }
     } catch (err) {
       console.error("Failed to load posts", err);
     } finally {
@@ -222,17 +227,49 @@ export default function HomePage() {
     lastDocRef.current = null;
     try {
       const idToken = await currentUser.getIdToken();
-      const whereClause = (feedTab === "mine" || feedTab === "deals") ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+      if (feedTab === "deals") {
+        // Fetch posts owned by user
+        const { docs: ownedDocs } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          where: [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }],
+        });
 
-      const { docs, lastDoc } = await queryCollection("Posts", idToken, {
-        orderByField: "createdAt",
-        orderDirection: "DESCENDING",
-        limit: PAGE_SIZE,
-        where: whereClause,
-      });
-      setPosts(docs);
-      lastDocRef.current = lastDoc;
-      setHasMore(docs.length === PAGE_SIZE);
+        // Fetch posts bought by user
+        const { docs: boughtDocs } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          where: [{ field: "paymentLockedBy", op: "EQUAL" as const, value: currentUser.uid }],
+        });
+
+        // Merge, deduplicate, and sort by createdAt descending
+        const mergedMap = new Map<string, any>();
+        [...ownedDocs, ...boughtDocs].forEach(doc => {
+          if (doc.__id) mergedMap.set(doc.__id as string, doc);
+        });
+
+        const mergedDocs = Array.from(mergedMap.values()).sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        setPosts(mergedDocs);
+        lastDocRef.current = null;
+        setHasMore(false);
+      } else {
+        const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
+
+        const { docs, lastDoc } = await queryCollection("Posts", idToken, {
+          orderByField: "createdAt",
+          orderDirection: "DESCENDING",
+          limit: PAGE_SIZE,
+          where: whereClause,
+        });
+        setPosts(docs);
+        lastDocRef.current = lastDoc;
+        setHasMore(docs.length === PAGE_SIZE);
+      }
     } catch (err) {
       console.error("Failed to refresh posts", err);
     } finally {
