@@ -56,6 +56,7 @@ interface SPPost {
   createdAt?: string;
   postType?: string;
   paymentStatus?: string;
+  likedBy?: string[];
 }
 
 interface SPPostCardProps {
@@ -79,7 +80,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
-  const isOwner = auth.currentUser?.uid === post.ownerUid;
+  const currentUid = auth.currentUser?.uid;
+  const initialLiked = post.likedBy?.includes(currentUid || "") || false;
+  const initialLikeCount = post.likedBy?.length || 0;
+
+  const [isLiked, setIsLiked] = useState(initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
+
+  const isOwner = currentUid === post.ownerUid;
 
   const initials = authorName
     ? authorName.charAt(0).toUpperCase()
@@ -141,6 +149,41 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     setIsCommentsOpen(true);
     if (comments.length === 0) {
       fetchComments();
+    }
+  };
+
+  const handleLike = async () => {
+    const token = await auth.currentUser?.getIdToken();
+    if (!token || !currentUid) {
+      alert("Please sign in to like this post.");
+      return;
+    }
+
+    const action = isLiked ? 'unlike' : 'like';
+    
+    // Optimistic UI update
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+
+    try {
+      const res = await fetch('/api/like', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: post.__id,
+          action
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to like post");
+    } catch (e) {
+      console.error(e);
+      // Revert optimistic UI on error
+      setIsLiked(isLiked);
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
     }
   };
 
@@ -598,8 +641,12 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       {/* Action Buttons */}
       <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
 
-        <button className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
-          <ThumbsUp className="w-3.5 h-3.5" /> Like
+        <button 
+          onClick={handleLike} 
+          className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isLiked ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+        >
+          <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-blue-600' : ''}`} /> 
+          {likeCount > 0 ? `${likeCount} Like${likeCount > 1 ? 's' : ''}` : 'Like'}
         </button>
         <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
           <MessageCircle className="w-3.5 h-3.5" /> Comment
