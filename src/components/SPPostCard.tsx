@@ -688,12 +688,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           >
             📈 insights
           </button>
-          <button 
-            onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
-          >
-            💰 Release Payment
-          </button>
+          {user?.uid === post.paymentLockedBy && (
+            <button 
+              onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+            >
+              💰 Release Payment
+            </button>
+          )}
         </div>
       )}
     </div>
