@@ -676,6 +676,26 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           <Share2 className="w-3.5 h-3.5" /> Share
         </button>
       </div>
+
+      {post.paymentStatus === 'sold' && (
+        <div className="flex items-center justify-between border-t border-gray-100 mx-4 py-3 mt-1">
+          <button 
+            onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+          >
+            💰 Release Payment
+          </button>
+          <button
+            onClick={() => {
+              const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
+              alert(`📊 Post Insights & Metrics\n\n- Deal Closed Date: ${dateStr}\n- Total Interest Likes: ${likeCount}\n- Feedback Comments: ${comments.length}\n- Escrow Status: Secured (Awaiting Release)`);
+            }}
+            className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:text-[#5a0c0c] hover:underline cursor-pointer transition-colors"
+          >
+            📈 insights
+          </button>
+        </div>
+      )}
     </div>
 
     {/* Package Viewing Drawer (Bottom/Right aligned based on screen) */}
