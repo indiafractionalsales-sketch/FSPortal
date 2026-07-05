@@ -264,11 +264,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   return (
     <>
     <div className="relative bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
-      {post.paymentStatus === 'sold' && (
-        <div className="absolute -right-10 top-4 w-40 bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest py-1.5 text-center rotate-45 shadow-md z-10 border-y border-red-700 pointer-events-none">
-          CLOSED
-        </div>
-      )}
+
       {/* Post Author */}
       <div className="flex items-start justify-between p-4 pb-3">
         <div className="flex items-start gap-3">
@@ -278,8 +274,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg mt-0.5">{initials}</div>
           )}
           <div>
-            <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug">
+            <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug flex items-center flex-wrap gap-2">
               {authorName || "User"}
+              {post.paymentStatus === 'sold' && (
+                <span className="bg-red-50 border border-red-100 text-red-600 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shadow-[0_1px_2px_rgba(239,68,68,0.1)] flex items-center gap-1.5 ml-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
+                  CLOSED
+                </span>
+              )}
               {post.postType === "obo" && (
                 <span
                   className="font-sans font-normal text-xs text-gray-600 ml-1.5 cursor-pointer hover:underline"
