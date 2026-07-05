@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2 } from "lucide-react";
@@ -330,15 +331,15 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
       {/* Post Author */}
       <div className="flex items-start justify-between p-4 pb-3">
-        <div className="flex items-start gap-3">
+        <Link href={post.ownerUid ? (isOwner ? '/profile' : `/user/${post.ownerUid}`) : '#'} className="flex items-start gap-3 group">
           {authorAvatar ? (
-            <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm mt-0.5" />
+            <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm mt-0.5 group-hover:opacity-90 transition-opacity" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg mt-0.5">{initials}</div>
+            <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg mt-0.5 group-hover:opacity-90 transition-opacity">{initials}</div>
           )}
           <div>
-            <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug flex items-center flex-wrap gap-2">
-              {authorName || "User"}
+            <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug flex items-center flex-wrap gap-2 group-hover:text-[#701010] transition-colors">
+              <span className="group-hover:underline">{authorName || "User"}</span>
               {post.paymentStatus === 'sold' && (
                 <span className="bg-red-50 border border-red-100 text-red-600 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shadow-[0_1px_2px_rgba(239,68,68,0.1)] flex items-center gap-1.5 ml-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
@@ -358,7 +359,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               {post.postType === "obo" ? "Business Owner" : "Sales Partner"} · {post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""}
             </p>
           </div>
-        </div>
+        </Link>
         <div className="flex items-center gap-2">
           {/* Package Capsules */}
           {post.packages && post.packages.length > 0 && (

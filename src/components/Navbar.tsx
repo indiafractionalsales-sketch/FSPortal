@@ -8,19 +8,19 @@ import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 
 interface NavbarProps {
-  user: User | null;
-  profileData: {
+  user?: User | null;
+  profileData?: {
     spData?: { profilePhoto?: string; fullName?: string };
     oboData?: { logo?: string; brandName?: string };
     tpspData?: { logo?: string; companyName?: string };
   };
 }
 
-export default function Navbar({ user, profileData }: NavbarProps) {
+export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
-  const { spData, oboData, tpspData } = profileData;
+  const { spData, oboData, tpspData } = profileData || {};
 
   const handleLogout = async () => {
     try {
