@@ -29,8 +29,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const data = userDoc.data() || {};
-    const userType = data.userType;
+    const userData = userDoc.data() || {};
+    const role = userData.role;
+
+    let profileDoc;
+    let data: any = {};
+
+    if (role === 'sp') {
+      profileDoc = await adminDb.collection('SP_Profile').doc(targetUid).get();
+    } else if (role === 'obo') {
+      profileDoc = await adminDb.collection('OBO_Profile').doc(targetUid).get();
+    } else if (role === 'tpsp') {
+      profileDoc = await adminDb.collection('TPSP_Profile').doc(targetUid).get();
+    }
+
+    if (profileDoc && profileDoc.exists) {
+      data = profileDoc.data() || {};
+    }
 
     let publicData = {
       fullName: null,
@@ -39,38 +54,38 @@ export async function GET(request: Request) {
       companyName: null,
       location: null,
       about: null,
-      userType: userType
+      userType: role
     };
 
-    if (userType === 'sp' && data.spData) {
+    if (role === 'sp') {
       publicData = {
         ...publicData,
-        fullName: data.spData.fullName || null,
-        photoURL: data.spData.profilePhoto || null,
-        title: data.spData.jobTitle || 'Sales Partner',
-        companyName: data.spData.companyName || null,
-        location: [data.spData.city, data.spData.country].filter(Boolean).join(', ') || null,
-        about: data.spData.notes || data.spData.industryExperience || null,
+        fullName: data.fullName || null,
+        photoURL: data.profilePhoto || null,
+        title: data.jobTitle || 'Sales Partner',
+        companyName: data.companyName || null,
+        location: [data.city, data.country].filter(Boolean).join(', ') || null,
+        about: data.notes || data.industryExperience || null,
       };
-    } else if (userType === 'obo' && data.oboData) {
+    } else if (role === 'obo') {
       publicData = {
         ...publicData,
-        fullName: data.oboData.brandName || data.oboData.legalName || 'Business Owner',
-        photoURL: data.oboData.logo || null,
+        fullName: data.brandName || data.legalName || 'Business Owner',
+        photoURL: data.logo || null,
         title: 'Business Owner',
-        companyName: data.oboData.legalName || null,
-        location: data.oboData.country || null,
-        about: data.oboData.website ? `Website: ${data.oboData.website}` : null,
+        companyName: data.legalName || null,
+        location: data.country || null,
+        about: data.website ? `Website: ${data.website}` : null,
       };
-    } else if (userType === 'tpsp' && data.tpspData) {
+    } else if (role === 'tpsp') {
       publicData = {
         ...publicData,
-        fullName: data.tpspData.companyName || 'Service Provider',
-        photoURL: data.tpspData.logo || null,
+        fullName: data.companyName || 'Service Provider',
+        photoURL: data.logo || null,
         title: 'Third Party Service Provider',
-        companyName: data.tpspData.companyName || null,
-        location: data.tpspData.country || null,
-        about: data.tpspData.services || null,
+        companyName: data.companyName || null,
+        location: data.country || null,
+        about: data.services || null,
       };
     } else {
       // Fallback if data is malformed
