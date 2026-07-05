@@ -19,9 +19,8 @@ export default function PublicProfilePage() {
       if (user) {
         try {
           const token = await user.getIdToken();
-          const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
           
-          const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}`, {
+          const res = await fetch(`/api/profile?uid=${uid}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -37,17 +36,8 @@ export default function PublicProfilePage() {
           }
 
           const data = await res.json();
+          setProfileData(data);
           
-          if (data.fields) {
-            const parsedData: any = {};
-            for (const key in data.fields) {
-              const field = data.fields[key];
-              parsedData[key] = field.stringValue ?? field.booleanValue ?? field.integerValue ?? field.arrayValue?.values?.map((v:any)=>v.stringValue) ?? null;
-            }
-            setProfileData(parsedData);
-          } else {
-            setError("User not found.");
-          }
         } catch (err) {
           console.error(err);
         } finally {
