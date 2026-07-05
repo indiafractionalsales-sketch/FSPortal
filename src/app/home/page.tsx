@@ -422,25 +422,7 @@ export default function HomePage() {
                   </button>
                 </li>
               ))}
-              <div className="h-px bg-gray-100 my-2" />
-              <li>
-                <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base">⭐</span>
-                    <span className="text-xs font-headline font-bold uppercase tracking-wider">Interests Shown</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#701010] font-headline">12</span>
-                </button>
-              </li>
-              <li>
-                <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base">📥</span>
-                    <span className="text-xs font-headline font-bold uppercase tracking-wider">Interests Received</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#701010] font-headline">8</span>
-                </button>
-              </li>
+
             </ul>
           </div>
         </div>
