@@ -4,6 +4,6 @@
     "indexes": "firestore.indexes.json"
   },
   "apphosting": {
-    "backendId": "fractionalsalesdev"
+    "backendId": "prod"
   }
 }
