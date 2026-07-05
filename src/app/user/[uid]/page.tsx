@@ -94,58 +94,61 @@ export default function PublicProfilePage() {
           {/* Header Banner */}
           <div className="h-32 bg-gradient-to-r from-gray-900 to-[#701010] relative" />
           
+          {/* Avatar & Info Row */}
           <div className="px-8 pb-8 relative">
-            {/* Avatar */}
-            <div className="absolute -top-16 border-4 border-white rounded-full bg-white shadow-md">
-              {profileData.photoURL ? (
-                <img 
-                  src={profileData.photoURL} 
-                  alt={profileData.fullName} 
-                  className="w-32 h-32 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-32 h-32 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-5xl">
-                  {initials}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 relative">
+              {/* Avatar (Overlapping Banner) */}
+              <div className="relative -mt-16 flex-shrink-0">
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white flex items-center justify-center">
+                  {profileData.photoURL ? (
+                    <img 
+                      src={profileData.photoURL} 
+                      alt={profileData.fullName} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-5xl">
+                      {initials}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Profile Info */}
-            <div className="mt-20">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">
-                {profileData.fullName || "Unknown User"}
-              </h1>
-              
-              <div className="mt-4 space-y-2">
-                {profileData.title && (
-                  <div className="flex items-center gap-2 text-gray-600 font-sans">
-                    <Briefcase className="w-4 h-4 text-gray-400" />
-                    <span>{profileData.title}</span>
-                  </div>
-                )}
-                {profileData.companyName && (
-                  <div className="flex items-center gap-2 text-gray-600 font-sans">
-                    <Building className="w-4 h-4 text-gray-400" />
-                    <span>{profileData.companyName}</span>
-                  </div>
-                )}
-                {profileData.location && (
-                  <div className="flex items-center gap-2 text-gray-600 font-sans">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span>{profileData.location}</span>
-                  </div>
-                )}
               </div>
 
-              {profileData.about && (
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                  <h2 className="text-sm font-headline font-bold text-gray-900 uppercase tracking-wider mb-3">About</h2>
-                  <p className="text-gray-700 font-sans leading-relaxed whitespace-pre-wrap">
-                    {profileData.about}
-                  </p>
+              {/* Profile Info */}
+              <div className="flex-1 pt-2 sm:ml-4">
+                <h1 className="text-3xl font-serif font-bold text-gray-900 leading-snug">
+                  {profileData.fullName || "Business Owner"}
+                </h1>
+                
+                <p className="text-[10px] font-headline text-gray-500 mt-1.5 uppercase tracking-wider font-bold">
+                  {profileData.title || "Business Owner"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-2">
+              {profileData.companyName && (
+                <div className="flex items-center gap-2 text-gray-600 font-sans text-sm">
+                  <Building className="w-4 h-4 text-gray-400" />
+                  <span>{profileData.companyName}</span>
+                </div>
+              )}
+              {profileData.location && (
+                <div className="flex items-center gap-2 text-gray-600 font-sans text-sm">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span>{profileData.location}</span>
                 </div>
               )}
             </div>
+
+            {profileData.about && (
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <h2 className="text-sm font-headline font-bold text-gray-900 uppercase tracking-wider mb-3">About</h2>
+                <p className="text-gray-700 font-sans leading-relaxed whitespace-pre-wrap">
+                  {profileData.about}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>
