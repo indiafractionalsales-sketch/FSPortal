@@ -313,13 +313,13 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             </div>
           )}
 
-          {isOwner && onEdit && (
+          {isOwner && onEdit && post.paymentStatus !== 'sold' && (
             <button
               onClick={onEdit}
               className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
               title="Edit Post"
             >
-              <Pencil className="w-3.5 h-3.5" />
+              <Pencil className="w-4 h-4" />
             </button>
           )}
         </div>
