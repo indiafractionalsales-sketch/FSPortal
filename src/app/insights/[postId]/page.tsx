@@ -215,7 +215,7 @@ export default function PostInsightsPage() {
           }
         }
 
-        const postData = await getDocument("Posts", postId, token, dbId);
+        const postData = await getDocument("Posts", postId, token, "default");
         setPost(postData);
 
         if (postData) {
