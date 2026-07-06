@@ -29,5 +29,25 @@ service cloud.firestore {
         allow delete, update: if request.auth != null && request.auth.uid == resource.data.authorUid;
       }
     }
+
+    // AI Lead Capture - Root collection for macro-analytics
+    match /Leads/{leadId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.ownerUid
+                      || request.auth.uid == resource.data.capturedByUid);
+      allow update, delete: if request.auth != null
+                            && request.auth.uid == resource.data.ownerUid;
+    }
+
+    // Post-Deal Rating & Review Engine
+    match /Reviews/{reviewId} {
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.reviewerUid;
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.reviewerUid
+                      || request.auth.uid == resource.data.targetUid);
+      // Reviews cannot be updated or deleted once submitted
+    }
   }
 }
