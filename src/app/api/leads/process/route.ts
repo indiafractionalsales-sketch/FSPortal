@@ -17,58 +17,89 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
     }
 
-    // Parse multipart FormData (frontend sends FormData, not JSON)
-    const formData = await req.formData();
-    const imageBase64 = formData.get('imageBase64') as string | null;
-    const audioFile = formData.get('audio') as File | null;
-    const textNote = formData.get('textNote') as string | null;
-    const postId = formData.get('postId') as string | null;
-    const targetOwnerUid = formData.get('targetOwnerUid') as string | null;
+    // Accept a leadId — the lead doc was already saved by the client
+    const body = await req.json();
+    const { leadId } = body;
 
-    if (!imageBase64) {
-      return NextResponse.json({ error: 'Image is required' }, { status: 400 });
+    if (!leadId) {
+      return NextResponse.json({ error: 'leadId is required' }, { status: 400 });
     }
 
-    // Convert audio File to base64 if provided
+    // Fetch the pending lead doc from Firestore
+    const leadRef = adminDb.collection('Leads').doc(leadId);
+    const leadSnap = await leadRef.get();
+
+    if (!leadSnap.exists) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+
+    const leadData = leadSnap.data()!;
+
+    // Only the capturing SP can trigger processing
+    if (leadData.capturedByUid !== uid) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (leadData.status !== 'pending') {
+      return NextResponse.json({ error: `Lead is already ${leadData.status}` }, { status: 409 });
+    }
+
+    // Mark as processing
+    await leadRef.update({ status: 'processing' });
+
+    // Download card image from Firebase Storage and convert to base64
+    const imageResponse = await fetch(leadData.cardImageUrl);
+    if (!imageResponse.ok) throw new Error('Failed to download card image from Storage');
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+
+    // Download voice note if available
     let audioBase64: string | undefined;
-    if (audioFile) {
-      const arrayBuffer = await audioFile.arrayBuffer();
-      audioBase64 = Buffer.from(arrayBuffer).toString('base64');
+    if (leadData.voiceNoteUrl) {
+      const audioResponse = await fetch(leadData.voiceNoteUrl);
+      if (audioResponse.ok) {
+        const audioBuffer = await audioResponse.arrayBuffer();
+        audioBase64 = Buffer.from(audioBuffer).toString('base64');
+      }
     }
 
-    // Determine lead owner
-    const leadOwnerUid = targetOwnerUid || uid;
-
-    // Call the AI extraction flow
+    // Run Gemini AI extraction
     const extractionResult = await extractLead({
       imageBase64,
       audioBase64,
-      textNote: textNote || undefined,
+      textNote: leadData.textNote || undefined,
     });
 
-    // Save the lead to Firestore
-    const leadData = {
-      ownerUid: leadOwnerUid,
-      capturedByUid: uid,
-      postId: postId || null,
+    // Update the lead doc with AI results
+    await leadRef.update({
+      status: 'processed',
       contactInfo: extractionResult.contactInfo,
       temperature: extractionResult.temperature,
       actionItem: extractionResult.actionItem,
       contextSummary: extractionResult.contextSummary,
-      textNote: textNote || null,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    const docRef = await adminDb.collection('Leads').add(leadData);
+      processedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return NextResponse.json({
       success: true,
-      leadId: docRef.id,
+      leadId,
       lead: extractionResult,
     });
 
   } catch (error: any) {
     console.error('Lead processing error:', error);
+
+    // If we have a leadId and something failed after marking as processing,
+    // reset status back to pending so the user can retry
+    try {
+      const body = await req.json().catch(() => ({}));
+      if (body?.leadId && adminDb) {
+        await adminDb.collection('Leads').doc(body.leadId).update({
+          status: 'pending',
+        });
+      }
+    } catch { /* ignore reset errors */ }
+
     return NextResponse.json(
       { error: error.message || 'Failed to process lead' },
       { status: 500 }

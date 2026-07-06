@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { auth } from "@/lib/firebase";
+import { savePendingLead } from "@/lib/services/leads";
 import {
   X,
   Camera,
@@ -12,8 +13,6 @@ import {
   ChevronRight,
   Loader2,
   CheckCircle2,
-  ZapOff,
-  Zap,
 } from "lucide-react";
 
 interface LeadCaptureInterfaceProps {
@@ -23,7 +22,7 @@ interface LeadCaptureInterfaceProps {
   targetOwnerUid?: string;
 }
 
-type CaptureState = "idle" | "viewfinder" | "recording" | "processing" | "success";
+type CaptureState = "idle" | "viewfinder" | "saving" | "success";
 
 export default function LeadCaptureInterface({
   isOpen,
@@ -31,14 +30,14 @@ export default function LeadCaptureInterface({
   postId,
   targetOwnerUid,
 }: LeadCaptureInterfaceProps) {
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImageBlob, setCapturedImageBlob] = useState<Blob | null>(null);
+  const [capturedImagePreview, setCapturedImagePreview] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [textNote, setTextNote] = useState("");
   const [captureState, setCaptureState] = useState<CaptureState>("idle");
-  const [result, setResult] = useState<any>(null);
   const [leadCount, setLeadCount] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -50,12 +49,10 @@ export default function LeadCaptureInterface({
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Detect mobile on mount
   useEffect(() => {
     setIsMobile(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
   }, []);
 
-  // Clean up camera stream when closing
   useEffect(() => {
     if (!isOpen) stopCameraStream();
   }, [isOpen]);
@@ -74,15 +71,14 @@ export default function LeadCaptureInterface({
   };
 
   const handleImageFile = useCallback((file: File) => {
+    setCapturedImageBlob(file);
     const reader = new FileReader();
-    reader.onload = (e) => setCapturedImage(e.target?.result as string);
+    reader.onload = (e) => setCapturedImagePreview(e.target?.result as string);
     reader.readAsDataURL(file);
   }, []);
 
-  // Open webcam viewfinder (desktop) or file picker (mobile)
   const handleCameraClick = async () => {
     if (isMobile) {
-      // On mobile: use native camera via file input
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
@@ -95,16 +91,13 @@ export default function LeadCaptureInterface({
       return;
     }
 
-    // On desktop: open webcam viewfinder
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 1280 } },
       });
       streamRef.current = stream;
       setCaptureState("viewfinder");
-      // useEffect will attach the stream once the video element renders
     } catch {
-      // If webcam denied/unavailable, fall back to file picker
       galleryInputRef.current?.click();
     }
   };
@@ -116,7 +109,18 @@ export default function LeadCaptureInterface({
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d")?.drawImage(video, 0, 0);
-    setCapturedImage(canvas.toDataURL("image/jpeg", 0.85));
+
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          setCapturedImageBlob(blob);
+          setCapturedImagePreview(canvas.toDataURL("image/jpeg", 0.85));
+        }
+      },
+      "image/jpeg",
+      0.85
+    );
+
     stopCameraStream();
     setCaptureState("idle");
   };
@@ -163,47 +167,38 @@ export default function LeadCaptureInterface({
     else startRecording();
   };
 
+  // ── Save to Storage + Firestore (no AI) ──────────────────────────────────
   const handleSubmit = async () => {
-    if (!capturedImage) {
+    if (!capturedImageBlob) {
       alert("Please capture a visiting card photo first.");
       return;
     }
-    setCaptureState("processing");
+    setCaptureState("saving");
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const formData = new FormData();
-      formData.append("imageBase64", capturedImage);
-      if (audioBlob) formData.append("audio", audioBlob, "note.webm");
-      if (textNote) formData.append("textNote", textNote);
-      if (postId) formData.append("postId", postId);
-      if (targetOwnerUid) formData.append("targetOwnerUid", targetOwnerUid);
-
-      const res = await fetch("/api/leads/process", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+      await savePendingLead({
+        cardImageBlob: capturedImageBlob,
+        voiceNoteBlob: audioBlob,
+        textNote: textNote || null,
+        postId: postId || null,
+        ownerUid: targetOwnerUid || null,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to process lead");
-
-      setResult(data.lead);
       setLeadCount((c) => c + 1);
       setCaptureState("success");
     } catch (err: any) {
-      alert(err.message || "Something went wrong");
+      alert(err.message || "Failed to save lead. Please try again.");
       setCaptureState("idle");
     }
   };
 
   const resetForNextCard = () => {
-    setCapturedImage(null);
+    setCapturedImageBlob(null);
+    setCapturedImagePreview(null);
     setAudioBlob(null);
     setTextNote("");
     setShowNoteInput(false);
     setIsRecording(false);
     setRecordingSeconds(0);
-    setResult(null);
     setCaptureState("idle");
   };
 
@@ -219,7 +214,7 @@ export default function LeadCaptureInterface({
           </p>
           {leadCount > 0 && (
             <p className="text-[10px] text-emerald-400 mt-0.5">
-              {leadCount} captured this session
+              {leadCount} saved this session · Process later from Insights
             </p>
           )}
         </div>
@@ -242,9 +237,7 @@ export default function LeadCaptureInterface({
             className="flex-1 object-cover w-full"
           />
           <canvas ref={canvasRef} className="hidden" />
-          {/* Controls bar at bottom */}
           <div className="flex items-center justify-between px-10 py-8 bg-black/80 backdrop-blur-sm">
-            {/* Close */}
             <button
               onClick={() => { stopCameraStream(); setCaptureState("idle"); }}
               className="w-14 h-14 rounded-full bg-gray-800 flex flex-col items-center justify-center gap-0.5 text-gray-300 hover:bg-gray-700 active:scale-95 transition-all"
@@ -252,14 +245,12 @@ export default function LeadCaptureInterface({
               <X className="w-5 h-5" />
               <span className="text-[8px] uppercase tracking-widest">Close</span>
             </button>
-            {/* Shutter */}
             <button
               onClick={captureSnapshot}
               className="w-24 h-24 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all shadow-2xl border-4 border-gray-200"
             >
               <div className="w-16 h-16 rounded-full bg-white border-[3px] border-gray-400" />
             </button>
-            {/* Spacer to balance */}
             <div className="w-14 h-14" />
           </div>
         </div>
@@ -268,44 +259,23 @@ export default function LeadCaptureInterface({
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
         {captureState === "success" ? (
-          /* ── SUCCESS CARD ── */
           <div className="w-full max-w-sm bg-gray-900 rounded-3xl p-6 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-            <p className="text-white font-bold text-lg">
-              {result?.contactInfo?.name || "Lead Captured!"}
+            <p className="text-white font-bold text-lg">Lead Saved!</p>
+            <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+              Card & note uploaded. Head to{" "}
+              <span className="text-emerald-400 font-semibold">Insights</span>{" "}
+              when you're ready to process them with AI.
             </p>
-            {result?.contactInfo?.company && (
-              <p className="text-gray-400 text-sm mt-1">{result.contactInfo.company}</p>
-            )}
-            <div
-              className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
-              style={{
-                background:
-                  result?.temperature === "hot" ? "rgba(239,68,68,0.15)"
-                  : result?.temperature === "warm" ? "rgba(251,146,60,0.15)"
-                  : "rgba(100,116,139,0.2)",
-                color:
-                  result?.temperature === "hot" ? "#f87171"
-                  : result?.temperature === "warm" ? "#fb923c"
-                  : "#94a3b8",
-              }}
-            >
-              {result?.temperature === "hot" ? "🔥" : result?.temperature === "warm" ? "☀️" : "❄️"}{" "}
-              {result?.temperature}
-            </div>
-            {result?.actionItem && (
-              <p className="text-gray-400 text-xs mt-3 leading-relaxed">{result.actionItem}</p>
-            )}
           </div>
         ) : (
-          /* ── CARD PREVIEW ── */
           <div
             className="w-full max-w-sm aspect-[1.6/1] rounded-2xl overflow-hidden relative cursor-pointer group border-2 border-dashed border-gray-700 hover:border-gray-500 transition-all"
             onClick={handleCameraClick}
           >
-            {capturedImage ? (
+            {capturedImagePreview ? (
               <>
-                <img src={capturedImage} alt="Captured card" className="w-full h-full object-cover" />
+                <img src={capturedImagePreview} alt="Captured card" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <Camera className="w-8 h-8 text-white drop-shadow" />
                 </div>
@@ -323,7 +293,6 @@ export default function LeadCaptureInterface({
           </div>
         )}
 
-        {/* Text Note Input */}
         {showNoteInput && captureState !== "success" && (
           <textarea
             value={textNote}
@@ -335,7 +304,6 @@ export default function LeadCaptureInterface({
           />
         )}
 
-        {/* Recording indicator */}
         {isRecording && (
           <div className="flex items-center gap-2 text-red-400">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
@@ -350,7 +318,7 @@ export default function LeadCaptureInterface({
         )}
       </div>
 
-      {/* Button Grid - 3×2 */}
+      {/* Button Grid */}
       <div className="px-6 pb-12">
         {captureState === "success" ? (
           <div className="flex items-center justify-center gap-6">
@@ -369,15 +337,14 @@ export default function LeadCaptureInterface({
               <span className="text-[9px] font-bold uppercase tracking-widest text-gray-900">Next</span>
             </button>
           </div>
-        ) : captureState === "processing" ? (
-          <div className="flex items-center justify-center">
+        ) : captureState === "saving" ? (
+          <div className="flex flex-col items-center justify-center gap-2">
             <div className="w-20 h-20 rounded-full bg-gray-800 flex flex-col items-center justify-center gap-1">
               <Loader2 className="w-6 h-6 text-white animate-spin" />
-              <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">AI</span>
             </div>
+            <p className="text-xs text-gray-500">Uploading…</p>
           </div>
         ) : (
-          /* Main 3×2 button grid */
           <div className="grid grid-cols-3 gap-5 max-w-xs mx-auto">
             {/* Camera */}
             <div className="flex flex-col items-center gap-1.5">
@@ -385,8 +352,8 @@ export default function LeadCaptureInterface({
                 onClick={handleCameraClick}
                 className="w-16 h-16 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all active:scale-95 relative"
               >
-                <Camera className={`w-6 h-6 ${capturedImage ? "text-emerald-400" : "text-gray-300"}`} />
-                {capturedImage && (
+                <Camera className={`w-6 h-6 ${capturedImagePreview ? "text-emerald-400" : "text-gray-300"}`} />
+                {capturedImagePreview && (
                   <span className="absolute top-0.5 right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-gray-950" />
                 )}
               </button>
@@ -442,29 +409,27 @@ export default function LeadCaptureInterface({
               <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Note</span>
             </div>
 
-            {/* Spacer */}
             <div />
 
-            {/* Submit */}
+            {/* Save */}
             <div className="flex flex-col items-center gap-1.5">
               <button
                 onClick={handleSubmit}
-                disabled={!capturedImage}
+                disabled={!capturedImagePreview}
                 className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-lg ${
-                  capturedImage
+                  capturedImagePreview
                     ? "bg-white hover:bg-gray-100"
                     : "bg-gray-800 opacity-40 cursor-not-allowed"
                 }`}
               >
-                <ChevronRight className={`w-6 h-6 ${capturedImage ? "text-gray-900" : "text-gray-600"}`} />
+                <ChevronRight className={`w-6 h-6 ${capturedImagePreview ? "text-gray-900" : "text-gray-600"}`} />
               </button>
-              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Submit</span>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Save</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Hidden gallery input */}
       <input
         ref={galleryInputRef}
         type="file"
