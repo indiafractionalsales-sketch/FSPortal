@@ -12,16 +12,12 @@
  *   3. Route downloads media from Storage, runs Gemini, updates the doc
  */
 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
-  addDoc,
   query,
   where,
   getDocs,
-  serverTimestamp,
 } from "firebase/firestore";
-import { storage } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 import { auth } from "@/lib/firebase";
 
@@ -51,64 +47,37 @@ export interface PendingLead {
 }
 
 /**
- * Uploads a blob to Firebase Storage and returns its download URL.
- */
-async function uploadToStorage(
-  blob: Blob,
-  path: string
-): Promise<string> {
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, blob);
-  return getDownloadURL(storageRef);
-}
-
-/**
- * Saves a pending lead to Firestore after uploading media to Storage.
+ * Saves a pending lead by calling the server-side API which:
+ * 1. Uploads media to Firebase Storage
+ * 2. Routes the Firestore write to the SP's country-specific database
+ *
  * No AI processing happens here — fast even on slow event WiFi.
  */
 export async function savePendingLead(
   payload: PendingLeadPayload
 ): Promise<string> {
-  const uid = auth.currentUser?.uid;
-  if (!uid) throw new Error("Not authenticated");
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error("Not authenticated");
 
-  const timestamp = Date.now();
-
-  // Upload card image to Storage
-  const cardImageUrl = await uploadToStorage(
-    payload.cardImageBlob,
-    `leads/${uid}/${timestamp}_card.jpg`
-  );
-
-  // Upload voice note to Storage (if provided)
-  let voiceNoteUrl: string | null = null;
+  const formData = new FormData();
+  formData.append("cardImage", payload.cardImageBlob, "card.jpg");
   if (payload.voiceNoteBlob) {
-    voiceNoteUrl = await uploadToStorage(
-      payload.voiceNoteBlob,
-      `leads/${uid}/${timestamp}_voice.webm`
-    );
+    formData.append("voiceNote", payload.voiceNoteBlob, "voice.webm");
   }
+  if (payload.textNote) formData.append("textNote", payload.textNote);
+  if (payload.postId) formData.append("postId", payload.postId);
+  if (payload.ownerUid) formData.append("ownerUid", payload.ownerUid);
 
-  // Write the pending lead doc to Firestore
-  const leadData = {
-    status: "pending",
-    capturedByUid: uid,
-    ownerUid: payload.ownerUid || uid,
-    postId: payload.postId || null,
-    cardImageUrl,
-    voiceNoteUrl,
-    textNote: payload.textNote || null,
-    createdAt: serverTimestamp(),
-    // AI fields — null until processed
-    contactInfo: null,
-    temperature: null,
-    actionItem: null,
-    contextSummary: null,
-    processedAt: null,
-  };
+  const res = await fetch("/api/leads/save", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
 
-  const docRef = await addDoc(collection(db, "Leads"), leadData);
-  return docRef.id;
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to save lead");
+
+  return data.leadId;
 }
 
 /**

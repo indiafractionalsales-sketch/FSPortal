@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb, admin } from '@/lib/firebase-admin';
+import { adminDb, admin, getUserDatabaseId, getDbForId } from '@/lib/firebase-admin';
 import { extractLead } from '@/ai/flows/lead-extraction';
 
 export async function POST(req: NextRequest) {
@@ -25,8 +25,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'leadId is required' }, { status: 400 });
     }
 
-    // Fetch the pending lead doc from Firestore
-    const leadRef = adminDb.collection('Leads').doc(leadId);
+    // Look up the SP's country-specific database (same pattern as onboarding/profile)
+    const spDatabaseId = await getUserDatabaseId(uid);
+    const spDb = getDbForId(spDatabaseId) || adminDb;
+
+    // Fetch the pending lead doc from the SP's database
+    const leadRef = spDb.collection('Leads').doc(leadId);
     const leadSnap = await leadRef.get();
 
     if (!leadSnap.exists) {
