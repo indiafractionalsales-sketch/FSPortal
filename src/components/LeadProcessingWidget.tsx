@@ -6,7 +6,11 @@ import { Loader2, Zap, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react
 
 type WidgetState = "idle" | "loading" | "processing" | "done" | "error";
 
-export default function LeadProcessingWidget() {
+interface LeadProcessingWidgetProps {
+  onProcessed?: () => void; // callback after batch completes
+}
+
+export default function LeadProcessingWidget({ onProcessed }: LeadProcessingWidgetProps) {
   const [pendingLeads, setPendingLeads] = useState<PendingLead[]>([]);
   const [widgetState, setWidgetState] = useState<WidgetState>("loading");
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -41,8 +45,9 @@ export default function LeadProcessingWidget() {
       });
       setResult(res);
       setWidgetState("done");
-      // Refresh the count after processing
+      // Refresh pending count + notify parent to refresh lead list
       await fetchPending();
+      onProcessed?.();
     } catch (err: any) {
       setError(err.message || "Processing failed");
       setWidgetState("error");
