@@ -17,22 +17,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
     }
 
-    const body = await req.json();
-    const { imageUrl, audioUrl, textNote, postId, ownerUid } = body;
+    // Parse multipart FormData (frontend sends FormData, not JSON)
+    const formData = await req.formData();
+    const imageBase64 = formData.get('imageBase64') as string | null;
+    const audioFile = formData.get('audio') as File | null;
+    const textNote = formData.get('textNote') as string | null;
+    const postId = formData.get('postId') as string | null;
+    const targetOwnerUid = formData.get('targetOwnerUid') as string | null;
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: 'Image URL is required' }, { status: 400 });
+    if (!imageBase64) {
+      return NextResponse.json({ error: 'Image is required' }, { status: 400 });
     }
 
-    // Determine who owns this lead
-    // If captured from a post context, ownerUid is the Business Owner
-    // If captured independently (global CRM), ownerUid is the capturing user themselves
-    const leadOwnerUid = ownerUid || uid;
+    // Convert audio File to base64 if provided
+    let audioBase64: string | undefined;
+    if (audioFile) {
+      const arrayBuffer = await audioFile.arrayBuffer();
+      audioBase64 = Buffer.from(arrayBuffer).toString('base64');
+    }
+
+    // Determine lead owner
+    const leadOwnerUid = targetOwnerUid || uid;
 
     // Call the AI extraction flow
     const extractionResult = await extractLead({
-      imageUrl,
-      audioUrl: audioUrl || undefined,
+      imageBase64,
+      audioBase64,
       textNote: textNote || undefined,
     });
 
@@ -45,8 +55,6 @@ export async function POST(req: NextRequest) {
       temperature: extractionResult.temperature,
       actionItem: extractionResult.actionItem,
       contextSummary: extractionResult.contextSummary,
-      originalImageUrl: imageUrl,
-      originalAudioUrl: audioUrl || null,
       textNote: textNote || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -56,7 +64,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       leadId: docRef.id,
-      data: extractionResult,
+      lead: extractionResult,
     });
 
   } catch (error: any) {
