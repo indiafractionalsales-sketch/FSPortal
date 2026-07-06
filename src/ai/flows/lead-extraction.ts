@@ -11,13 +11,13 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const ExtractLeadInputSchema = z.object({
-  imageUrl: z
+  imageBase64: z
     .string()
-    .describe('The URL of the visiting card image stored in Firebase Storage.'),
-  audioUrl: z
+    .describe('Base64-encoded visiting card image (data URI or raw base64).'),
+  audioBase64: z
     .string()
     .optional()
-    .describe('The URL of the voice note audio stored in Firebase Storage. May be absent if the user only typed a text note.'),
+    .describe('Base64-encoded audio voice note (webm). Optional.'),
   textNote: z
     .string()
     .optional()
@@ -54,6 +54,16 @@ export async function extractLead(
   return extractLeadFlow(input);
 }
 
+/**
+ * Ensures a base64 string is a proper data URI.
+ * If it's already a data URI (starts with "data:"), returns as-is.
+ * Otherwise wraps it with the appropriate MIME prefix.
+ */
+function toDataUri(base64: string, mimeType: string): string {
+  if (base64.startsWith('data:')) return base64;
+  return `data:${mimeType};base64,${base64}`;
+}
+
 const extractLeadFlow = ai.defineFlow(
   {
     name: 'extractLeadFlow',
@@ -61,8 +71,8 @@ const extractLeadFlow = ai.defineFlow(
     outputSchema: ExtractLeadOutputSchema,
   },
   async (input) => {
-    // Build prompt parts with proper Genkit types
-    const promptParts: Array<{ text: string } | { media: { url: string } }> = [];
+    // Build prompt parts
+    const promptParts: Array<{ text: string } | { media: { url: string; contentType?: string } }> = [];
 
     // System instruction
     promptParts.push({
@@ -88,15 +98,17 @@ IMPORTANT:
 - Always output in professional English.`,
     });
 
-    // Add the visiting card image
+    // Add the visiting card image as a data URI
+    const imageUri = toDataUri(input.imageBase64, 'image/jpeg');
     promptParts.push({
-      media: { url: input.imageUrl },
+      media: { url: imageUri },
     });
 
     // Add audio if available
-    if (input.audioUrl) {
+    if (input.audioBase64) {
+      const audioUri = toDataUri(input.audioBase64, 'audio/webm');
       promptParts.push({
-        media: { url: input.audioUrl },
+        media: { url: audioUri },
       });
     }
 
