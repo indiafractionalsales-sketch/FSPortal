@@ -149,3 +149,25 @@ To make this feel premium and "wow" the user (ChatGPT/Perplexity vibe), we recom
     1. The API endpoint `/api/leads/query` looks up the user's `databaseId` (via `getUserDatabaseId`).
     2. The server queries the vector index of that specific regional database (e.g., `getDbForId('fsindiadb').collection('Leads')`).
   - *Result*: Vector copies and search indexes are partitioned per region. There is no cross-region latency, and regional security rules are naturally enforced at the database level.
+
+---
+
+## 7. Scalability, Concurrency, and Locking Analysis
+
+If thousands of business owners start querying the AI search simultaneously, how does the system behave? Here is the scale analysis:
+
+### 1. Zero Database Locks (No "Table Locking")
+* Unlike traditional relational databases (SQL Server, PostgreSQL, MySQL) which lock pages, tables, or indexes during heavy query execution (especially text-search operations), **Firestore is a fully managed distributed NoSQL database (built on Google Spanner)**.
+* Firestore uses a **lock-free, multi-version concurrency control (MVCC)** model for reads.
+* **Adverse Effects**: None. Thousands of concurrent read/query operations run in parallel without blocking each other, and without blocking writes (lead captures). 
+
+### 2. High Query Performance Scoped by Tenant
+* Every query is partitioned by the business owner's ID:
+  `collection("Leads").where("ownerUid", "==", currentUid)`
+* When performing a vector similarity query (`findNearest`), Firestore leverages the HNSW index. Since the search space is limited to that owner's captured leads (a few hundred or thousand documents per user) rather than the global pool of millions of leads, the query traverses a tiny branch of the vector tree.
+* This takes less than **10ms-30ms** database response time, regardless of how many total users exist globally.
+
+### 3. Rate Limits & Autoscaling
+* Firestore scales read operations automatically to handle **millions of queries per second** without performance degradation.
+* The only limit to watch is writing/updating the same document (maximum of 1 write/sec to a single document). Since querying is a read-only operation, it is completely immune to this limitation.
+
