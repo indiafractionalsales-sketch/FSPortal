@@ -193,9 +193,9 @@ export default function InsightsPage() {
       try {
         const token = await u.getIdToken();
         const userData = await getDocument("users", u.uid, token);
-        const dbId = userData?.databaseId || "default";
+        const dbId = (userData?.databaseId as string) || "default";
         setDatabaseId(dbId);
-        const type = userData?.userType || userData?.role;
+        const type = (userData?.userType as string) || (userData?.role as string) || null;
         setUserType(type);
 
         if (type !== "sp") {

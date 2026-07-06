@@ -136,6 +136,7 @@ export default function PostInsightsPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [spProfile, setSpProfile] = useState<any>(null);
 
   // Agency Directory Lists & States matching home page
   const marketingAgencies = [
@@ -177,7 +178,7 @@ export default function PostInsightsPage() {
       try {
         const token = await u.getIdToken();
         const userData = await getDocument("users", u.uid, token);
-        const dbId = userData?.databaseId || "default";
+        const dbId = (userData?.databaseId as string) || "default";
 
         if (userData?.role) {
           setUserType(userData.role as "obo" | "sp" | "tpsp");
@@ -191,7 +192,8 @@ export default function PostInsightsPage() {
                 banner: (data.banner as string) || ""
               });
             }
-          } else if (userData.role === "sp") {
+          }
+          else if (userData.role === "sp") {
             const data = await getDocument("SP_Profile", u.uid, token, dbId);
             if (data) {
               setSpData({
@@ -215,6 +217,15 @@ export default function PostInsightsPage() {
 
         const postData = await getDocument("Posts", postId, token, dbId);
         setPost(postData);
+
+        if (postData) {
+          const spUid = postData.postType === "sp" ? postData.ownerUid : postData.paymentLockedBy;
+          if (spUid) {
+            const spProf = await getDocument("SP_Profile", spUid as string, token, dbId);
+            setSpProfile(spProf);
+          }
+        }
+
         await fetchLeads(token);
       } catch (err) {
         console.error(err);
