@@ -221,7 +221,10 @@ export default function PostInsightsPage() {
         if (postData) {
           const spUid = postData.postType === "sp" ? postData.ownerUid : postData.paymentLockedBy;
           if (spUid) {
-            const spProf = await getDocument("SP_Profile", spUid as string, token, dbId);
+            // First fetch the SP's configured databaseId from the global 'users' collection (which is in default DB)
+            const spUserDoc = await getDocument("users", spUid as string, token, "default");
+            const spDbId = (spUserDoc?.databaseId as string) || "default";
+            const spProf = await getDocument("SP_Profile", spUid as string, token, spDbId);
             setSpProfile(spProf);
           }
         }
@@ -335,17 +338,35 @@ export default function PostInsightsPage() {
             <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-50">Quick Links</h4>
             <ul className="space-y-1.5">
               <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
                   <span className="text-base">🌍</span>
                   <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">Global Feed</span>
                 </button>
               </li>
               <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
+                  <span className="text-base">📝</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">My Posts</span>
+                </button>
+              </li>
+              <li>
+                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
                   <span className="text-base">💼</span>
                   <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">My Deals</span>
                 </button>
               </li>
+              <div className="h-px bg-gray-100 my-2" />
+              {[
+                { label: 'My Network', icon: '🤝' },
+                { label: 'Saved Items', icon: '🔖' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">{item.label}</span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
