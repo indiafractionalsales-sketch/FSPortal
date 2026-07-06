@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, Bell, Settings, LogOut, BarChart2 } from "lucide-react";
+import { Home, Bell, Settings, LogOut } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 
@@ -70,12 +70,6 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
           className="px-8 h-full border-b-2 border-[#701010] text-[#701010] hover:bg-gray-50 transition-colors"
         >
           <Home className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => router.push("/insights")}
-          className="px-8 h-full border-b-2 border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <BarChart2 className="w-5 h-5" />
         </button>
       </div>
 
