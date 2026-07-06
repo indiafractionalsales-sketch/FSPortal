@@ -29,10 +29,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Card image is required' }, { status: 400 });
     }
 
-    // Upload card image to Firebase Storage (server-side)
-    const timestamp = Date.now();
-    const bucket = getStorage().bucket();
+    // Look up the SP's country-specific database FIRST — drives both Firestore and Storage routing
+    const spDatabaseId = await getUserDatabaseId(uid);
+    const isIndia = spDatabaseId === 'fsindiadb';
 
+    // Pick the right Storage bucket based on SP's country
+    // India SPs → fractional-sales-india (asia-south1, Mumbai)
+    // Everyone else → default Netherlands bucket
+    const BUCKET = isIndia
+      ? 'fractional-sales-india'
+      : (process.env.FIREBASE_STORAGE_BUCKET || 'fractional-sales-4436e.firebasestorage.app');
+    const bucket = getStorage().bucket(BUCKET);
+
+    // Upload card image
+    const timestamp = Date.now();
     const cardImageBuffer = Buffer.from(await cardImage.arrayBuffer());
     const cardImagePath = `leads/${uid}/${timestamp}_card.jpg`;
     const cardFile = bucket.file(cardImagePath);
@@ -51,8 +61,7 @@ export async function POST(req: NextRequest) {
       voiceNoteUrl = `https://storage.googleapis.com/${bucket.name}/${voicePath}`;
     }
 
-    // Look up the SP's country-specific database
-    const spDatabaseId = await getUserDatabaseId(uid);
+    // Get the Firestore instance for the SP's country database
     const spDb = getDbForId(spDatabaseId) || adminDb;
 
     // Save the pending lead to the SP's country database
