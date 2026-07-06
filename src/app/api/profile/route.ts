@@ -65,7 +65,19 @@ export async function GET(request: Request) {
       console.log('>>> [API PROFILE] Profile doc was not fetched (invalid role)');
     }
 
-    let publicData = {
+    interface ProfilePublicData {
+      fullName: string | null;
+      photoURL: string | null;
+      banner: string | null;
+      title: string | null;
+      companyName: string | null;
+      location: string | null;
+      about: string | null;
+      products: any[];
+      userType: string | null;
+    }
+
+    let publicData: ProfilePublicData = {
       fullName: null,
       photoURL: null,
       banner: null,

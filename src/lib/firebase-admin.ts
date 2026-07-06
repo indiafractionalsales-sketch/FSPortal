@@ -24,12 +24,12 @@ if (!admin.apps.length) {
 }
 
 // Export the initialized firestore database instance targeting 'default' explicitly
-const adminDb = admin.apps.length ? getFirestore(admin.apps[0], 'default') : null;
+const adminDb = admin.apps.length ? getFirestore(admin.app(), 'default') : null;
 
 // Get a Firestore instance for a specific database ID
 export function getDbForId(databaseId: string) {
   if (!admin.apps.length) return null;
-  return getFirestore(admin.apps[0], databaseId || 'default');
+  return getFirestore(admin.app(), databaseId || 'default');
 }
 
 // Helper to look up a user's configured database ID from 'default' DB users collection

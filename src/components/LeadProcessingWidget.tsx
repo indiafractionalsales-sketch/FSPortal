@@ -6,7 +6,12 @@ import { Loader2, Zap, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react
 
 type WidgetState = "idle" | "loading" | "processing" | "done" | "error";
 
-export default function LeadProcessingWidget() {
+interface LeadProcessingWidgetProps {
+  onProcessed?: () => void;
+  postId?: string; // if set, only processes leads for this post
+}
+
+export default function LeadProcessingWidget({ onProcessed, postId }: LeadProcessingWidgetProps) {
   const [pendingLeads, setPendingLeads] = useState<PendingLead[]>([]);
   const [widgetState, setWidgetState] = useState<WidgetState>("loading");
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -16,14 +21,14 @@ export default function LeadProcessingWidget() {
   const fetchPending = useCallback(async () => {
     setWidgetState("loading");
     try {
-      const leads = await getPendingLeads();
+      const leads = await getPendingLeads(postId);
       setPendingLeads(leads);
       setWidgetState("idle");
     } catch (err: any) {
       setError(err.message || "Failed to load pending leads");
       setWidgetState("error");
     }
-  }, []);
+  }, [postId]);
 
   useEffect(() => {
     fetchPending();
@@ -38,11 +43,12 @@ export default function LeadProcessingWidget() {
     try {
       const res = await batchProcessLeads((done, total) => {
         setProgress({ done, total });
-      });
+      }, postId);
       setResult(res);
       setWidgetState("done");
-      // Refresh the count after processing
+      // Refresh pending count + notify parent to refresh lead list
       await fetchPending();
+      onProcessed?.();
     } catch (err: any) {
       setError(err.message || "Processing failed");
       setWidgetState("error");
@@ -149,8 +155,7 @@ export default function LeadProcessingWidget() {
             </p>
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Cards captured and ready for AI extraction.{" "}
-            Est. cost: ~${(pendingLeads.length * 0.001).toFixed(3)}
+            Cards captured and ready for AI extraction.
           </p>
         </div>
         <button onClick={fetchPending} className="text-gray-600 hover:text-gray-400 transition-colors mt-0.5">
