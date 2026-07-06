@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { X, Camera, Mic, MicOff, Check, Loader2, RotateCcw, Upload } from "lucide-react";
-import { auth, storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from "@/lib/firebase";
+import {
+  X,
+  Camera,
+  Upload,
+  Mic,
+  MicOff,
+  AlignLeft,
+  ChevronRight,
+  Loader2,
+  CheckCircle2,
+  ZapOff,
+  Zap,
+} from "lucide-react";
 
 interface LeadCaptureInterfaceProps {
   isOpen: boolean;
@@ -12,438 +23,455 @@ interface LeadCaptureInterfaceProps {
   targetOwnerUid?: string;
 }
 
+type CaptureState = "idle" | "viewfinder" | "recording" | "processing" | "success";
+
 export default function LeadCaptureInterface({
   isOpen,
   onClose,
   postId,
   targetOwnerUid,
 }: LeadCaptureInterfaceProps) {
-  // States
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [capturedImageFile, setCapturedImageFile] = useState<File | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [showNoteInput, setShowNoteInput] = useState(false);
   const [textNote, setTextNote] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processedCount, setProcessedCount] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [lastResult, setLastResult] = useState<any>(null);
-  const [useTextMode, setUseTextMode] = useState(false);
+  const [captureState, setCaptureState] = useState<CaptureState>("idle");
+  const [result, setResult] = useState<any>(null);
+  const [leadCount, setLeadCount] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Refs
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const MAX_RECORDING_SECONDS = 60;
-
-  // Cleanup on close
+  // Detect mobile on mount
   useEffect(() => {
-    if (!isOpen) {
-      resetState();
-      stopRecording();
-    }
+    setIsMobile(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
+  }, []);
+
+  // Clean up camera stream when closing
+  useEffect(() => {
+    if (!isOpen) stopCameraStream();
   }, [isOpen]);
 
-  const resetState = () => {
-    setCapturedImage(null);
-    setCapturedImageFile(null);
-    setAudioBlob(null);
-    setRecordingDuration(0);
-    setTextNote("");
-    setIsProcessing(false);
-    setShowSuccess(false);
-    setLastResult(null);
-  };
-
-  const resetForNextCapture = () => {
-    setCapturedImage(null);
-    setCapturedImageFile(null);
-    setAudioBlob(null);
-    setRecordingDuration(0);
-    setTextNote("");
-    setShowSuccess(false);
-    setLastResult(null);
-  };
-
-  // Image capture
-  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCapturedImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCapturedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  // Attach webcam stream to video element once viewfinder renders
+  useEffect(() => {
+    if (captureState === "viewfinder" && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
     }
-    // Reset file input for next capture
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [captureState]);
+
+  const stopCameraStream = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
   };
 
-  // Audio recording
+  const handleImageFile = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => setCapturedImage(e.target?.result as string);
+    reader.readAsDataURL(file);
+  }, []);
+
+  // Open webcam viewfinder (desktop) or file picker (mobile)
+  const handleCameraClick = async () => {
+    if (isMobile) {
+      // On mobile: use native camera via file input
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.capture = "environment";
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) handleImageFile(file);
+      };
+      input.click();
+      return;
+    }
+
+    // On desktop: open webcam viewfinder
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 } },
+      });
+      streamRef.current = stream;
+      setCaptureState("viewfinder");
+      // useEffect will attach the stream once the video element renders
+    } catch {
+      // If webcam denied/unavailable, fall back to file picker
+      galleryInputRef.current?.click();
+    }
+  };
+
+  const captureSnapshot = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    setCapturedImage(canvas.toDataURL("image/jpeg", 0.85));
+    stopCameraStream();
+    setCaptureState("idle");
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
-
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         setAudioBlob(blob);
-        // Stop the stream tracks
-        stream.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
+        stream.getTracks().forEach((t) => t.stop());
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      setRecordingDuration(0);
+      setRecordingSeconds(0);
 
-      // Timer
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingDuration((prev) => {
-          if (prev >= MAX_RECORDING_SECONDS - 1) {
-            stopRecording();
-            return MAX_RECORDING_SECONDS;
-          }
-          return prev + 1;
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((s) => {
+          if (s >= 59) { stopRecording(); return 60; }
+          return s + 1;
         });
       }, 1000);
-    } catch (err) {
-      console.error("Microphone access denied:", err);
-      alert("Please allow microphone access to record voice notes.");
+    } catch {
+      alert("Microphone access denied.");
     }
   };
 
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-    }
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
     setIsRecording(false);
-  }, []);
+    if (timerRef.current) clearInterval(timerRef.current);
+  };
 
-  // Upload & Process
+  const toggleRecording = () => {
+    if (isRecording) stopRecording();
+    else startRecording();
+  };
+
   const handleSubmit = async () => {
-    if (!capturedImageFile) return;
-
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      alert("Please sign in first.");
+    if (!capturedImage) {
+      alert("Please capture a visiting card photo first.");
       return;
     }
-
-    setIsProcessing(true);
-
+    setCaptureState("processing");
     try {
-      const token = await currentUser.getIdToken();
-      const timestamp = Date.now();
+      const token = await auth.currentUser?.getIdToken();
+      const formData = new FormData();
+      formData.append("imageBase64", capturedImage);
+      if (audioBlob) formData.append("audio", audioBlob, "note.webm");
+      if (textNote) formData.append("textNote", textNote);
+      if (postId) formData.append("postId", postId);
+      if (targetOwnerUid) formData.append("targetOwnerUid", targetOwnerUid);
 
-      // Upload image to Firebase Storage
-      const imageRef = ref(storage, `leads/${currentUser.uid}/${timestamp}_card.jpg`);
-      await uploadBytes(imageRef, capturedImageFile);
-      const imageUrl = await getDownloadURL(imageRef);
-
-      // Upload audio if available
-      let audioUrl: string | undefined;
-      if (audioBlob) {
-        const audioRef = ref(storage, `leads/${currentUser.uid}/${timestamp}_note.webm`);
-        await uploadBytes(audioRef, audioBlob);
-        audioUrl = await getDownloadURL(audioRef);
-      }
-
-      // Call the processing API
       const res = await fetch("/api/leads/process", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          imageUrl,
-          audioUrl,
-          textNote: textNote || undefined,
-          postId: postId || undefined,
-          ownerUid: targetOwnerUid || undefined,
-        }),
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setLastResult(data.data);
-        setProcessedCount((prev) => prev + 1);
-        setShowSuccess(true);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to process lead");
 
-        // Auto-reset for next capture after a brief animation
-        setTimeout(() => {
-          resetForNextCapture();
-        }, 3000);
-      } else {
-        const err = await res.json();
-        alert(err.error || "Failed to process lead");
-      }
-    } catch (err) {
-      console.error("Lead submission error:", err);
-      alert("Failed to submit lead. Please try again.");
-    } finally {
-      setIsProcessing(false);
+      setResult(data.lead);
+      setLeadCount((c) => c + 1);
+      setCaptureState("success");
+    } catch (err: any) {
+      alert(err.message || "Something went wrong");
+      setCaptureState("idle");
     }
+  };
+
+  const resetForNextCard = () => {
+    setCapturedImage(null);
+    setAudioBlob(null);
+    setTextNote("");
+    setShowNoteInput(false);
+    setIsRecording(false);
+    setRecordingSeconds(0);
+    setResult(null);
+    setCaptureState("idle");
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[300] bg-gray-950 flex flex-col">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-950/80 backdrop-blur-sm border-b border-gray-800 z-10">
-        <button
-          onClick={onClose}
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-        <div className="text-center">
-          <p className="text-white font-serif font-bold text-sm">Capture Lead</p>
-          {processedCount > 0 && (
-            <p className="text-emerald-400 text-[10px] font-headline font-bold uppercase tracking-wider">
-              {processedCount} captured this session
+    <div className="fixed inset-0 z-[200] bg-gray-950 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-10 pb-4">
+        <div>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+            Lead Capture
+          </p>
+          {leadCount > 0 && (
+            <p className="text-[10px] text-emerald-400 mt-0.5">
+              {leadCount} captured this session
             </p>
           )}
         </div>
-        {/* Placeholder for token pill (future) */}
-        <div className="w-9" />
+        <button
+          onClick={onClose}
+          className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-all"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-y-auto">
-        {showSuccess && lastResult ? (
-          /* Success State */
-          <div className="text-center animate-in fade-in zoom-in-95 duration-300 max-w-sm">
-            <div className="text-6xl mb-4">✅</div>
-            <p className="text-white font-serif font-bold text-xl mb-2">Lead Captured!</p>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-left mb-4">
-              <p className="text-white font-semibold text-sm">
-                {lastResult.contactInfo?.name || "Contact"}
-              </p>
-              <p className="text-gray-400 text-xs">
-                {lastResult.contactInfo?.company || ""}{" "}
-                {lastResult.contactInfo?.designation ? `• ${lastResult.contactInfo.designation}` : ""}
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    lastResult.temperature === "hot"
-                      ? "bg-red-500/20 text-red-400"
-                      : lastResult.temperature === "warm"
-                      ? "bg-amber-500/20 text-amber-400"
-                      : "bg-blue-500/20 text-blue-400"
-                  }`}
-                >
-                  {lastResult.temperature}
-                </span>
-              </div>
-              <p className="text-gray-300 text-xs mt-2">{lastResult.actionItem}</p>
-            </div>
-            <p className="text-gray-500 text-xs">Next card loading automatically...</p>
+      {/* Webcam Viewfinder — full screen camera UI */}
+      {captureState === "viewfinder" && (
+        <div className="fixed inset-0 z-[300] bg-black flex flex-col">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="flex-1 object-cover w-full"
+          />
+          <canvas ref={canvasRef} className="hidden" />
+          {/* Controls bar at bottom */}
+          <div className="flex items-center justify-between px-10 py-8 bg-black/80 backdrop-blur-sm">
+            {/* Close */}
+            <button
+              onClick={() => { stopCameraStream(); setCaptureState("idle"); }}
+              className="w-14 h-14 rounded-full bg-gray-800 flex flex-col items-center justify-center gap-0.5 text-gray-300 hover:bg-gray-700 active:scale-95 transition-all"
+            >
+              <X className="w-5 h-5" />
+              <span className="text-[8px] uppercase tracking-widest">Close</span>
+            </button>
+            {/* Shutter */}
+            <button
+              onClick={captureSnapshot}
+              className="w-24 h-24 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all shadow-2xl border-4 border-gray-200"
+            >
+              <div className="w-16 h-16 rounded-full bg-white border-[3px] border-gray-400" />
+            </button>
+            {/* Spacer to balance */}
+            <div className="w-14 h-14" />
           </div>
-        ) : isProcessing ? (
-          /* Processing State */
-          <div className="text-center animate-pulse">
-            <Loader2 className="w-16 h-16 text-[#701010] animate-spin mx-auto mb-4" />
-            <p className="text-white font-serif font-bold text-lg">Processing with AI...</p>
-            <p className="text-gray-400 text-xs mt-1">Extracting card data & analyzing voice note</p>
-          </div>
-        ) : capturedImage ? (
-          /* Image Captured - Record Note */
-          <div className="w-full max-w-sm">
-            {/* Card Preview */}
-            <div className="relative rounded-xl overflow-hidden mb-6 shadow-2xl">
-              <img
-                src={capturedImage}
-                alt="Captured card"
-                className="w-full h-48 object-cover"
-              />
-              <button
-                onClick={() => {
-                  setCapturedImage(null);
-                  setCapturedImageFile(null);
-                }}
-                className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </div>
+        </div>
+      )}
 
-            {/* Note section */}
-            <div className="text-center mb-4">
-              <p className="text-white font-serif font-bold text-base mb-1">
-                Add context
-              </p>
-              <p className="text-gray-500 text-xs">
-                Record a voice note or type your tags
-              </p>
-              {/* Toggle */}
-              <button
-                onClick={() => setUseTextMode(!useTextMode)}
-                className="mt-2 text-[10px] font-headline font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors"
-              >
-                {useTextMode ? "🎙 Switch to voice" : "⌨️ Switch to text"}
-              </button>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
+        {captureState === "success" ? (
+          /* ── SUCCESS CARD ── */
+          <div className="w-full max-w-sm bg-gray-900 rounded-3xl p-6 text-center">
+            <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+            <p className="text-white font-bold text-lg">
+              {result?.contactInfo?.name || "Lead Captured!"}
+            </p>
+            {result?.contactInfo?.company && (
+              <p className="text-gray-400 text-sm mt-1">{result.contactInfo.company}</p>
+            )}
+            <div
+              className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+              style={{
+                background:
+                  result?.temperature === "hot" ? "rgba(239,68,68,0.15)"
+                  : result?.temperature === "warm" ? "rgba(251,146,60,0.15)"
+                  : "rgba(100,116,139,0.2)",
+                color:
+                  result?.temperature === "hot" ? "#f87171"
+                  : result?.temperature === "warm" ? "#fb923c"
+                  : "#94a3b8",
+              }}
+            >
+              {result?.temperature === "hot" ? "🔥" : result?.temperature === "warm" ? "☀️" : "❄️"}{" "}
+              {result?.temperature}
             </div>
-
-            {useTextMode ? (
-              /* Text Note Mode */
-              <textarea
-                value={textNote}
-                onChange={(e) => setTextNote(e.target.value)}
-                placeholder='e.g. "Tag HOT LEAD, schedule demo next Monday. They need our software for Dubai factory."'
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-sm text-white placeholder-gray-600 resize-none focus:outline-none focus:ring-2 focus:ring-[#701010]/50 focus:border-[#701010]/30"
-                rows={4}
-              />
-            ) : (
-              /* Voice Note Mode */
-              <div className="flex flex-col items-center">
-                {audioBlob ? (
-                  <div className="flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 mb-4">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full" />
-                    <p className="text-white text-sm font-medium">
-                      {recordingDuration}s recorded
-                    </p>
-                    <button
-                      onClick={() => {
-                        setAudioBlob(null);
-                        setRecordingDuration(0);
-                      }}
-                      className="text-gray-400 hover:text-white ml-2"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : isRecording ? (
-                  <div className="flex flex-col items-center mb-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping" />
-                      <button
-                        onClick={stopRecording}
-                        className="relative w-20 h-20 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-all shadow-lg shadow-red-500/30"
-                      >
-                        <MicOff className="w-8 h-8 text-white" />
-                      </button>
-                    </div>
-                    <p className="text-red-400 text-sm font-medium mt-3 animate-pulse">
-                      Recording... {recordingDuration}s / {MAX_RECORDING_SECONDS}s
-                    </p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      Tap to stop
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center mb-4">
-                    <button
-                      onClick={startRecording}
-                      className="w-20 h-20 bg-gray-800 hover:bg-gray-700 border-2 border-gray-600 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                    >
-                      <Mic className="w-8 h-8 text-white" />
-                    </button>
-                    <p className="text-gray-400 text-sm mt-3">
-                      Tap to record (up to {MAX_RECORDING_SECONDS}s)
-                    </p>
-                  </div>
-                )}
-              </div>
+            {result?.actionItem && (
+              <p className="text-gray-400 text-xs mt-3 leading-relaxed">{result.actionItem}</p>
             )}
           </div>
         ) : (
-          /* Initial State - Capture Card */
-          <div className="text-center">
-            <div className="mb-6">
-              <div className="w-32 h-32 mx-auto bg-gray-900 border-2 border-dashed border-gray-700 rounded-2xl flex items-center justify-center mb-4">
-                <Camera className="w-12 h-12 text-gray-600" />
+          /* ── CARD PREVIEW ── */
+          <div
+            className="w-full max-w-sm aspect-[1.6/1] rounded-2xl overflow-hidden relative cursor-pointer group border-2 border-dashed border-gray-700 hover:border-gray-500 transition-all"
+            onClick={handleCameraClick}
+          >
+            {capturedImage ? (
+              <>
+                <img src={capturedImage} alt="Captured card" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <Camera className="w-8 h-8 text-white drop-shadow" />
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-600">
+                <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-700 flex items-center justify-center">
+                  <Camera className="w-7 h-7" />
+                </div>
+                <p className="text-xs text-gray-600">
+                  {isMobile ? "Tap to open camera" : "Tap to open webcam"}
+                </p>
               </div>
-              <p className="text-white font-serif font-bold text-lg mb-1">
-                Snap a Visiting Card
-              </p>
-              <p className="text-gray-500 text-xs max-w-xs mx-auto">
-                Take a photo or upload an image of a business card, LinkedIn profile, or email signature
-              </p>
+            )}
+          </div>
+        )}
+
+        {/* Text Note Input */}
+        {showNoteInput && captureState !== "success" && (
+          <textarea
+            value={textNote}
+            onChange={(e) => setTextNote(e.target.value)}
+            placeholder="Add context about this lead..."
+            rows={2}
+            className="w-full max-w-sm bg-gray-900 text-white text-sm rounded-2xl px-4 py-3 placeholder-gray-600 border border-gray-800 focus:border-gray-600 outline-none resize-none"
+            autoFocus
+          />
+        )}
+
+        {/* Recording indicator */}
+        {isRecording && (
+          <div className="flex items-center gap-2 text-red-400">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-xs font-mono font-bold">
+              {String(Math.floor(recordingSeconds / 60)).padStart(2, "0")}:
+              {String(recordingSeconds % 60).padStart(2, "0")}
+            </span>
+          </div>
+        )}
+        {audioBlob && !isRecording && (
+          <p className="text-xs text-emerald-400">✓ Voice note recorded</p>
+        )}
+      </div>
+
+      {/* Button Grid - 3×2 */}
+      <div className="px-6 pb-12">
+        {captureState === "success" ? (
+          <div className="flex items-center justify-center gap-6">
+            <button
+              onClick={onClose}
+              className="w-16 h-16 rounded-full bg-gray-800 flex flex-col items-center justify-center gap-1 text-gray-400 hover:bg-gray-700 transition-all"
+            >
+              <X className="w-5 h-5" />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Done</span>
+            </button>
+            <button
+              onClick={resetForNextCard}
+              className="w-20 h-20 rounded-full bg-white flex flex-col items-center justify-center gap-1 shadow-lg hover:bg-gray-100 transition-all active:scale-95"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-900" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-900">Next</span>
+            </button>
+          </div>
+        ) : captureState === "processing" ? (
+          <div className="flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-gray-800 flex flex-col items-center justify-center gap-1">
+              <Loader2 className="w-6 h-6 text-white animate-spin" />
+              <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">AI</span>
+            </div>
+          </div>
+        ) : (
+          /* Main 3×2 button grid */
+          <div className="grid grid-cols-3 gap-5 max-w-xs mx-auto">
+            {/* Camera */}
+            <div className="flex flex-col items-center gap-1.5">
+              <button
+                onClick={handleCameraClick}
+                className="w-16 h-16 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all active:scale-95 relative"
+              >
+                <Camera className={`w-6 h-6 ${capturedImage ? "text-emerald-400" : "text-gray-300"}`} />
+                {capturedImage && (
+                  <span className="absolute top-0.5 right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-gray-950" />
+                )}
+              </button>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Camera</span>
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleImageCapture}
-              className="hidden"
-            />
+            {/* Gallery */}
+            <div className="flex flex-col items-center gap-1.5">
+              <button
+                onClick={() => galleryInputRef.current?.click()}
+                className="w-16 h-16 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all active:scale-95"
+              >
+                <Upload className="w-6 h-6 text-gray-300" />
+              </button>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Gallery</span>
+            </div>
 
-            <div className="flex flex-col gap-3 max-w-xs mx-auto">
+            {/* Voice */}
+            <div className="flex flex-col items-center gap-1.5">
               <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full py-4 bg-[#701010] hover:bg-[#5a0c0c] text-white rounded-xl font-headline font-bold uppercase tracking-widest text-sm transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#701010]/20"
+                onClick={toggleRecording}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                  isRecording
+                    ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                    : audioBlob
+                    ? "bg-emerald-800 hover:bg-emerald-700"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
               >
-                <Camera className="w-5 h-5" />
-                Open Camera
+                {isRecording ? (
+                  <MicOff className="w-6 h-6 text-white" />
+                ) : (
+                  <Mic className={`w-6 h-6 ${audioBlob ? "text-emerald-400" : "text-gray-300"}`} />
+                )}
               </button>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">
+                {isRecording ? "Stop" : "Voice"}
+              </span>
+            </div>
+
+            {/* Note */}
+            <div className="flex flex-col items-center gap-1.5">
               <button
-                onClick={() => {
-                  // Create a separate input for gallery
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = "image/*";
-                  input.onchange = (e: any) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setCapturedImageFile(file);
-                      const reader = new FileReader();
-                      reader.onloadend = () => setCapturedImage(reader.result as string);
-                      reader.readAsDataURL(file);
-                    }
-                  };
-                  input.click();
-                }}
-                className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-headline font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 border border-gray-700"
+                onClick={() => setShowNoteInput((v) => !v)}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                  showNoteInput || textNote
+                    ? "bg-blue-900 hover:bg-blue-800"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
               >
-                <Upload className="w-4 h-4" />
-                Upload from Gallery
+                <AlignLeft className={`w-6 h-6 ${textNote ? "text-blue-400" : "text-gray-300"}`} />
               </button>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Note</span>
+            </div>
+
+            {/* Spacer */}
+            <div />
+
+            {/* Submit */}
+            <div className="flex flex-col items-center gap-1.5">
+              <button
+                onClick={handleSubmit}
+                disabled={!capturedImage}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-lg ${
+                  capturedImage
+                    ? "bg-white hover:bg-gray-100"
+                    : "bg-gray-800 opacity-40 cursor-not-allowed"
+                }`}
+              >
+                <ChevronRight className={`w-6 h-6 ${capturedImage ? "text-gray-900" : "text-gray-600"}`} />
+              </button>
+              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Submit</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Action Bar */}
-      {capturedImage && !showSuccess && !isProcessing && (
-        <div className="px-4 py-4 bg-gray-950 border-t border-gray-800">
-          <button
-            onClick={handleSubmit}
-            disabled={!capturedImageFile}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-headline font-bold uppercase tracking-widest text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:scale-[1.01] active:scale-[0.99]"
-          >
-            <Check className="w-5 h-5" />
-            Submit & Capture Next
-          </button>
-        </div>
-      )}
+      {/* Hidden gallery input */}
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && handleImageFile(e.target.files[0])}
+      />
     </div>
   );
 }
