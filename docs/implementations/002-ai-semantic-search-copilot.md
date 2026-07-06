@@ -161,11 +161,24 @@ If thousands of business owners start querying the AI search simultaneously, how
 * Firestore uses a **lock-free, multi-version concurrency control (MVCC)** model for reads.
 * **Adverse Effects**: None. Thousands of concurrent read/query operations run in parallel without blocking each other, and without blocking writes (lead captures). 
 
-### 2. High Query Performance Scoped by Tenant
-* Every query is partitioned by the business owner's ID:
-  `collection("Leads").where("ownerUid", "==", currentUid)`
-* When performing a vector similarity query (`findNearest`), Firestore leverages the HNSW index. Since the search space is limited to that owner's captured leads (a few hundred or thousand documents per user) rather than the global pool of millions of leads, the query traverses a tiny branch of the vector tree.
-* This takes less than **10ms-30ms** database response time, regardless of how many total users exist globally.
+### 2. High Query Performance Scoped by Tenant & User Role
+* **Business Owners (OBO) vs. Sales Partners (SP)**: 
+  - If the Business Owner is querying, they search leads they own: `where("ownerUid", "==", currentUid)`.
+  - If a Sales Partner is querying for their **own personal connections** (independent of any OBO post or deal), the lead records will have `capturedByUid == currentUid` (with `postId: null` and `ownerUid: currentUid`).
+* **Flexible Access Queries**:
+  - To support both roles seamlessly, the search query utilizes Firestore's logical OR filter:
+    ```typescript
+    import { or, where } from "firebase/firestore";
+    const q = query(
+      collection(db, "Leads"),
+      or(
+        where("ownerUid", "==", currentUid),
+        where("capturedByUid", "==", currentUid)
+      )
+    );
+    ```
+  - Since the search space remains limited strictly to documents matching `currentUid` on either field, the query traverses a tiny branch of the vector tree. This guarantees less than **10ms-30ms** query latency.
+
 
 ### 3. Rate Limits & Autoscaling
 * Firestore scales read operations automatically to handle **millions of queries per second** without performance degradation.
