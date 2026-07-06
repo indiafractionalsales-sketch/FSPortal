@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera } from "lucide-react";
@@ -93,6 +94,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const initialLikeCount = post.likedBy?.length || 0;
 
   const [isLiked, setIsLiked] = useState(initialLiked);
+  const router = useRouter();
   const [likeCount, setLikeCount] = useState(initialLikeCount);
 
   const isOwner = currentUid === post.ownerUid;
