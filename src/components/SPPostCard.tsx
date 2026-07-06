@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2 } from "lucide-react";
+import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera } from "lucide-react";
 import { auth } from "@/lib/firebase";
 // @ts-ignore
 import { load } from '@cashfreepayments/cashfree-js';
+import LeadCaptureInterface from "@/components/LeadCaptureInterface";
+import RatingModal from "@/components/RatingModal";
 
 
 interface CommentData {
@@ -57,6 +59,7 @@ interface SPPost {
   createdAt?: string;
   postType?: string;
   paymentStatus?: string;
+  paymentLockedBy?: string;
   likedBy?: string[];
 }
 
@@ -80,6 +83,10 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
+  const [reviewChecked, setReviewChecked] = useState(false);
 
   const currentUid = auth.currentUser?.uid;
   const initialLiked = post.likedBy?.includes(currentUid || "") || false;
@@ -345,6 +352,22 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
                   CLOSED
                 </span>
+              )}
+              {/* Capture Lead - visible only to the Sales Partner */}
+              {post.paymentStatus === 'sold' && 
+                ((post.postType === 'sp' && currentUid === post.ownerUid) ||
+                 (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowLeadCapture(true);
+                  }}
+                  className="bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-gray-850"
+                >
+                  <Camera className="w-2.5 h-2.5" />
+                  Capture Lead
+                </button>
               )}
               {post.postType === "obo" && (
                 <span
@@ -678,26 +701,85 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       </div>
 
       {post.paymentStatus === 'sold' && (
-        <div className="flex items-center justify-between border-t border-gray-100 mx-4 py-3 mt-1">
-          <button
-            onClick={() => {
-              const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
-              alert(`📊 Post Insights & Metrics\n\n- Deal Closed Date: ${dateStr}\n- Total Interest Likes: ${likeCount}\n- Feedback Comments: ${comments.length}\n- Escrow Status: Secured (Awaiting Release)`);
-            }}
-            className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:text-[#5a0c0c] hover:underline cursor-pointer transition-colors"
-          >
-            📈 insights
-          </button>
-          {currentUid === post.paymentLockedBy && (
-            <button 
-              onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+        <div className="border-t border-gray-100 mx-4 py-3 mt-1 space-y-2">
+          {/* Row 1: Insights + Release Payment */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => {
+                const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
+                alert(`📊 Post Insights & Metrics\n\n- Deal Closed Date: ${dateStr}\n- Total Interest Likes: ${likeCount}\n- Feedback Comments: ${comments.length}\n- Escrow Status: Secured (Awaiting Release)`);
+              }}
+              className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:text-[#5a0c0c] hover:underline cursor-pointer transition-colors"
             >
-              💰 Release Payment
+              📈 insights
             </button>
+            {currentUid === post.paymentLockedBy && (
+              <button 
+                onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+              >
+                💰 Release Payment
+              </button>
+            )}
+          </div>
+          {/* Row 2: Rate Partner (Buyer only) */}
+          {((post.postType === 'sp' && currentUid === post.paymentLockedBy) ||
+            (post.postType === 'obo' && currentUid === post.ownerUid)) && (
+            <div className="flex items-center justify-end">
+              <button
+                onClick={async () => {
+                  if (!reviewChecked) {
+                    try {
+                      const token = await auth.currentUser?.getIdToken();
+                      if (token) {
+                        const res = await fetch(`/api/reviews/submit?postId=${post.__id}`, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        });
+                        const data = await res.json();
+                        if (data.exists) {
+                          setExistingReview({ rating: data.review.rating, comment: data.review.comment });
+                        }
+                        setReviewChecked(true);
+                      }
+                    } catch (e) { /* continue */ }
+                  }
+                  setShowRatingModal(true);
+                }}
+                className="px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Star className="w-3 h-3" />
+                {existingReview ? 'View Rating' : 'Rate Partner'}
+              </button>
+            </div>
           )}
         </div>
       )}
+
+      {/* Lead Capture Interface (full-screen overlay) */}
+      <LeadCaptureInterface
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        postId={post.__id}
+        targetOwnerUid={
+          post.postType === 'sp'
+            ? post.paymentLockedBy
+            : post.ownerUid
+        }
+      />
+
+      {/* Rating Modal */}
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        postId={post.__id || ''}
+        targetUid={
+          post.postType === 'sp'
+            ? post.ownerUid || ''
+            : post.paymentLockedBy || ''
+        }
+        targetName={authorName || 'Partner'}
+        existingReview={existingReview}
+      />
     </div>
 
     {/* Package Viewing Drawer (Bottom/Right aligned based on screen) */}
