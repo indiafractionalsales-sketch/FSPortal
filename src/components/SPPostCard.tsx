@@ -705,10 +705,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           {/* Row 1: Insights + Release Payment */}
           <div className="flex items-center justify-between">
             <button
-              onClick={() => {
-                const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
-                alert(`📊 Post Insights & Metrics\n\n- Deal Closed Date: ${dateStr}\n- Total Interest Likes: ${likeCount}\n- Feedback Comments: ${comments.length}\n- Escrow Status: Secured (Awaiting Release)`);
-              }}
+              onClick={() => router.push(`/insights/${post.__id}`)}
               className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:text-[#5a0c0c] hover:underline cursor-pointer transition-colors"
             >
               📈 insights

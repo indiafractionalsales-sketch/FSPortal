@@ -7,10 +7,11 @@ import { Loader2, Zap, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react
 type WidgetState = "idle" | "loading" | "processing" | "done" | "error";
 
 interface LeadProcessingWidgetProps {
-  onProcessed?: () => void; // callback after batch completes
+  onProcessed?: () => void;
+  postId?: string; // if set, only processes leads for this post
 }
 
-export default function LeadProcessingWidget({ onProcessed }: LeadProcessingWidgetProps) {
+export default function LeadProcessingWidget({ onProcessed, postId }: LeadProcessingWidgetProps) {
   const [pendingLeads, setPendingLeads] = useState<PendingLead[]>([]);
   const [widgetState, setWidgetState] = useState<WidgetState>("loading");
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -20,14 +21,14 @@ export default function LeadProcessingWidget({ onProcessed }: LeadProcessingWidg
   const fetchPending = useCallback(async () => {
     setWidgetState("loading");
     try {
-      const leads = await getPendingLeads();
+      const leads = await getPendingLeads(postId);
       setPendingLeads(leads);
       setWidgetState("idle");
     } catch (err: any) {
       setError(err.message || "Failed to load pending leads");
       setWidgetState("error");
     }
-  }, []);
+  }, [postId]);
 
   useEffect(() => {
     fetchPending();
@@ -42,7 +43,7 @@ export default function LeadProcessingWidget({ onProcessed }: LeadProcessingWidg
     try {
       const res = await batchProcessLeads((done, total) => {
         setProgress({ done, total });
-      });
+      }, postId);
       setResult(res);
       setWidgetState("done");
       // Refresh pending count + notify parent to refresh lead list

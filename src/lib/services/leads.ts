@@ -81,18 +81,19 @@ export async function savePendingLead(
 }
 
 /**
- * Fetches all pending leads for the current user.
+ * Fetches pending leads for the current user, optionally filtered by postId.
  */
-export async function getPendingLeads(): Promise<PendingLead[]> {
+export async function getPendingLeads(postId?: string): Promise<PendingLead[]> {
   const uid = auth.currentUser?.uid;
   if (!uid) return [];
 
-  const q = query(
-    collection(db, "Leads"),
+  const constraints: any[] = [
     where("capturedByUid", "==", uid),
-    where("status", "==", "pending")
-  );
+    where("status", "==", "pending"),
+  ];
+  if (postId) constraints.push(where("postId", "==", postId));
 
+  const q = query(collection(db, "Leads"), ...constraints);
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({
     id: doc.id,
@@ -122,13 +123,13 @@ export async function processLead(leadId: string): Promise<void> {
 }
 
 /**
- * Processes all pending leads for the current user sequentially.
- * Returns counts of success and failure.
+ * Processes all pending leads for the current user (optionally filtered by postId) sequentially.
  */
 export async function batchProcessLeads(
-  onProgress?: (done: number, total: number) => void
+  onProgress?: (done: number, total: number) => void,
+  postId?: string
 ): Promise<{ success: number; failed: number }> {
-  const pending = await getPendingLeads();
+  const pending = await getPendingLeads(postId);
   let success = 0;
   let failed = 0;
 
