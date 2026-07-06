@@ -389,60 +389,59 @@ export default function PostInsightsPage() {
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
               <div className="h-1 bg-[#701010]" />
               <div className="p-5">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] mb-1">Event</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  {/* Left: Event Details */}
+                  <div className="min-w-0 flex-1">
                     <h1 className="text-xl font-serif font-bold text-gray-900 leading-tight font-serif">
                       {post?.eventName || "Event Insights"}
                     </h1>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mt-1.5">
+                      {eventDate && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                          {eventDate}
+                        </span>
+                      )}
+                      {location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                          {location}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="bg-[#701010]/5 border border-[#701010]/10 rounded-lg px-4 py-2 text-center shrink-0">
-                    <p className="text-2xl font-serif font-bold text-[#701010] leading-none font-serif">{leads.length}</p>
-                    <p className="text-[9px] font-headline uppercase tracking-widest text-[#701010]/70 mt-0.5">leads</p>
-                  </div>
-                </div>
 
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-gray-500 mb-4">
-                  {eventDate && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      {eventDate}
-                    </span>
-                  )}
-                  {location && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                      {location}
-                    </span>
-                  )}
-                </div>
-
-                {/* Sales Partner details */}
-                <div className="border-t border-gray-100 pt-4">
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-gray-400 mb-2">Sales Partner</p>
-                  <div className="flex items-center gap-3">
+                  {/* Center-Right: Sales Partner Details */}
+                  <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6 shrink-0">
                     {spProfile?.profilePhoto ? (
-                      <img src={spProfile.profilePhoto} alt="SP" className="w-9 h-9 rounded-full object-cover border border-gray-200" />
+                      <img src={spProfile.profilePhoto} alt="SP" className="w-10 h-10 rounded-full object-cover border border-gray-200" />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
                         <UserIcon className="w-4 h-4 text-gray-400" />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-serif font-bold text-gray-900 font-serif">{spProfile?.fullName || "—"}</p>
-                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5">
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-gray-450 leading-none mb-1">Sales Partner</p>
+                      <p className="text-sm font-serif font-bold text-gray-900 leading-none font-serif">{spProfile?.fullName || "—"}</p>
+                      <div className="flex flex-col gap-0.5 mt-1 text-[10px] text-gray-500">
                         {spProfile?.mobilePrimary && (
-                          <a href={`tel:${spProfile.mobilePrimary}`} className="text-[10px] text-gray-500 hover:text-[#701010] flex items-center gap-1 transition-colors">
-                            <Phone className="w-3 h-3 text-gray-400" />{spProfile.mobilePrimary}
+                          <a href={`tel:${spProfile.mobilePrimary}`} className="hover:text-[#701010] flex items-center gap-1 transition-colors">
+                            <Phone className="w-2.5 h-2.5 text-gray-400" />{spProfile.mobilePrimary}
                           </a>
                         )}
-                        {spProfile?.emailPersonal && (
-                          <a href={`mailto:${spProfile.emailPersonal}`} className="text-[10px] text-gray-500 hover:text-[#701010] flex items-center gap-1 transition-colors">
-                            <Mail className="w-3 h-3 text-gray-400" />{spProfile.emailPersonal}
+                        {(spProfile?.emailPersonal || spProfile?.email) && (
+                          <a href={`mailto:${spProfile.emailPersonal || spProfile.email}`} className="hover:text-[#701010] flex items-center gap-1 transition-colors">
+                            <Mail className="w-2.5 h-2.5 text-gray-400" />{spProfile.emailPersonal || spProfile.email}
                           </a>
                         )}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Right: Leads Count Box */}
+                  <div className="bg-[#701010]/5 border border-[#701010]/10 rounded-lg px-4 py-2.5 text-center shrink-0 self-start md:self-auto">
+                    <p className="text-2xl font-serif font-bold text-[#701010] leading-none font-serif">{leads.length}</p>
+                    <p className="text-[9px] font-headline uppercase tracking-widest text-[#701010]/70 mt-0.5">leads</p>
                   </div>
                 </div>
               </div>
