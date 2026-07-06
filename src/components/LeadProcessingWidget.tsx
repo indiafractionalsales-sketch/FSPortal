@@ -155,8 +155,7 @@ export default function LeadProcessingWidget({ onProcessed, postId }: LeadProces
             </p>
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Cards captured and ready for AI extraction.{" "}
-            Est. cost: ~${(pendingLeads.length * 0.001).toFixed(3)}
+            Cards captured and ready for AI extraction.
           </p>
         </div>
         <button onClick={fetchPending} className="text-gray-600 hover:text-gray-400 transition-colors mt-0.5">
