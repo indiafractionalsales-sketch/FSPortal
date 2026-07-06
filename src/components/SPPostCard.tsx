@@ -365,10 +365,25 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                     e.stopPropagation();
                     setShowLeadCapture(true);
                   }}
-                  className="bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-gray-850"
+                  className="bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-gray-850 animate-fade-in"
                 >
                   <Camera className="w-2.5 h-2.5" />
                   Capture Lead
+                </button>
+              )}
+              {/* Insights - visible to both SP and OBO for this sold deal */}
+              {post.paymentStatus === 'sold' && 
+                ((post.postType === 'sp' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy)) ||
+                 (post.postType === 'obo' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy))) && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    router.push(`/insights/${post.__id}`);
+                  }}
+                  className="bg-white hover:bg-gray-50 text-[#701010] border border-[#701010]/20 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 animate-fade-in"
+                >
+                  📈 Insights
                 </button>
               )}
               {post.postType === "obo" && (
@@ -704,23 +719,17 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
       {post.paymentStatus === 'sold' && (
         <div className="border-t border-gray-100 mx-4 py-3 mt-1 space-y-2">
-          {/* Row 1: Insights + Release Payment */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push(`/insights/${post.__id}`)}
-              className="text-[10px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:text-[#5a0c0c] hover:underline cursor-pointer transition-colors"
-            >
-              📈 insights
-            </button>
-            {currentUid === post.paymentLockedBy && (
+          {/* Row 1: Release Payment */}
+          {currentUid === post.paymentLockedBy && (
+            <div className="flex items-center justify-end">
               <button 
                 onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
               >
                 💰 Release Payment
               </button>
-            )}
-          </div>
+            </div>
+          )}
           {/* Row 2: Rate Partner (Buyer only) */}
           {((post.postType === 'sp' && currentUid === post.paymentLockedBy) ||
             (post.postType === 'obo' && currentUid === post.ownerUid)) && (
