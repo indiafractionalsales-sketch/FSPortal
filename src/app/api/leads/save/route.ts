@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
 
     // Upload card image to Firebase Storage (server-side)
     const timestamp = Date.now();
-    const bucket = getStorage().bucket();
+    // Bucket name must be passed explicitly — Admin SDK doesn't infer it from credentials
+    const BUCKET = process.env.FIREBASE_STORAGE_BUCKET || 'fractional-sales-4436e.firebasestorage.app';
+    const bucket = getStorage().bucket(BUCKET);
 
     const cardImageBuffer = Buffer.from(await cardImage.arrayBuffer());
     const cardImagePath = `leads/${uid}/${timestamp}_card.jpg`;
