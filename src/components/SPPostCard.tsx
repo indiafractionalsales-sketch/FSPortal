@@ -7,8 +7,6 @@ import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera } from "lucide-react";
 import { auth } from "@/lib/firebase";
-// @ts-ignore
-import { load } from '@cashfreepayments/cashfree-js';
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
 
@@ -296,11 +294,31 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleCheckout = async (packageId: string) => {
     try {
       setIsCheckingOut(true);
-      const isProd = process.env.NEXT_PUBLIC_CASHFREE_ENVIRONMENT === 'PRODUCTION';
-      const cashfree = await load({ mode: isProd ? "production" : "sandbox" });
+      
+      const isScriptLoaded = await loadRazorpayScript();
+      if (!isScriptLoaded) {
+        alert("Failed to load payment gateway. Please check your internet connection.");
+        setIsCheckingOut(false);
+        return;
+      }
+
       const token = await auth.currentUser?.getIdToken();
       
       const res = await fetch('/api/checkout', {
@@ -321,10 +339,59 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
         return;
       }
 
-      if (data.payment_session_id) {
-        cashfree.checkout({
-          paymentSessionId: data.payment_session_id
-        });
+      if (data.order_id) {
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+          amount: data.amount,
+          currency: 'INR',
+          name: 'ScaleFraction',
+          description: `Purchase Deal package`,
+          order_id: data.order_id,
+          prefill: {
+            name: auth.currentUser?.displayName || 'Customer',
+            email: auth.currentUser?.email || 'customer@example.com',
+          },
+          handler: async function (response: any) {
+            try {
+              setIsCheckingOut(true);
+              const verifyRes = await fetch('/api/payment-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  receipt: data.receipt
+                })
+              });
+              
+              const verifyData = await verifyRes.json();
+              if (verifyData.error) {
+                alert(verifyData.error);
+              } else {
+                router.push(`/payment-status?order_id=${data.receipt}`);
+              }
+            } catch (vErr) {
+              console.error("Verification failed:", vErr);
+              alert("Payment verification failed. Please contact support.");
+            } finally {
+              setIsCheckingOut(false);
+            }
+          },
+          modal: {
+            ondismiss: async function () {
+              console.log("Checkout dismissed by user. Releasing payment lock.");
+              try {
+                await fetch(`/api/payment-status?order_id=${data.receipt}&action=cancel`);
+              } catch (cErr) {
+                console.error("Failed to release lock:", cErr);
+              }
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
       }
     } catch (err) {
       console.error("Checkout failed:", err);
