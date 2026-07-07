@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     let queryVector: number[] = [];
     try {
       const embedResult = await ai.embed({
-        embedder: 'vertexai/text-embedding-004',
+        embedder: 'googleai/text-embedding-004',
         content: queryText,
       });
       if (embedResult && embedResult[0]?.embedding) {
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const genResult = await ai.generate({
-          model: 'vertexai/gemini-2.5-flash',
+          model: 'googleai/gemini-2.5-flash',
           prompt: userPrompt,
           system: systemPrompt,
         });

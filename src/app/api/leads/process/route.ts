@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     let embedding: number[] | null = null;
     try {
       const embedResult = await ai.embed({
-        embedder: 'vertexai/text-embedding-004',
+        embedder: 'googleai/text-embedding-004',
         content: profileText,
       });
       if (embedResult && embedResult[0]?.embedding) {
