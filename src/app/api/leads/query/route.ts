@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
     // 3. Resolve user's regional database ID
     const databaseId = await getUserDatabaseId(uid);
     const db = getDbForId(databaseId) || adminDb;
+    const debugInfo: any = { uid, databaseId, queryText, dbFallback: !getDbForId(databaseId) };
+    console.log(`[AI Networking] uid=${uid}, databaseId=${databaseId}, queryText="${queryText}"`);
 
     // 4. Generate query vector using Vertex AI embedding model
     let queryVector: number[] = [];
@@ -65,40 +67,111 @@ export async function POST(req: NextRequest) {
       });
       if (embedResult && embedResult[0]?.embedding) {
         queryVector = embedResult[0].embedding;
+        debugInfo.embeddingDims = queryVector.length;
       }
     } catch (embedErr) {
       console.error('Failed to generate query embedding:', embedErr);
       return NextResponse.json({ error: 'Failed to process AI embedding for search' }, { status: 500 });
     }
 
-    // 5. Query Firestore leads in parallel for both Owner and Capturer scoping
+    // 4b. Debug: Check how many leads exist for this user
+    try {
+      const allLeadsSnap = await db.collection('Leads').where('ownerUid', '==', uid).limit(5).get();
+      debugInfo.leadsForOwner = allLeadsSnap.size;
+      if (allLeadsSnap.size > 0) {
+        const sample = allLeadsSnap.docs[0].data();
+        debugInfo.sampleLead = { status: sample.status, hasEmbedding: !!sample.embedding, name: sample.contactInfo?.name };
+      }
+    } catch (dbErr: any) {
+      debugInfo.leadsQueryError = dbErr.message || dbErr.code;
+    }
+    // Also check capturer leads
+    try {
+      const capSnap = await db.collection('Leads').where('capturedByUid', '==', uid).limit(5).get();
+      debugInfo.leadsForCapturer = capSnap.size;
+    } catch (dbErr: any) {
+      debugInfo.capturerQueryError = dbErr.message || dbErr.code;
+    }
+
+    // 5. Search leads — two strategies run in parallel:
+    //    A) Vector search (for leads WITH embeddings)
+    //    B) Text-match fallback (catches ALL leads including those without embeddings)
     const leadsRef = db.collection('Leads');
+    const queryLower = queryText.toLowerCase();
     
-    // We execute flat nearest neighbor cosine search on both ownership types to keep SP connects aligned
-    const ownerQuery = leadsRef
-      .where('status', '==', 'processed')
-      .where('ownerUid', '==', uid)
-      .findNearest('embedding', queryVector, {
-        limit: 15,
-        distanceMeasure: 'COSINE',
-      })
-      .get();
+    // Strategy A: Vector nearest-neighbor search (only matches leads that have embedding field)
+    let vectorResults: any[] = [];
+    if (queryVector.length > 0) {
+      try {
+        const ownerQuery = leadsRef
+          .where('ownerUid', '==', uid)
+          .findNearest('embedding', queryVector, {
+            limit: 15,
+            distanceMeasure: 'COSINE',
+          })
+          .get();
 
-    const capturerQuery = leadsRef
-      .where('status', '==', 'processed')
-      .where('capturedByUid', '==', uid)
-      .findNearest('embedding', queryVector, {
-        limit: 15,
-        distanceMeasure: 'COSINE',
-      })
-      .get();
+        const capturerQuery = leadsRef
+          .where('capturedByUid', '==', uid)
+          .findNearest('embedding', queryVector, {
+            limit: 15,
+            distanceMeasure: 'COSINE',
+          })
+          .get();
 
-    const [ownerSnap, capturerSnap] = await Promise.all([ownerQuery, capturerQuery]);
+        const [ownerSnap, capturerSnap] = await Promise.all([ownerQuery, capturerQuery]);
+        ownerSnap.docs.forEach(doc => vectorResults.push({ id: doc.id, ...doc.data() }));
+        capturerSnap.docs.forEach(doc => vectorResults.push({ id: doc.id, ...doc.data() }));
+      } catch (vectorErr) {
+        console.warn('[AI Networking] Vector search failed (index may not exist yet):', (vectorErr as any).message);
+      }
+    }
 
-    // Merge snaps removing duplicates
+    // Strategy B: Fetch all user's leads and do client-side keyword matching
+    const ownerAllSnap = await leadsRef.where('ownerUid', '==', uid).limit(50).get();
+    const capturerAllSnap = await leadsRef.where('capturedByUid', '==', uid).limit(50).get();
+    
+    // Extract meaningful keywords from the query (ignore common stop words)
+    const stopWords = new Set(['is','are','there','anyone','anybody','any','the','a','an','in','on','at',
+      'to','for','of','with','do','we','have','has','had','can','could','who','what','where','when',
+      'how','find','show','me','my','our','called','named','name','database','from','and','or','not',
+      'i','it','its','this','that','get','all','out','about','their','them','be','been','was','were',
+      'will','would','should','may','might','let','no','yes','please','want','need','looking','search',
+      'contacts','leads','lead','contact','directory','list','know','tell','give']);
+    const queryWords = queryText.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 1 && !stopWords.has(w));
+    
+    debugInfo.searchKeywords = queryWords;
+
+    const textMatchResults: any[] = [];
+    const allDocs = [...ownerAllSnap.docs, ...capturerAllSnap.docs];
+    for (const doc of allDocs) {
+      const data = doc.data();
+      const ci = data.contactInfo || {};
+      // Search across all text fields — contactInfo is a nested object
+      const searchableText = [
+        ci.name, ci.email, ci.phone, ci.company,
+        ci.designation, ci.address, ci.city, ci.website,
+        data.contextSummary, data.actionItem, data.textNote,
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      // Match if ANY keyword appears in the searchable text
+      const matches = queryWords.some(keyword => searchableText.includes(keyword));
+      if (matches) {
+        textMatchResults.push({ id: doc.id, ...data });
+      }
+    }
+
+    // Merge both result sets, deduplicating by doc ID
     const uniqueLeadsMap = new Map<string, any>();
-    ownerSnap.docs.forEach(doc => uniqueLeadsMap.set(doc.id, { id: doc.id, ...doc.data() }));
-    capturerSnap.docs.forEach(doc => uniqueLeadsMap.set(doc.id, { id: doc.id, ...doc.data() }));
+    // Vector results first (higher relevance)
+    vectorResults.forEach(lead => uniqueLeadsMap.set(lead.id, lead));
+    // Then text matches
+    textMatchResults.forEach(lead => uniqueLeadsMap.set(lead.id, lead));
+
+    console.log(`[AI Networking] Vector matches: ${vectorResults.length}, Text matches: ${textMatchResults.length}, Total unique: ${uniqueLeadsMap.size}`);
 
     // Clean embeddings from results to keep API response payload size small
     const matchingLeads = Array.from(uniqueLeadsMap.values()).map(lead => {
@@ -171,6 +244,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       report: reportText,
       leads: matchingLeads,
+      _debug: debugInfo,
     });
 
   } catch (err: any) {

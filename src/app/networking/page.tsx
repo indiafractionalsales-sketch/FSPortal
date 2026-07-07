@@ -130,6 +130,7 @@ export default function AIPoweredNetworkingPage() {
       });
 
       const data = await response.json();
+      console.log('[AI Networking Debug]', data._debug);
       if (data.error) {
         setMessages([...newMessages, { role: 'assistant', text: `⚠️ **Error:** ${data.error}` }]);
       } else {
