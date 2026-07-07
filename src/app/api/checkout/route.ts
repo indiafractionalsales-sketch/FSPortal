@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { admin, adminDb } from '@/lib/firebase-admin';
-import { Cashfree, CFEnvironment } from 'cashfree-pg';
+import Razorpay from 'razorpay';
 
-const cashfree = new Cashfree(
-  process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX,
-  process.env.NEXT_PUBLIC_CASHFREE_APP_ID || '',
-  process.env.CASHFREE_SECRET_KEY || ''
-);
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+});
 
 export async function POST(req: Request) {
   try {
@@ -36,7 +35,7 @@ export async function POST(req: Request) {
     
     // 2. Transaction for Two-Phase Commit Lock
     let packagePrice = 0;
-    let orderId = `order_${postId}_${Date.now()}`;
+    let orderId = `ord_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
     try {
       await adminDb.runTransaction(async (t) => {
@@ -103,28 +102,19 @@ export async function POST(req: Request) {
       returnUrl = returnUrl.replace('http://', 'https://');
     }
 
-    // 3. Create Cashfree Order
-    const request = {
-      order_amount: packagePrice,
-      order_currency: "INR",
-      order_id: orderId,
-      customer_details: {
-        customer_id: uid,
-        customer_email: userEmail,
-        customer_phone: "9999999999", // Can be updated if phone is passed in body
-        customer_name: "Customer"
-      },
-      order_meta: {
-        return_url: returnUrl
-      }
+    // 3. Create Razorpay Order (amount must be in paise)
+    const options = {
+      amount: Math.round(packagePrice * 100),
+      currency: "INR",
+      receipt: orderId,
     };
 
-    const response = await cashfree.PGCreateOrder(request as any);
+    const response = await razorpay.orders.create(options);
     
-    // Return the session ID to the client so they can open the checkout modal
+    // Return the Razorpay order ID to the client so they can open the checkout overlay
     return NextResponse.json({
-      payment_session_id: response.data.payment_session_id,
-      order_id: orderId
+      order_id: response.id,
+      receipt: orderId
     });
 
   } catch (err: any) {
