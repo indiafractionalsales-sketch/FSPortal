@@ -42,7 +42,7 @@ graph TD
      Actions: [actionItem].
      Location: [Event Location]. Date: [Event Date].
      ```
-   - We send this text to the Genkit embedding service (`googleai/text-embedding-004`) to generate a **768-dimension vector**.
+   - We send this text to the Genkit embedding service (`vertexai/text-embedding-004`) to generate a **768-dimension vector**.
    - We store this vector on the Lead document: `embedding: [0.12, -0.45, ...]` in Firestore.
 
 2. **Firestore Native Vector Search (Read-time)**:
