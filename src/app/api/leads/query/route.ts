@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     let queryVector: number[] = [];
     try {
       const embedResult = await ai.embed({
-        embedder: 'vertexai/text-embedding-004',
+        embedder: 'vertexai/text-embedding-005',
         content: queryText,
       });
       if (embedResult && embedResult[0]?.embedding) {
