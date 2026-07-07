@@ -71,3 +71,57 @@ If the user runs multiple queries in a row, we can cache the lead directory cont
 
 1.  **For Launch & Scaling**: Stick with **Google AI Studio (Pay-As-You-Go)**. It delivers identical model pricing, has a free tier for development, incurs zero infrastructure overhead, and easily supports quotas of thousands of requests per minute by registering a billing card.
 2.  **For Enterprise Compliance**: Migrate to **Vertex AI** only when you need strict enterprise controls, dedicated SLAs, SOC2 compliance guarantees, private VPC networking, or data residency constraints (e.g. strict EU-only model routing).
+
+---
+
+## 6. Migration Guide: Shifting to Vertex AI
+
+Because this application uses **Genkit**, transitioning from Google AI Studio to Vertex AI is **highly straightforward** and requires no changes to business logic or prompts.
+
+### Step 1: Install the Vertex AI Plugin
+Run the following command in the terminal to add the Genkit Vertex AI integration:
+```bash
+npm install @genkit-ai/vertexai
+```
+
+### Step 2: Update `genkit.ts` Configuration
+Change the provider import and initialization in `src/ai/genkit.ts`:
+
+**Before (Google AI Studio)**:
+```typescript
+import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
+
+export const ai = genkit({
+  plugins: [googleAI()],
+  model: 'googleai/gemini-2.5-flash',
+});
+```
+
+**After (Vertex AI)**:
+```typescript
+import {genkit} from 'genkit';
+import {vertexAI} from '@genkit-ai/vertexai';
+
+export const ai = genkit({
+  plugins: [
+    vertexAI({
+      projectId: process.env.GCP_PROJECT_ID, // E.g., 'fractionalsalesdev'
+      location: 'us-central1',               // E.g., 'us-central1' or 'asia-south1'
+    }),
+  ],
+  model: 'vertexai/gemini-2.5-flash',
+});
+```
+
+### Step 3: Configure Cloud Credentials
+1. **Google Cloud Console**: Enable the **Vertex AI API** in your GCP project.
+2. **Environment Roles**:
+   - In production (Firebase App Hosting), ensure the backend's App Hosting Service Account has the **Vertex AI User** role.
+   - For local development, authenticate using standard Application Default Credentials:
+     ```bash
+     gcloud auth application-default login
+     ```
+
+*No changes are required in `lead-extraction.ts`, `ai-powered-partner-description.ts`, or any API endpoints. Genkit abstracts all of it.*
+
