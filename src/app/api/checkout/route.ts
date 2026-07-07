@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     
     // 2. Transaction for Two-Phase Commit Lock
     let packagePrice = 0;
-    let orderId = `order_${postId}_${Date.now()}`;
+    let orderId = `ord_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
     try {
       await adminDb.runTransaction(async (t) => {
