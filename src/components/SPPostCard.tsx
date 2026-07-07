@@ -344,7 +344,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
           amount: data.amount,
           currency: 'INR',
-          name: 'ScaleFraction',
+          name: 'Fractional Sales Partner',
           description: `Purchase Deal package`,
           order_id: data.order_id,
           prefill: {
