@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { adminDb, admin, getUserDatabaseId, getDbForId } from '@/lib/firebase-admin';
 import { extractLead } from '@/ai/flows/lead-extraction';
 import { ai } from '@/ai/genkit';
+import { vertexAI } from '@genkit-ai/google-genai';
 
 export async function POST(req: NextRequest) {
   try {
@@ -141,7 +142,7 @@ export async function POST(req: NextRequest) {
     let embedding: number[] | null = null;
     try {
       const embedResult = await ai.embed({
-        embedder: 'vertexai/text-embedding-005',
+        embedder: vertexAI.embedder('text-embedding-005'),
         content: profileText,
       });
       if (embedResult && embedResult[0]?.embedding) {

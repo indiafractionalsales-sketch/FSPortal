@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin, adminDb, getDbForId, getUserDatabaseId } from '@/lib/firebase-admin';
 import { ai } from '@/ai/genkit';
+import { vertexAI } from '@genkit-ai/google-genai';
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     let queryVector: number[] = [];
     try {
       const embedResult = await ai.embed({
-        embedder: 'vertexai/text-embedding-005',
+        embedder: vertexAI.embedder('text-embedding-005'),
         content: queryText,
       });
       if (embedResult && embedResult[0]?.embedding) {
