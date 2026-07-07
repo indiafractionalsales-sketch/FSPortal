@@ -184,3 +184,91 @@ If thousands of business owners start querying the AI search simultaneously, how
 * Firestore scales read operations automatically to handle **millions of queries per second** without performance degradation.
 * The only limit to watch is writing/updating the same document (maximum of 1 write/sec to a single document). Since querying is a read-only operation, it is completely immune to this limitation.
 
+---
+
+## 8. LLM Model Concurrency & Rate Limit Management
+
+If thousands of users query the AI search (which makes a request to Gemini under the hood) simultaneously, will the LLM handle it?
+
+### The Challenge: LLM Rate Limits
+* Google AI Studio has default API rate limits for `gemini-2.5-flash` on the free tier (typically 15 RPM). On the paid tier, it scales to **1,000 to 4,000+ RPM** depending on tier, but a sudden spike can trigger HTTP 429 (Too Many Requests).
+
+### Production Scaling Solutions:
+1. **Vertex AI Integration**: 
+   - For public production launches with thousands of users, we configure Genkit to use **Google Cloud Vertex AI** instead of the developer-focused Google AI Studio. Vertex AI offers dedicated enterprise SLAs and higher request quotas.
+2. **Graceful Retries & Backoff**:
+   - In our server-side API handler, we implement an automatic retry mechanism with **exponential backoff** using Genkit's configuration. This handles temporary rate limits transparently without returning errors to the user.
+
+---
+
+## 9. Monetization & Credit Validation Model
+
+To support regional monetization (e.g. UK vs India rates and billing schemes), we design a flexible credit control layer that checks validity before letting the user invoke AI search or other premium tools.
+
+### 1. Database Model (`user_subscriptions` collection or embedded in `users`)
+We store the user's active billing status, regional pricing tier, and feature credits in a structured object:
+
+```typescript
+interface UserBilling {
+  region: "IN" | "UK" | "US";       // Country code determining rates
+  currency: "INR" | "GBP" | "USD";  // Regional billing currency
+  activeSchemeId: string;           // References a package/tier
+  validUntil: string;               // ISO Timestamp of package expiration
+  features: {
+    aiSearch: {
+      enabled: boolean;
+      creditType: "unlimited" | "metered";
+      creditsRemaining: number;     // Remaining searches allowed
+      validUntil: string | null;    // Expiration date specifically for this feature
+    };
+    leadCapture: {
+      enabled: boolean;
+      creditType: "unlimited" | "metered";
+      creditsRemaining: number;
+    };
+  };
+}
+```
+
+### 2. Pre-Flight Execution Check
+Every time a user inputs a query in the AI search window, the NextJS server performs a pre-flight validation check before calling Gemini:
+
+```typescript
+async function validateFeatureAccess(userId: string, feature: "aiSearch" | "leadCapture") {
+  const token = await admin.auth().createCustomToken(userId);
+  const userBillingDoc = await getDocument("users", userId, token, "default");
+  const billing = userBillingDoc?.billing as UserBilling | undefined;
+
+  if (!billing) {
+    throw new Error("No active subscription profile found.");
+  }
+
+  // 1. Check overall subscription expiry
+  if (new Date(billing.validUntil) < new Date()) {
+    throw new Error("Subscription expired. Please renew.");
+  }
+
+  const feat = billing.features[feature];
+
+  // 2. Check if feature is enabled
+  if (!feat || !feat.enabled) {
+    throw new Error("Feature not enabled in your current tier.");
+  }
+
+  // 3. Check feature-specific expiration date
+  if (feat.validUntil && new Date(feat.validUntil) < new Date()) {
+    throw new Error("Feature access has expired.");
+  }
+
+  // 4. Check remaining credits if metered
+  if (feat.creditType === "metered" && feat.creditsRemaining <= 0) {
+    throw new Error("Out of credits. Please top up.");
+  }
+
+  return billing; // Authorized
+}
+```
+
+### 3. Credit Deduction (Post-Execution)
+If the feature's `creditType` is `metered`, the API server decrements `creditsRemaining` by `1` in Firestore upon a successful search response.
+
