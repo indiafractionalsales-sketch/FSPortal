@@ -1,10 +1,23 @@
 "use client";
 
+
+/**
+ * Copyright (c) 2026 Biztribe Trading & Consultancy India Private Limited.
+ * All rights reserved.
+ *
+ * This file is part of the Fractional Sales Partner platform.
+ * CONFIDENTIAL AND PROPRIETARY — Unauthorised copying, redistribution,
+ * modification, or use of this file, via any medium, is strictly prohibited.
+ * Violation will result in civil and criminal prosecution under the
+ * Copyright Act 1957, Information Technology Act 2000, and applicable
+ * Indian and international intellectual property laws.
+ */
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Building, Briefcase, Settings, ImageIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building, Briefcase, Settings, ImageIcon, Shield, ExternalLink } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { saveDocument } from "@/lib/firestore-rest";
@@ -49,6 +62,7 @@ export default function OnboardingWizard() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
+  const [termsConsent, setTermsConsent] = useState(false);
 
   // Data States
   const [oboData, setOboData] = useState({
@@ -103,19 +117,19 @@ export default function OnboardingWizard() {
     if (userType === "obo") {
       if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber && !!oboData.country;
       if (currentStep === 2) return !!oboData.phone && !!oboData.website;
-      if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent;
+      if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent && termsConsent;
     }
     if (userType === "sp") {
       if (currentStep === 1) return !!spData.fullName;
       if (currentStep === 2) return !!spData.mobilePrimary && !!spData.country && !!spData.city;
       if (currentStep === 3) return !!spData.yearsExperience;
       if (currentStep === 4) return !!spData.preferredCurrency;
-      if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent;
+      if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent && termsConsent;
     }
     if (userType === "tpsp") {
       if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
       if (currentStep === 2) return !!tpspData.phone && !!tpspData.website;
-      if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent;
+      if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent && termsConsent;
     }
     return true;
   };
@@ -134,6 +148,23 @@ export default function OnboardingWizard() {
     try {
       const idToken = await user.getIdToken();
 
+      // Fetch client IP for audit trail
+      let clientIp = "unknown";
+      try {
+        const ipRes = await fetch("/api/ip");
+        const ipData = await ipRes.json();
+        clientIp = ipData.ip || "unknown";
+      } catch { /* IP fetch failure is non-blocking */ }
+
+      // Click-wrap audit trail metadata
+      const termsAudit = {
+        termsAccepted: true,
+        termsVersion: "2.0",
+        termsAcceptedDate: new Date().toISOString(),
+        termsIpAddress: clientIp,
+        termsUserAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      };
+
       let userCountry = "";
       if (userType === "obo") userCountry = oboData.country;
       else if (userType === "sp") userCountry = spData.country;
@@ -149,21 +180,22 @@ export default function OnboardingWizard() {
         createdAt: new Date().toISOString(),
         gdprConsent: gdprConsent,
         gdprConsentDate: new Date().toISOString(),
+        ...termsAudit,
       }, idToken, "default");
 
       // Save Profile Doc
       if (userType === "obo") {
-        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
+        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "sp") {
-        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
+        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "tpsp") {
-        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "" };
+        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);
@@ -339,7 +371,7 @@ export default function OnboardingWizard() {
               </div>
             )}
 
-            {/* Shared Branding/Media Step */}
+            {/* Shared Branding/Media Step (final step) */}
             {currentStep > 0 && currentStep === steps.length && (
               <div className="space-y-6">
                 <div>
@@ -380,7 +412,27 @@ export default function OnboardingWizard() {
                       </svg>
                     </div>
                     <div className="text-sm text-gray-600 leading-relaxed">
-                      I consent to Fractional Sales Portal storing and processing my personal information, including my name, images, and product/service details, for the purpose of sales and marketing on the platform as per GDPR guidelines. <span className="text-red-500">*</span>
+                      I consent to Fractional Sales Partner storing and processing my personal information, including my name, images, and product/service details, for the purpose of sales and marketing on the platform as per GDPR guidelines. <span className="text-red-500">*</span>
+                    </div>
+                  </label>
+                </div>
+
+                {/* T&C Acceptance — Click-Wrap */}
+                <div className="mt-3">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        checked={termsConsent} 
+                        onChange={(e) => setTermsConsent(e.target.checked)}
+                        className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-600 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer"
+                      />
+                      <svg className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" viewBox="0 0 14 10" fill="none">
+                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="text-xs text-gray-500 leading-relaxed">
+                      I have read and agree to the <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-semibold">Terms &amp; Conditions</a>, <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-semibold">Privacy Policy</a>, and <a href="/legal/refund" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-semibold">Refund Policy</a>. <span className="text-red-500">*</span>
                     </div>
                   </label>
                 </div>
