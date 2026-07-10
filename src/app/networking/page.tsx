@@ -515,7 +515,7 @@ function formatInlineText(text: string): React.ReactNode {
 }
 
 // Helper to parse and render a markdown table
-function parseTableBlock(lines: string[]): React.ReactNode {
+function parseTableBlock(lines: string[], key: string | number): React.ReactNode {
   if (lines.length < 1) return null;
   
   const rows = lines.map(line => {
@@ -566,7 +566,7 @@ function parseTableBlock(lines: string[]): React.ReactNode {
   };
 
   return (
-    <div className="overflow-x-auto my-5 border border-gray-150 rounded-xl shadow-sm">
+    <div key={key} className="overflow-x-auto my-5 border border-gray-150 rounded-xl shadow-sm">
       <table className="min-w-full divide-y divide-gray-200 text-sm">
         <thead className="bg-gray-55/30 text-gray-700 font-headline text-xs uppercase tracking-wider">
           <tr>
@@ -620,7 +620,7 @@ function AIReportRenderer({ text }: { text: string }) {
         tableLines.push(lines[i]);
         i++;
       }
-      blocks.push(parseTableBlock(tableLines));
+      blocks.push(parseTableBlock(tableLines, i));
       continue;
     }
     
