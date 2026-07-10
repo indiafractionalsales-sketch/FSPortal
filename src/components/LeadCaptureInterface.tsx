@@ -30,6 +30,7 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  Check,
 } from "lucide-react";
 
 interface LeadCaptureInterfaceProps {
@@ -784,123 +785,157 @@ export default function LeadCaptureInterface({
 
                       {/* Expanded actions */}
                       {isExpanded && (
-                        <div className="border-t border-gray-800 p-4 space-y-3">
+                        <div className="border-t border-gray-800 p-4 space-y-4">
                           {/* Card image preview */}
                           <div className="w-full aspect-[1.6/1] rounded-xl overflow-hidden bg-gray-800">
                             <img src={lead.cardImageUrl} alt="Card" className="w-full h-full object-contain" />
                           </div>
 
-                          {/* Voice note section */}
-                          <div className="bg-gray-800/60 rounded-xl p-3">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Voice Note</p>
-                            {isRecordingThis ? (
-                              <div className="flex items-center gap-3">
-                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                <span className="text-xs font-mono font-bold text-red-400">
-                                  {String(Math.floor(queueRecordingSeconds / 60)).padStart(2, "0")}:
-                                  {String(queueRecordingSeconds % 60).padStart(2, "0")}
-                                </span>
-                                <button
-                                  onClick={stopQueueRecording}
-                                  className="ml-auto px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-all active:scale-95"
-                                >
-                                  Stop Recording
-                                </button>
-                              </div>
-                            ) : isSavingNote ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-                                <span className="text-xs text-gray-400">Saving note…</span>
-                              </div>
-                            ) : lead.voiceNoteUrl ? (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-emerald-400 font-semibold">✓ Voice note attached</span>
-                                <button
-                                  onClick={() => startQueueRecording(lead.id)}
-                                  className="ml-auto text-[10px] text-gray-500 hover:text-gray-300 underline underline-offset-2 transition-colors"
-                                >
-                                  Re-record
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => startQueueRecording(lead.id)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold transition-all active:scale-95 w-full justify-center"
-                              >
-                                <Mic className="w-4 h-4" />
-                                Record Voice Note
-                              </button>
-                            )}
-                          </div>
-
-                          {/* Text note section */}
-                          <div className="bg-gray-800/60 rounded-xl p-3">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Text Note</p>
-                            {queueNoteEditId === lead.id ? (
-                              <div className="space-y-2">
-                                <textarea
-                                  value={queueNoteText}
-                                  onChange={(e) => setQueueNoteText(e.target.value)}
-                                  placeholder="Add context about this lead..."
-                                  rows={2}
-                                  className="w-full bg-gray-900 text-white text-sm rounded-lg px-3 py-2 placeholder-gray-600 border border-gray-700 focus:border-gray-500 outline-none resize-none"
-                                  autoFocus
-                                />
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => saveQueueTextNote(lead.id)}
-                                    disabled={isSavingNote}
-                                    className="flex-1 py-2 rounded-lg bg-white text-gray-900 text-xs font-bold hover:bg-gray-100 transition-all active:scale-95 disabled:opacity-50"
-                                  >
-                                    {isSavingNote ? "Saving…" : "Save Note"}
-                                  </button>
-                                  <button
-                                    onClick={() => { setQueueNoteEditId(null); setQueueNoteText(""); }}
-                                    className="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 text-xs font-bold hover:bg-gray-600 transition-all"
-                                  >
-                                    Cancel
-                                  </button>
+                          {/* Status Display Area */}
+                          {(lead.voiceNoteUrl || lead.textNote || isRecordingThis || queueNoteEditId === lead.id) && (
+                            <div className="bg-gray-800/40 border border-gray-800/80 rounded-xl p-3 space-y-2">
+                              {/* Voice Note Status */}
+                              {isRecordingThis ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                  <span className="text-xs font-mono font-bold text-red-400">
+                                    Recording: {String(Math.floor(queueRecordingSeconds / 60)).padStart(2, "0")}:
+                                    {String(queueRecordingSeconds % 60).padStart(2, "0")}
+                                  </span>
                                 </div>
-                              </div>
-                            ) : lead.textNote ? (
-                              <div className="flex items-start gap-2">
-                                <p className="text-xs text-gray-300 flex-1 leading-relaxed">{lead.textNote}</p>
-                                <button
-                                  onClick={() => { setQueueNoteEditId(lead.id); setQueueNoteText(lead.textNote || ""); }}
-                                  className="text-[10px] text-gray-500 hover:text-gray-300 underline underline-offset-2 transition-colors shrink-0"
-                                >
-                                  Edit
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => { setQueueNoteEditId(lead.id); setQueueNoteText(""); }}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold transition-all active:scale-95 w-full justify-center"
-                              >
-                                <AlignLeft className="w-4 h-4" />
-                                Add Text Note
-                              </button>
-                            )}
-                          </div>
+                              ) : lead.voiceNoteUrl ? (
+                                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                  <span>Voice note attached</span>
+                                </div>
+                              ) : null}
 
-                          {/* Process this lead */}
-                          <button
-                            onClick={() => handleProcessSingle(lead.id)}
-                            disabled={isProcessing || batchProcessing}
-                            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold text-sm hover:from-violet-500 hover:to-indigo-500 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                          >
-                            {isProcessing ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Processing…
-                              </>
-                            ) : (
-                              <>
-                                <Zap className="w-4 h-4" />
-                                Process This Lead
-                              </>
-                            )}
-                          </button>
+                              {/* Text Note View/Edit */}
+                              {queueNoteEditId === lead.id ? (
+                                <div className="space-y-2">
+                                  <textarea
+                                    value={queueNoteText}
+                                    onChange={(e) => setQueueNoteText(e.target.value)}
+                                    placeholder="Add context about this lead..."
+                                    rows={2}
+                                    className="w-full bg-gray-900 text-white text-xs rounded-xl px-3 py-2.5 placeholder-gray-600 border border-gray-800 focus:border-gray-700 outline-none resize-none"
+                                    autoFocus
+                                  />
+                                </div>
+                              ) : lead.textNote ? (
+                                <div className="space-y-1">
+                                  <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Text Note</p>
+                                  <p className="text-xs text-gray-300 leading-relaxed bg-gray-900/40 p-2.5 rounded-lg border border-gray-900/30">
+                                    {lead.textNote}
+                                  </p>
+                                </div>
+                              ) : null}
+                            </div>
+                          )}
+
+                          {/* Circular Button Grid */}
+                          <div className="grid grid-cols-4 gap-4 max-w-xs mx-auto pt-2">
+                            {/* Record */}
+                            <div className="flex flex-col items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  if (isRecordingThis) {
+                                    stopQueueRecording();
+                                  } else {
+                                    startQueueRecording(lead.id);
+                                  }
+                                }}
+                                disabled={isProcessing || batchProcessing || !!(queueRecordingId && !isRecordingThis)}
+                                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                                  isRecordingThis
+                                    ? "bg-red-500 hover:bg-red-650 animate-pulse text-white"
+                                    : lead.voiceNoteUrl
+                                    ? "bg-emerald-950 border border-emerald-800 text-emerald-400 hover:bg-emerald-900"
+                                    : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                              >
+                                {isRecordingThis ? (
+                                  <MicOff className="w-6 h-6 text-white" />
+                                ) : (
+                                  <Mic className={`w-6 h-6 ${lead.voiceNoteUrl ? "text-emerald-400" : "text-gray-300"}`} />
+                                )}
+                              </button>
+                              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">
+                                {isRecordingThis ? "Stop" : "Record"}
+                              </span>
+                            </div>
+
+                            {/* Note */}
+                            <div className="flex flex-col items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  if (queueNoteEditId === lead.id) {
+                                    setQueueNoteEditId(null);
+                                    setQueueNoteText("");
+                                  } else {
+                                    setQueueNoteEditId(lead.id);
+                                    setQueueNoteText(lead.textNote || "");
+                                  }
+                                }}
+                                disabled={isProcessing || batchProcessing}
+                                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                                  queueNoteEditId === lead.id
+                                    ? "bg-blue-900 hover:bg-blue-800 text-blue-300 border border-blue-700"
+                                    : lead.textNote
+                                    ? "bg-blue-950 border border-blue-900 text-blue-400 hover:bg-blue-900"
+                                    : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                              >
+                                <AlignLeft className={`w-6 h-6 ${lead.textNote ? "text-blue-400" : "text-gray-300"}`} />
+                              </button>
+                              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Note</span>
+                            </div>
+
+                            {/* Save */}
+                            <div className="flex flex-col items-center gap-1.5">
+                              <button
+                                onClick={() => saveQueueTextNote(lead.id)}
+                                disabled={
+                                  isProcessing ||
+                                  batchProcessing ||
+                                  isSavingNote ||
+                                  queueNoteEditId !== lead.id
+                                }
+                                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                                  queueNoteEditId === lead.id
+                                    ? "bg-white hover:bg-gray-100 text-gray-950 shadow-lg"
+                                    : "bg-gray-800 opacity-40 text-gray-500 cursor-not-allowed"
+                                }`}
+                              >
+                                {isSavingNote && savingNoteLeadId === lead.id ? (
+                                  <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : (
+                                  <Check className="w-6 h-6 text-gray-950" />
+                                )}
+                              </button>
+                              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Save</span>
+                            </div>
+
+                            {/* Process */}
+                            <div className="flex flex-col items-center gap-1.5">
+                              <button
+                                onClick={() => handleProcessSingle(lead.id)}
+                                disabled={isProcessing || batchProcessing}
+                                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                                  isProcessing
+                                    ? "bg-gray-800 text-gray-400"
+                                    : "bg-white hover:bg-gray-100 text-gray-950 shadow-lg"
+                                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                              >
+                                {isProcessing ? (
+                                  <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                                ) : (
+                                  <Zap className="w-6 h-6 text-gray-950" />
+                                )}
+                              </button>
+                              <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Process</span>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
