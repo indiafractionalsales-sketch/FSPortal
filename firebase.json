@@ -1,17 +1,6 @@
 {
-  "firestore": [
-    {
-      "database": "default",
-      "rules": "firestore.rules",
-      "indexes": "firestore.indexes.json"
-    },
-    {
-      "database": "fsindiadb",
-      "rules": "firestore.rules",
-      "indexes": "firestore.indexes.json"
-    }
-  ],
-  "apphosting": {
-    "backendId": "fractionalsalesdev"
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
