@@ -15,10 +15,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Home, Bell, Settings, LogOut } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Home, Bell, Settings, LogOut, Scan } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
+import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 
 interface NavbarProps {
   user?: User | null;
@@ -31,7 +32,9 @@ interface NavbarProps {
 
 export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isScanOpen, setIsScanOpen] = useState(false);
   
   const { spData, oboData, tpspData } = profileData || {};
 
@@ -77,12 +80,28 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
       </div>
 
       {/* Center: Nav icons */}
-      <div className="hidden md:flex items-center justify-center gap-1 w-2/4 h-full">
+      <div className="flex items-center justify-center gap-1 w-2/4 h-full">
         <button 
           onClick={() => router.push("/home")}
-          className="px-8 h-full border-b-2 border-[#701010] text-[#701010] hover:bg-gray-50 transition-colors"
+          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
+            pathname === "/home" 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Home"
         >
           <Home className="w-5 h-5" />
+        </button>
+        <button 
+          onClick={() => setIsScanOpen(true)}
+          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
+            isScanOpen 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Scan Visiting Card"
+        >
+          <Scan className="w-5 h-5" />
         </button>
       </div>
 
@@ -142,6 +161,8 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
           )}
         </div>
       </div>
+
+      <LeadCaptureInterface isOpen={isScanOpen} onClose={() => setIsScanOpen(false)} />
     </header>
   );
 }

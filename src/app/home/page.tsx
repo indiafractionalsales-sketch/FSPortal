@@ -424,17 +424,18 @@ export default function HomePage() {
                 </button>
               </li>
               <div className="h-px bg-gray-100 my-2" />
-              {[
-                { label: 'My Network', icon: '🤝' },
-                { label: 'Saved Items', icon: '🔖' },
-              ].map((item) => (
-                <li key={item.label}>
-                  <button className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                    <span className="text-base">{item.icon}</span>
-                    <span className="text-xs font-headline font-bold uppercase tracking-wider">{item.label}</span>
-                  </button>
-                </li>
-              ))}
+              <li>
+                <button onClick={() => router.push('/my-network')} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700">
+                  <span className="text-base">🤝</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Network</span>
+                </button>
+              </li>
+              <li>
+                <button className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                  <span className="text-base">🔖</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">Saved Items</span>
+                </button>
+              </li>
               <li>
                 <button 
                   onClick={() => router.push('/networking')} 
