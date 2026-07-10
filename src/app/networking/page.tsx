@@ -17,7 +17,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Search, LogOut, ChevronLeft, ChevronRight, ArrowLeft, Loader2, Sparkles, Send, Download
+  Search, LogOut, ChevronLeft, ChevronRight, ArrowLeft, Loader2, Sparkles, Send
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
@@ -161,30 +161,6 @@ export default function AIPoweredNetworkingPage() {
     }
   };
 
-  const downloadCSV = (text: string) => {
-    const lines = text.split('\n');
-    const tableLines = lines.filter(line => line.trim().startsWith('|'));
-    if (tableLines.length === 0) {
-      alert("No tabular data detected in this report to export.");
-      return;
-    }
-    
-    let csvContent = "";
-    tableLines.forEach(line => {
-      const cols = line.split('|').map(c => c.trim()).filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
-      if (cols.every(c => c.match(/^[-:| ]+$/))) return;
-      csvContent += cols.map(c => `"${c.replace(/"/g, '""')}"`).join(',') + '\n';
-    });
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "AI_Powered_Networking_Report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const initials = (spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "P")
     .split(" ")
@@ -205,14 +181,14 @@ export default function AIPoweredNetworkingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900 leading-normal antialiased">
+    <div className="h-screen bg-gray-50 flex flex-col font-sans text-gray-900 leading-normal antialiased overflow-hidden">
       <Navbar />
 
       {/* Main Layout Container */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1920px] w-full mx-auto">
         
         {/* Left Sidebar Profile Column */}
-        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col p-4 bg-white border-r border-gray-100 space-y-4">
+        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col p-4 bg-white border-r border-gray-100 space-y-4 overflow-y-auto custom-scrollbar">
           
           {/* User Widget */}
           <div className="bg-gray-50/50 rounded-xl p-3 border border-gray-100 flex items-center gap-3">
@@ -260,17 +236,18 @@ export default function AIPoweredNetworkingPage() {
                 </button>
               </li>
               <div className="h-px bg-gray-100 my-2" />
-              {[
-                { label: 'My Network', icon: '🤝' },
-                { label: 'Saved Items', icon: '🔖' },
-              ].map((item) => (
-                <li key={item.label}>
-                  <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                    <span className="text-base">{item.icon}</span>
-                    <span className="text-xs font-headline font-bold uppercase tracking-wider">{item.label}</span>
-                  </button>
-                </li>
-              ))}
+              <li>
+                <button onClick={() => router.push('/my-network')} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700">
+                  <span className="text-base">🤝</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Network</span>
+                </button>
+              </li>
+              <li>
+                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
+                  <span className="text-base">🔖</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">Saved Items</span>
+                </button>
+              </li>
               <li>
                 <button 
                   onClick={() => router.push('/networking')} 
@@ -318,20 +295,14 @@ export default function AIPoweredNetworkingPage() {
                   }`}
                 >
                   {/* Render helper to format standard markdown output */}
-                  <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                    {msg.text}
+                  <div className="prose prose-sm max-w-none">
+                    {msg.role === 'user' ? (
+                      <div className="whitespace-pre-wrap">{msg.text}</div>
+                    ) : (
+                      <AIReportRenderer text={msg.text} />
+                    )}
                   </div>
 
-                  {/* Add CSV export CTA if markdown tables exist in the assistant response */}
-                  {msg.role === 'assistant' && msg.text.includes('|') && (
-                    <button
-                      onClick={() => downloadCSV(msg.text)}
-                      className="mt-3.5 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg shadow-sm transition-all"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Download Report (CSV)
-                    </button>
-                  )}
                 </div>
               </div>
             ))}
@@ -510,4 +481,204 @@ export default function AIPoweredNetworkingPage() {
       </div>
     </div>
   );
+}
+
+// Helper to format inline markdown text (bold, code, links)
+function formatInlineText(text: string): React.ReactNode {
+  // First split by bold **text**
+  const boldParts = text.split(/\*\*([^*]+)\*\*/g);
+  return (
+    <>
+      {boldParts.map((part, i) => {
+        if (i % 2 === 1) {
+          return <strong key={i} className="font-bold text-gray-900">{part}</strong>;
+        }
+        // Then split by inline code `code`
+        const codeParts = part.split(/`([^`]+)`/g);
+        return (
+          <span key={i}>
+            {codeParts.map((subPart, j) => {
+              if (j % 2 === 1) {
+                return (
+                  <code key={j} className="px-1.5 py-0.5 bg-gray-100 rounded text-red-600 font-mono text-xs">
+                    {subPart}
+                  </code>
+                );
+              }
+              return subPart;
+            })}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+// Helper to parse and render a markdown table
+function parseTableBlock(lines: string[]): React.ReactNode {
+  if (lines.length < 1) return null;
+  
+  const rows = lines.map(line => {
+    const trimmed = line.trim();
+    const withoutOuter = trimmed.replace(/^\||\|$/g, '');
+    return withoutOuter.split('|').map(cell => cell.trim());
+  });
+
+  if (rows.length === 0) return null;
+
+  const headers = rows[0];
+  const hasDivider = rows[1] && rows[1].every(cell => cell.match(/^[-:| ]+$/));
+  const bodyRows = hasDivider ? rows.slice(2) : rows.slice(1);
+
+  const renderCell = (cellText: string, colIndex: number) => {
+    const textLower = cellText.toLowerCase();
+    if (textLower === 'hot' || cellText.includes('🔥')) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-100">
+          🔥 Hot
+        </span>
+      );
+    }
+    if (textLower === 'warm' || cellText.includes('☀️')) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+          ☀️ Warm
+        </span>
+      );
+    }
+    if (textLower === 'cold' || cellText.includes('❄️')) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+          ❄️ Cold
+        </span>
+      );
+    }
+    
+    if (cellText.includes('@') && cellText.includes('.')) {
+      return (
+        <a href={`mailto:${cellText}`} className="text-[#701010] hover:underline font-semibold">
+          {cellText}
+        </a>
+      );
+    }
+
+    return formatInlineText(cellText);
+  };
+
+  return (
+    <div className="overflow-x-auto my-5 border border-gray-150 rounded-xl shadow-sm">
+      <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <thead className="bg-gray-55/30 text-gray-700 font-headline text-xs uppercase tracking-wider">
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} className="px-4 py-3 text-left font-bold border-b border-gray-200">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100 bg-white">
+          {bodyRows.map((row, rIdx) => (
+            <tr key={rIdx} className="hover:bg-gray-55/5 transition-colors">
+              {row.map((cell, cIdx) => (
+                <td key={cIdx} className="px-4 py-3 text-gray-600 font-medium">
+                  {renderCell(cell, cIdx)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Main AI report markdown rendering component
+function AIReportRenderer({ text }: { text: string }) {
+  const lines = text.split('\n');
+  const blocks: React.ReactNode[] = [];
+  
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    
+    if (trimmed === '') {
+      i++;
+      continue;
+    }
+    
+    if (trimmed === '---' || trimmed === '***') {
+      blocks.push(<hr key={i} className="my-6 border-t border-gray-200" />);
+      i++;
+      continue;
+    }
+    
+    if (trimmed.startsWith('|')) {
+      const tableLines: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      blocks.push(parseTableBlock(tableLines));
+      continue;
+    }
+    
+    if (trimmed.startsWith('#')) {
+      const match = trimmed.match(/^(#{1,6})\s+(.*)$/);
+      if (match) {
+        const level = match[1].length;
+        const headerText = match[2];
+        const headingStyle = "font-serif font-bold text-gray-900 leading-tight my-4";
+        
+        if (level === 1) {
+          blocks.push(<h1 key={i} className={`${headingStyle} text-2xl border-b border-gray-100 pb-2`}>{formatInlineText(headerText)}</h1>);
+        } else if (level === 2) {
+          blocks.push(<h2 key={i} className={`${headingStyle} text-xl border-b border-gray-200 pb-1.5`}>{formatInlineText(headerText)}</h2>);
+        } else if (level === 3) {
+          blocks.push(<h3 key={i} className={`${headingStyle} text-lg`}>{formatInlineText(headerText)}</h3>);
+        } else {
+          blocks.push(<h4 key={i} className={`${headingStyle} text-base`}>{formatInlineText(headerText)}</h4>);
+        }
+        i++;
+        continue;
+      }
+    }
+    
+    const isNumbered = /^\d+\.\s+/.test(trimmed);
+    const isBullet = /^[\*\-]\s+/.test(trimmed);
+    if (isNumbered || isBullet) {
+      const itemContent = isNumbered 
+        ? trimmed.replace(/^\d+\.\s+/, '') 
+        : trimmed.replace(/^[\*\-]\s+/, '');
+      const bulletSymbol = isNumbered 
+        ? trimmed.match(/^(\d+\.)/)?.[1] || '•'
+        : '•';
+      
+      const leadingSpaces = line.length - line.trimStart().length;
+      const indentClass = leadingSpaces >= 4 ? 'pl-8' : leadingSpaces >= 2 ? 'pl-4' : 'pl-0';
+      
+      blocks.push(
+        <div key={i} className={`flex items-start gap-2.5 my-1.5 text-sm text-gray-700 leading-relaxed ${indentClass}`}>
+          <span className="text-[#701010] font-semibold flex-shrink-0 select-none">
+            {bulletSymbol}
+          </span>
+          <div className="flex-1">
+            {formatInlineText(itemContent)}
+          </div>
+        </div>
+      );
+      i++;
+      continue;
+    }
+    
+    blocks.push(
+      <p key={i} className="text-sm text-gray-700 leading-relaxed my-2.5">
+        {formatInlineText(trimmed)}
+      </p>
+    );
+    i++;
+  }
+  
+  return <div className="space-y-1">{blocks}</div>;
 }

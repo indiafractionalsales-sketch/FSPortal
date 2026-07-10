@@ -15,6 +15,42 @@ import { admin, adminDb, getDbForId, getUserDatabaseId } from '@/lib/firebase-ad
 import { ai } from '@/ai/genkit';
 import { vertexAI } from '@genkit-ai/google-genai';
 
+async function fetchWebsiteContent(url: string): Promise<string> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
+    
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+      return `[Failed to load website: HTTP ${res.status}]`;
+    }
+    
+    const html = await res.text();
+    // Strip scripts, styles, and HTML tags to get clean text
+    const cleanText = html
+      .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
+      .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+      
+    // Return first 5000 characters
+    return cleanText.slice(0, 5000);
+  } catch (err: any) {
+    console.error(`Error scraping website ${url}:`, err.message || err);
+    return `[Failed to scrape website: ${err.message || err}]`;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 1. Verify authentication
@@ -105,6 +141,21 @@ export async function POST(req: NextRequest) {
       debugInfo.capturerQueryError = dbErr.message || dbErr.code;
     }
 
+    // Check for URLs in the queryText to scrape
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = queryText.match(urlRegex) || [];
+    let websiteData: { url: string; content: string }[] = [];
+    
+    if (urls.length > 0) {
+      console.log(`[AI Networking] Found ${urls.length} URLs in query. Scraping...`);
+      const scrapers = urls.map(async (url) => {
+        const content = await fetchWebsiteContent(url);
+        return { url, content };
+      });
+      websiteData = await Promise.all(scrapers);
+      debugInfo.scrapedUrlsCount = websiteData.length;
+    }
+
     // 5. Search leads — two strategies run in parallel:
     //    A) Vector search (for leads WITH embeddings)
     //    B) Text-match fallback (catches ALL leads including those without embeddings)
@@ -143,7 +194,6 @@ export async function POST(req: NextRequest) {
     const ownerAllSnap = await leadsRef.where('ownerUid', '==', uid).limit(50).get();
     const capturerAllSnap = await leadsRef.where('capturedByUid', '==', uid).limit(50).get();
     
-    // Extract meaningful keywords from the query (ignore common stop words)
     const stopWords = new Set(['is','are','there','anyone','anybody','any','the','a','an','in','on','at',
       'to','for','of','with','do','we','have','has','had','can','could','who','what','where','when',
       'how','find','show','me','my','our','called','named','name','database','from','and','or','not',
@@ -157,22 +207,47 @@ export async function POST(req: NextRequest) {
     
     debugInfo.searchKeywords = queryWords;
 
+    // Check if user is asking for all leads / everything in general
+    const matchesAll = queryWords.length === 0 || 
+                       queryText.toLowerCase().includes("show all") || 
+                       queryText.toLowerCase().includes("list all") ||
+                       queryText.toLowerCase().includes("show everything") ||
+                       queryText.toLowerCase().includes("list everything");
+
     const textMatchResults: any[] = [];
     const allDocs = [...ownerAllSnap.docs, ...capturerAllSnap.docs];
+
+    // Extract domain from crawled URLs to enable matching by website domain
+    const domains = urls.map(urlStr => {
+      try {
+        return new URL(urlStr).hostname.replace('www.', '').toLowerCase();
+      } catch (e) {
+        return null;
+      }
+    }).filter(Boolean) as string[];
+
     for (const doc of allDocs) {
       const data = doc.data();
       const ci = data.contactInfo || {};
-      // Search across all text fields — contactInfo is a nested object
-      const searchableText = [
-        ci.name, ci.email, ci.phone, ci.company,
-        ci.designation, ci.address, ci.city, ci.website,
-        data.contextSummary, data.actionItem, data.textNote,
-      ].filter(Boolean).join(' ').toLowerCase();
+      const web = (ci.website || "").toLowerCase();
       
-      // Match if ANY keyword appears in the searchable text
-      const matches = queryWords.some(keyword => searchableText.includes(keyword));
-      if (matches) {
+      const domainMatch = domains.some(domain => web.includes(domain));
+      
+      if (matchesAll || domainMatch) {
         textMatchResults.push({ id: doc.id, ...data });
+      } else {
+        // Search across all text fields — contactInfo is a nested object
+        const searchableText = [
+          ci.name, ci.email, ci.phone, ci.company,
+          ci.designation, ci.address, ci.city, ci.website,
+          data.contextSummary, data.actionItem, data.textNote,
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        // Match if ANY keyword appears in the searchable text
+        const matches = queryWords.some(keyword => searchableText.includes(keyword));
+        if (matches) {
+          textMatchResults.push({ id: doc.id, ...data });
+        }
       }
     }
 
@@ -193,31 +268,62 @@ export async function POST(req: NextRequest) {
 
     // 6. Synthesize final conversational report using Vertex AI Gemini 2.5 Flash
     let reportText = "";
-    if (matchingLeads.length === 0) {
-      reportText = "I searched your Lead Directory but could not find any processed contacts matching your query. Try searching for other companies, locations, or product types.";
+    if (matchingLeads.length === 0 && websiteData.length === 0) {
+      reportText = "I searched your Lead Directory but could not find any processed contacts or websites matching your query. Try searching for other companies, locations, or product types.";
     } else {
-      const systemPrompt = `
+      let systemPrompt = `
         You are an expert AI Networking Assistant for "Fractional Sales Partner". 
-        You help Business Owners and Sales Partners analyze, search, and recall contacts from their lead directories.
+        You help Business Owners and Sales Partners analyze, search, and recall contacts from their lead directories, and perform website analysis.
         
         The user has asked the following search query: "${queryText}"
-        We searched their directory and returned the top matching leads.
-        
         Compile a highly professional report summarizing the results.
         
         Guidelines:
-        1. Start with a brief, intelligent executive summary explaining who matches the user's intent.
-        2. Compile the matches in a structured Markdown table with columns: Name, Company, Designation, Location, Action Item, and Temperature (Hot/Warm/Cold).
-        3. Provide details on each matching lead, summarizing notes from their meetings (Pune trade fair, dairy equipment, etc.).
-        4. Add a clean "Next Steps" checklist highlighting immediate follow-up items or deadlines.
-        5. Maintain a professional, premium corporate tone. Keep descriptions concise.
+        1. Start with a brief, intelligent executive summary.
       `.trim();
 
-      const userPrompt = `
+      if (matchingLeads.length > 0) {
+        systemPrompt += `
+        
+        2. Compile the matched contacts in a structured Markdown table with columns: Name, Company, Designation, Location, Action Item, and Temperature (Hot/Warm/Cold).
+        3. Provide details on each matching lead, summarizing notes from their meetings (Pune trade fair, dairy equipment, etc.).
+        `.trim();
+      } else {
+        systemPrompt += `
+        
+        2. Mention that no matching contacts were found in their local database.
+        `.trim();
+      }
+
+      if (websiteData.length > 0) {
+        systemPrompt += `
+        
+        4. CRITICAL WEBSITE ANALYSIS: We crawled the website(s) mentioned in the query. Under a dedicated "Website Insights & Company Profile" section:
+           - Explain the company's core business, services, products, or industry.
+           - Identify any immediate business opportunities, target audience, or potential synergies.
+           - If a database contact matches this website, tie the website insights back to that contact's profile.
+        `.trim();
+      }
+
+      systemPrompt += `
+        
+        5. Add a clean "Next Steps" checklist highlighting immediate follow-up items or recommendations.
+        6. Maintain a professional, premium corporate tone. Keep descriptions concise.
+      `.trim();
+
+      let userPrompt = `
         Search Query: "${queryText}"
         Matched Leads Data:
         ${JSON.stringify(matchingLeads, null, 2)}
       `;
+
+      if (websiteData.length > 0) {
+        userPrompt += `
+        
+        Crawled Website Data:
+        ${websiteData.map(d => `URL: ${d.url}\nContent Snippet:\n${d.content}\n---`).join('\n')}
+        `;
+      }
 
       try {
         const genResult = await ai.generate({
