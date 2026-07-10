@@ -83,3 +83,16 @@ To search large text records (10,000+) without relying on memory-heavy client-si
 ### Phase 3: Application Resiliency (Rate Limiting & Retries)
 * **Server-Side Queue / Throttling:** Add a rate-limiting middleware (e.g., Upstash or Redis rate-limiting) to next.js routes to smooth out sudden concurrency spikes.
 * **Client-Side Exponential Backoff:** Update the web client chat logic to catch `HTTP 429` status codes and transparently retry the query after a small delay (1s, 2s, 4s) instead of failing.
+
+---
+
+## 5. Capacity Summary & Goal Matrix
+
+The table below summarizes the maximum number of concurrent users querying their 10,000+ lead directory within a **1-minute window**:
+
+| Configuration State | Max Users / Minute | Primary Bottleneck | Required Action to Enable |
+| :--- | :---: | :--- | :--- |
+| **Default Configuration** (Current) | **1,000** | Gemini 2.5 Flash RPM Quota | *None (Standard Default)* |
+| **Standard Upgraded AI Quota** | **10,000** | Vertex AI Embedding API Quota | Request quota increase in Google Cloud Console (IAM & Admin -> Quotas). |
+| **Enterprise Scale Configuration** | **50,000+** | Cloud Run Instance Scaling Limits | Increase Cloud Run Max Instances limit from 100 to 500. |
+
