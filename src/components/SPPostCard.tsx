@@ -22,6 +22,8 @@ import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink
 import { auth } from "@/lib/firebase";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
+import MakeOfferDrawer from "@/components/MakeOfferDrawer";
+import OffersPanel from "@/components/OffersPanel";
 
 
 interface CommentData {
@@ -73,6 +75,17 @@ interface SPPost {
   paymentStatus?: string;
   paymentLockedBy?: string;
   likedBy?: string[];
+
+  // Range pricing
+  pricingType?: "fixed" | "range" | "open";
+  budgetMin?: number;
+  budgetMax?: number;
+  budgetCurrency?: string;
+  acceptingOffers?: boolean;
+  offerCount?: number;
+  acceptedOfferId?: string | null;
+  fixedCharges?: string;
+  retainer?: string;
 }
 
 interface SPPostCardProps {
@@ -99,6 +112,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
   const [reviewChecked, setReviewChecked] = useState(false);
+  
+  // Offers states
+  const [isOfferDrawerOpen, setIsOfferDrawerOpen] = useState(false);
+  const [isOffersPanelOpen, setIsOffersPanelOpen] = useState(false);
+  const [offerCount, setOfferCount] = useState(post.offerCount || 0);
+  const [acceptingOffers, setAcceptingOffers] = useState(post.acceptingOffers !== false);
+  const [existingOffer, setExistingOffer] = useState<{ offerId: string; amount: number; currency: string; message: string; status: string } | null>(null);
+  const [isFetchingOffer, setIsFetchingOffer] = useState(false);
 
   const currentUid = auth.currentUser?.uid;
   const initialLiked = post.likedBy?.includes(currentUid || "") || false;
@@ -481,6 +502,23 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           </div>
         </Link>
         <div className="flex items-center gap-2">
+          {/* Top-Right Minimalist Like Button */}
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleLike();
+            }}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+              isLiked 
+                ? 'text-blue-600 bg-blue-50 border border-blue-100/50 shadow-sm' 
+                : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50 border border-transparent'
+            }`}
+            title={isLiked ? "Unlike post" : "Like post"}
+          >
+            <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-blue-600' : ''}`} /> 
+            {likeCount > 0 && <span className="font-headline font-semibold">{likeCount}</span>}
+          </button>
           {/* Package Capsules */}
           {post.packages && post.packages.length > 0 && (
             <div className="flex items-center gap-1.5 mr-2">
@@ -558,7 +596,29 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   </div>
                 )}
 
-                {post.currency && (
+                {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
+                  <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
+                      💰 Target Budget Range
+                    </p>
+                    <p className="text-xs font-bold text-gray-900 font-sans mt-1">
+                      {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
+                    </p>
+                  </div>
+                )}
+
+                {post.pricingType === "open" && (
+                  <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
+                      💰 Target Budget
+                    </p>
+                    <p className="text-xs font-bold text-gray-900 font-sans mt-1">
+                      Open to Pitch ({post.budgetCurrency || "USD"})
+                    </p>
+                  </div>
+                )}
+
+                {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
                   <div className="flex flex-col">
                     <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
                       <span className="text-[11px] leading-none -mt-0.5">💵</span> Currency
@@ -619,7 +679,31 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   </div>
                 </div>
               )}
-              {post.currency && (
+              {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
+                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
+                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget Range</p>
+                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
+                      {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {post.pricingType === "open" && (
+                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
+                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget</p>
+                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
+                      Open to Pitch ({post.budgetCurrency || "USD"})
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
                 <div className="flex items-start gap-2.5">
                   <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💵</span>
                   <div>
@@ -781,14 +865,68 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
       {/* Action Buttons */}
       <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
+        {post.postType === "obo" ? (
+          // Offer-based OBO Post
+          !isOwner ? (
+            // Sales Partner User sees "Respond"
+            <button 
+              onClick={async () => {
+                if (post.paymentStatus === 'sold' || !acceptingOffers) return;
+                // Fetch existing offer for this SP on this post
+                setIsFetchingOffer(true);
+                try {
+                  const token = await auth.currentUser?.getIdToken();
+                  if (token && post.__id) {
+                    const res = await fetch(`/api/offers?postId=${post.__id}`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      const pendingOffer = (data.offers || []).find(
+                        (o: any) => o.status === "pending" || o.status === "accepted"
+                      );
+                      setExistingOffer(pendingOffer || null);
+                    }
+                  }
+                } catch (e) {
+                  console.error("Failed to fetch existing offer:", e);
+                  setExistingOffer(null);
+                } finally {
+                  setIsFetchingOffer(false);
+                }
+                setIsOfferDrawerOpen(true);
+              }}
+              disabled={post.paymentStatus === 'sold' || !acceptingOffers || isFetchingOffer}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${
+                post.paymentStatus === 'sold' || !acceptingOffers
+                  ? 'text-gray-400 bg-gray-50 cursor-not-allowed font-medium'
+                  : 'text-[#701010] hover:bg-red-50 hover:text-[#5a0c0c]'
+              }`}
+            >
+              {isFetchingOffer ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              {post.paymentStatus === 'sold' ? 'Deal Finalized' : isFetchingOffer ? 'Loading...' : 'Respond'}
+            </button>
+          ) : (
+            // Post Owner (OBO) sees "Responses (count)"
+            <button 
+              onClick={() => setIsOffersPanelOpen(true)} 
+              className="flex-1 flex items-center justify-center gap-2 py-2 text-[#701010] font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#5a0c0c] transition-all rounded-lg"
+            >
+              <MessageCircle className="w-3.5 h-3.5" /> 
+              Responses ({offerCount})
+            </button>
+          )
+        ) : (
+          // Fixed price / Standard SP Post: Keep standard Like action in bar as fallback
+          <button 
+            onClick={handleLike} 
+            className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isLiked ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+          >
+            <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-blue-600' : ''}`} /> 
+            {likeCount > 0 ? `${likeCount} Like${likeCount > 1 ? 's' : ''}` : 'Like'}
+          </button>
+        )}
 
-        <button 
-          onClick={handleLike} 
-          className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isLiked ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
-        >
-          <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-blue-600' : ''}`} /> 
-          {likeCount > 0 ? `${likeCount} Like${likeCount > 1 ? 's' : ''}` : 'Like'}
-        </button>
         <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
           <MessageCircle className="w-3.5 h-3.5" /> Comment
         </button>
@@ -1030,6 +1168,50 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           </div>
         </div>
       </div>
+    )}
+
+    {/* Offers and Respond Drawers */}
+    {isOfferDrawerOpen && (
+      <MakeOfferDrawer
+        isOpen={isOfferDrawerOpen}
+        onClose={() => setIsOfferDrawerOpen(false)}
+        postId={post.__id || ""}
+        preferredCurrency={currentUserCurrency || "USD"}
+        budgetRangeText={
+          post.pricingType === "range"
+            ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
+            : post.pricingType === "open"
+              ? "Open to Pitch"
+              : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
+        }
+        existingOffer={existingOffer}
+        onSuccess={() => {
+          // Only increment count if this was a brand-new offer (not an update)
+          if (!existingOffer) {
+            setOfferCount(prev => prev + 1);
+          }
+        }}
+      />
+    )}
+
+
+    {isOffersPanelOpen && (
+      <OffersPanel
+        isOpen={isOffersPanelOpen}
+        onClose={() => setIsOffersPanelOpen(false)}
+        postId={post.__id || ""}
+        postTitle={post.expectedOutcomes || "Commercial Sales Representation Project"}
+        budgetRangeText={
+          post.pricingType === "range"
+            ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
+            : post.pricingType === "open"
+              ? "Open to Pitch"
+              : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
+        }
+        onDealFinalized={() => {
+          setAcceptingOffers(false);
+        }}
+      />
     )}
     </>
   );
