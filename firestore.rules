@@ -28,6 +28,26 @@ service cloud.firestore {
         allow create: if request.auth != null && request.auth.uid == request.resource.data.authorUid;
         allow delete, update: if request.auth != null && request.auth.uid == resource.data.authorUid;
       }
+
+      match /Offers/{offerId} {
+        // Post owner can read all offers; SP can read their own
+        allow read: if request.auth != null
+          && (request.auth.uid == get(/databases/$(database)/documents/Posts/$(postId)).data.ownerUid
+              || request.auth.uid == resource.data.offerorUid);
+        
+        // SPs can create offers on posts they don't own
+        allow create: if request.auth != null
+          && request.auth.uid == request.resource.data.offerorUid
+          && request.auth.uid != get(/databases/$(database)/documents/Posts/$(postId)).data.ownerUid;
+        
+        // Post owner can accept/decline; offeror can withdraw
+        allow update: if request.auth != null
+          && (request.auth.uid == get(/databases/$(database)/documents/Posts/$(postId)).data.ownerUid
+              || (request.auth.uid == resource.data.offerorUid 
+                  && request.resource.data.status == "withdrawn"));
+        
+        allow delete: if false;
+      }
     }
 
     // AI Lead Capture - Root collection for macro-analytics

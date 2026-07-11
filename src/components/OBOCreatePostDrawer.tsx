@@ -155,6 +155,11 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
     
     // Section 4: Commercial Terms
     engagementType: "", commissionRate: "", retainer: "", fixedCharges: "", currency: "",
+    pricingType: "fixed",
+    budgetMin: "",
+    budgetMax: "",
+    budgetCurrency: "USD",
+    acceptingOffers: true,
     
     // Section 5: Support Provided
     productTraining: false, marketingMaterials: "", sampleProduct: false, leadSupport: false, msmeAttendExpos: false, 
@@ -192,6 +197,11 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
         retailChannelDevelopment: editPostData.retailChannelDevelopment || false, engagementType: editPostData.engagementType || "", 
         commissionRate: editPostData.commissionRate || "", retainer: editPostData.retainer || "", 
         fixedCharges: editPostData.fixedCharges || "", currency: editPostData.currency || "",
+        pricingType: editPostData.pricingType || "fixed",
+        budgetMin: editPostData.budgetMin || "",
+        budgetMax: editPostData.budgetMax || "",
+        budgetCurrency: editPostData.budgetCurrency || "USD",
+        acceptingOffers: editPostData.acceptingOffers !== undefined ? editPostData.acceptingOffers : true,
         productTraining: editPostData.productTraining || false, marketingMaterials: editPostData.marketingMaterials || "", 
         sampleProduct: editPostData.sampleProduct || false, leadSupport: editPostData.leadSupport || false, 
         msmeAttendExpos: editPostData.msmeAttendExpos || false, rightToWorkRequired: editPostData.rightToWorkRequired || false, 
@@ -206,6 +216,11 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
         representationType: "", countriesToCover: "", exclusiveNonExclusive: "", specificExpo: "", 
         competingBrandsRestriction: false, tradeFairRepresentation: false, onlineSalesRepresentation: false, retailChannelDevelopment: false,
         engagementType: "", commissionRate: "", retainer: "", fixedCharges: "", currency: "",
+        pricingType: "fixed",
+        budgetMin: "",
+        budgetMax: "",
+        budgetCurrency: "USD",
+        acceptingOffers: true,
         productTraining: false, marketingMaterials: "", sampleProduct: false, leadSupport: false, msmeAttendExpos: false, 
         rightToWorkRequired: false, companyPreferred: false, insuranceRequired: false
       });
@@ -236,7 +251,16 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
     if (!formData.minExperience) missingFields.push("Minimum Experience");
     if (!formData.countriesToCover) missingFields.push("Countries To Cover");
     if (!formData.engagementType) missingFields.push("Engagement Type");
-    if (!formData.currency) missingFields.push("Currency");
+
+    if (formData.pricingType === "fixed") {
+      if (!formData.currency) missingFields.push("Currency");
+    } else if (formData.pricingType === "range") {
+      if (!formData.budgetMin) missingFields.push("Minimum Budget");
+      if (!formData.budgetMax) missingFields.push("Maximum Budget");
+      if (!formData.budgetCurrency) missingFields.push("Budget Currency");
+    } else if (formData.pricingType === "open") {
+      if (!formData.budgetCurrency) missingFields.push("Budget Currency");
+    }
 
     if (missingFields.length > 0) {
       setError(`Please fill in all mandatory fields. Missing: ${missingFields.join(", ")}`);
@@ -277,6 +301,7 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
         representationType: "", countriesToCover: "", exclusiveNonExclusive: "", specificExpo: "", 
         competingBrandsRestriction: false, tradeFairRepresentation: false, onlineSalesRepresentation: false, retailChannelDevelopment: false,
         engagementType: "", commissionRate: "", retainer: "", fixedCharges: "", currency: "",
+        pricingType: "fixed", budgetMin: "", budgetMax: "", budgetCurrency: "USD", acceptingOffers: true,
         productTraining: false, marketingMaterials: "", sampleProduct: false, leadSupport: false, msmeAttendExpos: false, 
         rightToWorkRequired: false, companyPreferred: false, insuranceRequired: false
       });
@@ -444,13 +469,74 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
               <DollarSign className="w-5 h-5 text-[#701010]" />
               <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider font-headline">Section 4 — Commercial Terms</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <SelectHelper label="Engagement Type" required value={formData.engagementType} onChange={(v: string) => setFormData({...formData, engagementType: v})} options={["Commission only", "Fixed one-time Charges", "Fixed + Commission", "Project/Retainer + Commission"]} />
-              <InputHelper label="Commission Rate Offered" value={formData.commissionRate} onChange={(v: string) => setFormData({...formData, commissionRate: v})} />
-              <InputHelper label="Retainer Offered" value={formData.retainer} onChange={(v: string) => setFormData({...formData, retainer: v})} />
-              <InputHelper label="Fixed Charges Offered" value={formData.fixedCharges} onChange={(v: string) => setFormData({...formData, fixedCharges: v})} />
-              <InputHelper label="Currency of Payment" required value={formData.currency} onChange={(v: string) => setFormData({...formData, currency: v})} />
+            
+            {/* Pricing Mode Toggle */}
+            <div className="mb-5 bg-gray-50/50 p-4 rounded-xl border border-gray-100/50">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider font-headline block mb-2.5">
+                Pricing Structure & Offers
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "fixed", label: "Fixed Terms", desc: "Define explicit charges" },
+                  { id: "range", label: "Budget Range", desc: "Let rep make offers" },
+                  { id: "open", label: "Open Pitch", desc: "No range guidelines" }
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, pricingType: mode.id as any })}
+                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
+                      formData.pricingType === mode.id
+                        ? "border-[#701010] bg-[#701010]/5 text-[#701010] ring-1 ring-[#701010]"
+                        : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span className="text-xs font-bold font-headline uppercase tracking-wider">{mode.label}</span>
+                    <span className="text-[10px] text-gray-500 mt-1">{mode.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {formData.pricingType === "fixed" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SelectHelper label="Engagement Type" required value={formData.engagementType} onChange={(v: string) => setFormData({...formData, engagementType: v})} options={["Commission only", "Fixed one-time Charges", "Fixed + Commission", "Project/Retainer + Commission"]} />
+                <InputHelper label="Commission Rate Offered" value={formData.commissionRate} onChange={(v: string) => setFormData({...formData, commissionRate: v})} />
+                <InputHelper label="Retainer Offered" value={formData.retainer} onChange={(v: string) => setFormData({...formData, retainer: v})} />
+                <InputHelper label="Fixed Charges Offered" value={formData.fixedCharges} onChange={(v: string) => setFormData({...formData, fixedCharges: v})} />
+                <InputHelper label="Currency of Payment" required value={formData.currency} onChange={(v: string) => setFormData({...formData, currency: v})} />
+              </div>
+            ) : formData.pricingType === "range" ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectHelper label="Engagement Type" required value={formData.engagementType} onChange={(v: string) => setFormData({...formData, engagementType: v})} options={["Commission only", "Fixed one-time Charges", "Fixed + Commission", "Project/Retainer + Commission"]} />
+                  <SelectHelper label="Currency of Range" required value={formData.budgetCurrency} onChange={(v: string) => setFormData({...formData, budgetCurrency: v})} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputHelper label="Minimum Budget" type="number" required placeholder="e.g. 1000" value={formData.budgetMin} onChange={(v: string) => setFormData({...formData, budgetMin: v})} />
+                  <InputHelper label="Maximum Budget" type="number" required placeholder="e.g. 5000" value={formData.budgetMax} onChange={(v: string) => setFormData({...formData, budgetMax: v})} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <InputHelper label="Commission Rate (Optional)" placeholder="e.g. 10%" value={formData.commissionRate} onChange={(v: string) => setFormData({...formData, commissionRate: v})} />
+                  <div className="pt-4">
+                    <CheckboxHelper label="Accept offers from Sales Partners" checked={formData.acceptingOffers} onChange={(v: boolean) => setFormData({...formData, acceptingOffers: v})} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectHelper label="Engagement Type" required value={formData.engagementType} onChange={(v: string) => setFormData({...formData, engagementType: v})} options={["Commission only", "Fixed one-time Charges", "Fixed + Commission", "Project/Retainer + Commission"]} />
+                  <SelectHelper label="Currency" required value={formData.budgetCurrency} onChange={(v: string) => setFormData({...formData, budgetCurrency: v})} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                  <InputHelper label="Commission Rate (Optional)" placeholder="e.g. 10%" value={formData.commissionRate} onChange={(v: string) => setFormData({...formData, commissionRate: v})} />
+                  <div className="pt-4">
+                    <CheckboxHelper label="Accept offers from Sales Partners" checked={formData.acceptingOffers} onChange={(v: boolean) => setFormData({...formData, acceptingOffers: v})} />
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
           )}
 
