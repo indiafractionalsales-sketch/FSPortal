@@ -286,7 +286,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-800">
           <div>
-            <h2 className="font-serif font-bold text-lg">Shift Attendance</h2>
+            <h2 className="font-serif font-bold text-lg">Check-in</h2>
             <p className="text-xs text-gray-500 mt-0.5">{clientName}</p>
           </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-white rounded-full transition-colors">
