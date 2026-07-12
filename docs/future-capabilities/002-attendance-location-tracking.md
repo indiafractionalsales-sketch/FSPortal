@@ -138,7 +138,33 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   },
   "status": "completed", // "active" | "completed" | "flagged"
   "totalDurationMinutes": 510,
-  "overrideReason": null // Set if check-in was allowed outside geofence with supervisor approval
+  "overrideReason": null, // Set if check-in was allowed outside geofence with supervisor approval
+  "locationPings": [
+    {
+      "timestamp": "2026-07-12T09:00:00Z",
+      "geopoint": { "latitude": 18.5204, "longitude": 73.8567 },
+      "status": "on-site",
+      "source": "check-in"
+    },
+    {
+      "timestamp": "2026-07-12T12:05:00Z",
+      "geopoint": { "latitude": 18.5300, "longitude": 73.8600 },
+      "status": "off-site", // Detected outside geofence (represents a break)
+      "source": "periodic-ping"
+    },
+    {
+      "timestamp": "2026-07-12T13:15:00Z",
+      "geopoint": { "latitude": 18.5205, "longitude": 73.8566 },
+      "status": "on-site",
+      "source": "lead-capture"
+    }
+  ],
+  "overrideRequest": {
+    "reason": "Deep inside corporate building lobby, GPS was fluctuating.",
+    "photoUrl": "https://firebasestorage.googleapis.com/.../override_proof.jpg",
+    "approved": true,
+    "approvedBy": "usr_client_owner_99"
+  }
 }
 ```
 
@@ -154,6 +180,22 @@ Because mobile browsers do not allow the web app to run background scripts indef
    If the browser remains open in a background tab, a Web Worker periodically attempts to capture the location every 15 minutes, pushing it to `/api/attendance/ping`. If the browser suspends the worker, we catch up once they re-open the screen.
 3. **Random Presence Checks (Notifications):**
    The backend can trigger a periodic SMS/WebPush notification: *"Are you still at Acme Corp? Please tap to verify."* Clicking the notification opens the portal, captures their GPS, and marks them present.
+
+### Break Tracking & Absence Resolution (How We Track Breaks vs. Log-Outs)
+
+To ensure we accurately track breaks without forcing partners to check out and check in multiple times a day:
+
+1. **Shift State is User-Controlled:** The partner explicitly starts the shift (`Arrive`) and ends it (`Adios`). The system does **not** auto-logout when they leave the geofence.
+2. **Dynamic Location Timeline:** Rather than a simple start/end record, the attendance document maintains a `locationPings` array that logs location points throughout the day.
+3. **Identifying Breaks (Off-Site):**
+   * If a periodic ping or user action occurs outside the client's geofence radius, that interval is flagged as **"Off-Site (Break)"**.
+   * When they return to the geofence, subsequent pings are marked as **"On-Site"**.
+4. **Timeline Reconciliation:**
+   At the end of the shift, the system divides the session into a clear visual timeline:
+   * **Acme Corp Shift:** 9:00 AM - 5:00 PM (8 hrs total).
+   * **Time On-Site:** 6 hrs 45 mins.
+   * **Unverified / Break Time:** 1 hr 15 mins (e.g., lunch break outside the geofence).
+5. **Supervisor Dashboard Alert:** If the timeline shows excessive off-site durations or no active on-site pings between Check-In and Check-Out, the shift is marked as `status: "flagged"` for supervisor review.
 
 ---
 
