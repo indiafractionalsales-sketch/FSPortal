@@ -104,6 +104,20 @@ export default function OffersPanel({
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleUpdateStatus = async (offerId: string, action: "accept" | "decline") => {
     setActionInProgress(true);
     setError("");
@@ -129,6 +143,70 @@ export default function OffersPanel({
       if (!res.ok) throw new Error(data.error || `Failed to ${action} offer.`);
 
       setConfirmAcceptOffer(null);
+
+      if (action === "accept" && data.requiresPayment) {
+        const isScriptLoaded = await loadRazorpayScript();
+        if (!isScriptLoaded) {
+          throw new Error("Failed to load Razorpay payment gateway.");
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+          amount: data.amount,
+          currency: 'INR',
+          name: 'Fractional Sales Partner',
+          description: `Accept Offer Payment`,
+          order_id: data.order_id,
+          prefill: {
+            name: auth.currentUser?.displayName || 'Customer',
+            email: auth.currentUser?.email || 'customer@example.com',
+          },
+          handler: async function (response: any) {
+            setActionInProgress(true);
+            try {
+              const verifyRes = await fetch('/api/payment-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  receipt: data.receipt
+                })
+              });
+              
+              const verifyData = await verifyRes.json();
+              if (verifyData.error) {
+                alert(verifyData.error);
+              } else {
+                onClose();
+                onDealFinalized();
+              }
+            } catch (vErr) {
+              console.error("Verification failed:", vErr);
+              alert("Payment verification failed. Please contact support.");
+            } finally {
+              setActionInProgress(false);
+            }
+          },
+          modal: {
+            ondismiss: async function () {
+              console.log("Checkout dismissed by user. Releasing payment lock.");
+              try {
+                await fetch(`/api/payment-status?order_id=${data.receipt}&action=cancel`);
+              } catch (cErr) {
+                console.error("Failed to release lock:", cErr);
+              }
+              setActionInProgress(false);
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+        return;
+      }
+
       await fetchOffers();
 
       if (action === "accept") {

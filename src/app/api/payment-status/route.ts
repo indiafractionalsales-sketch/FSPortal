@@ -80,26 +80,89 @@ export async function POST(req: Request) {
     const postData = postDoc.data();
 
     // 4. Update database status to sold
+    let buyerUid = postData.paymentLockedBy;
+    let authorUid = postData.ownerUid;
+    let packageId = postData.paymentPackageId;
+    let offerId = null;
+
     if (postData.paymentStatus !== 'sold') {
-      await postRef.update({
-        paymentStatus: 'sold',
-        paymentCompletedAt: admin.firestore.FieldValue.serverTimestamp()
-      });
+      if (postData.paymentStatus === 'locked_for_offer_payment') {
+        const targetOfferId = postData.paymentOfferId;
+        const offerRef = postRef.collection('Offers').doc(targetOfferId);
+        const offerDoc = await offerRef.get();
+        if (!offerDoc.exists) {
+          return NextResponse.json({ error: 'Associated offer not found' }, { status: 404 });
+        }
+
+        const offerData = offerDoc.data()!;
+        const allOffersSnapshot = await postRef.collection("Offers").where("status", "==", "pending").get();
+        
+        const batch = adminDb.batch();
+
+        // Update the accepted offer
+        batch.update(offerRef, {
+          status: "accepted",
+          acceptedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        // Update parent post
+        batch.update(postRef, {
+          acceptedOfferId: targetOfferId,
+          acceptingOffers: false,
+          paymentStatus: "sold",
+          paymentLockedBy: offerData.offerorUid,
+          paymentCompletedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Decline other pending ones
+        allOffersSnapshot.docs.forEach((doc) => {
+          if (doc.id !== targetOfferId) {
+            batch.update(doc.ref, {
+              status: "declined",
+              declinedAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        });
+
+        await batch.commit();
+
+        // Define Deal parameters for offer payment
+        buyerUid = postData.ownerUid; // OBO is the payer
+        authorUid = offerData.offerorUid; // SP is the provider
+        offerId = targetOfferId;
+        packageId = null;
+      } else {
+        await postRef.update({
+          paymentStatus: 'sold',
+          paymentCompletedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    } else {
+      // If already sold, but it was locked for offer payment, we can populate Deal variables based on current DB state
+      if (postData.acceptedOfferId) {
+        buyerUid = postData.ownerUid;
+        const offerRef = postRef.collection('Offers').doc(postData.acceptedOfferId);
+        const offerDoc = await offerRef.get();
+        if (offerDoc.exists) {
+          authorUid = offerDoc.data()?.offerorUid;
+        }
+        offerId = postData.acceptedOfferId;
+        packageId = null;
+      }
     }
 
     // 5. Create Deal Record
-    const buyerUid = postData.paymentLockedBy;
-    const authorUid = postData.ownerUid;
-    const packageId = postData.paymentPackageId;
-
-    if (buyerUid && authorUid && packageId) {
+    if (buyerUid && authorUid && (packageId || offerId)) {
       const buyerDbId = await getUserDatabaseId(buyerUid);
       const authorDbId = await getUserDatabaseId(authorUid);
 
       const dealPayload = {
         dealId: `deal_${receipt}`,
         postId: postDoc.id,
-        packageId,
+        packageId: packageId || null,
+        offerId: offerId || null,
         buyerUid,
         authorUid,
         amount: Number(paymentDetails.amount || 0) / 100, // Convert from paise to Rupees
@@ -173,7 +236,8 @@ export async function GET(req: Request) {
         paymentLockedBy: admin.firestore.FieldValue.delete(),
         paymentLockedAt: admin.firestore.FieldValue.delete(),
         paymentPackageId: admin.firestore.FieldValue.delete(),
-        paymentOrderId: admin.firestore.FieldValue.delete()
+        paymentOrderId: admin.firestore.FieldValue.delete(),
+        paymentOfferId: admin.firestore.FieldValue.delete()
       });
       return NextResponse.json({ status: 'CANCELLED', message: 'Payment lock released.' });
     }
