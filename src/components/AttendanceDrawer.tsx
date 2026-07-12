@@ -324,7 +324,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                   <Check className="w-10 h-10 animate-pulse" />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-emerald-400">Shift Started!</p>
+                  <p className="text-base font-bold text-emerald-400">Session Started!</p>
                   <p className="text-xs text-gray-500 mt-1">Your check-in coordinates have been verified.</p>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                 </div>
                 <div>
                   <p className="text-base font-bold text-indigo-400">Checked Out Successfully!</p>
-                  <p className="text-xs text-gray-500 mt-1">Shift summary logged. Tracking disabled.</p>
+                  <p className="text-xs text-gray-500 mt-1">Session summary logged. Tracking disabled.</p>
                 </div>
               </div>
             )}
@@ -351,7 +351,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    You have arrived at <span className="text-white font-semibold">{clientName}</span>. Slide the slider below to verify location and start your shift.
+                    You have arrived at <span className="text-white font-semibold">{clientName}</span>. Slide the slider below to verify location and start your session.
                   </p>
                 </div>
                 {errorMsg && (
@@ -420,7 +420,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
             {mode === "active" && (
               <div className="text-center space-y-6 w-full">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Shift Stopwatch</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Session Stopwatch</p>
                   <h1 className="text-5xl font-light font-mono text-white tracking-widest">{elapsedTime}</h1>
                 </div>
 
@@ -430,7 +430,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                 </div>
 
                 <p className="text-xs text-gray-500 leading-relaxed max-w-xs mx-auto">
-                  Shift started at {activeShift?.checkIn?.timestamp ? new Date(activeShift.checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}. Slide below to log out.
+                  Session started at {activeShift?.checkIn?.timestamp ? new Date(activeShift.checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}. Slide below to log out.
                 </p>
 
                 {errorMsg && (

@@ -486,12 +486,12 @@ export default function PostInsightsPage() {
               </div>
             </div>
 
-            {/* ATTENDANCE SHIFT HISTORY CARD */}
+            {/* ATTENDANCE SESSION HISTORY CARD */}
             {attendanceHistory.length > 0 && (
               <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
                 <div className="flex items-center justify-between border-b border-gray-50 pb-3 mb-4">
                   <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010]">Attendance & Shift Logs</p>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010]">Attendance & Session Logs</p>
                     <p className="text-xs text-gray-400 font-headline mt-0.5">Location tracking and check-in history</p>
                   </div>
                   <Clock className="w-4 h-4 text-gray-400" />
@@ -552,7 +552,7 @@ export default function PostInsightsPage() {
                               <p className="text-[9px] uppercase text-gray-400 tracking-wider font-headline">duration</p>
                             </div>
                           ) : (
-                            <span className="text-xs text-gray-400 italic">Shift in progress</span>
+                            <span className="text-xs text-gray-400 italic font-headline">Session in progress</span>
                           )}
                         </div>
                       </div>
