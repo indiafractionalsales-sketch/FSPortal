@@ -312,7 +312,7 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                 </div>
                 <div>
                   <p className="text-sm font-bold text-indigo-300">Locking Coordinates...</p>
-                  <p className="text-xs text-gray-500 mt-1">Acquiring high-accuracy geofence lock.</p>
+                  <p className="text-xs text-gray-500 mt-1">Acquiring high-accuracy GPS lock.</p>
                 </div>
               </div>
             )}
@@ -369,9 +369,9 @@ export default function AttendanceDrawer({ isOpen, onClose, postId, clientName, 
                 <div className="bg-amber-950/20 border border-amber-900/50 rounded-xl p-4 flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-bold text-amber-400">Outside Geofence ({distance}m away)</h4>
+                    <h4 className="text-sm font-bold text-amber-400">Location Drift ({distance}m away)</h4>
                     <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                      Geofence verification requires you to be within 100 meters. If you are actually on-site, request a location override.
+                      Verification matches your location to the venue within 100 meters. If you are at the location but experiencing GPS drift, submit a manual check-in request.
                     </p>
                   </div>
                 </div>

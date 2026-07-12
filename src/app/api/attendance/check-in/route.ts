@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
           error: 'OutsideGeofence',
           distance: Math.round(distance),
-          message: `You are currently ${Math.round(distance)}m away. Move within 100m or request an override.`
+          message: `You are currently ${Math.round(distance)}m away from the venue center. Move within 100m or request a manual check-in.`
         }, { status: 400 });
       }
     }
