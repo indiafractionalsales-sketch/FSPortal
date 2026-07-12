@@ -11,8 +11,14 @@
  */
 
 import { NextResponse } from "next/server";
-import { admin, adminDb } from "@/lib/firebase-admin";
+import { admin, adminDb, getUserDatabaseId } from "@/lib/firebase-admin";
 import { sendDealFinalizationEmail } from "@/lib/mailer";
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+});
 
 // Create or verify active DB configuration helper
 const getDb = () => {
@@ -248,6 +254,52 @@ export async function PATCH(req: Request) {
     if (action === "accept") {
       if (postData.paymentStatus === "sold") {
         return NextResponse.json({ error: "This post has already been finalized." }, { status: 400 });
+      }
+
+      // Check if both the buyer (current user, post owner) and the sales partner (offeror) are from India
+      const buyerDbId = await getUserDatabaseId(uid);
+      const offerorDbId = await getUserDatabaseId(offerData.offerorUid);
+
+      const bothFromIndia = buyerDbId === "fsindiadb" && offerorDbId === "fsindiadb";
+
+      if (bothFromIndia) {
+        // Create Razorpay Order
+        const orderId = `ord_offer_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+        
+        try {
+          const offerAmount = Number(offerData.amount);
+          if (isNaN(offerAmount) || offerAmount <= 0) {
+            return NextResponse.json({ error: "Invalid offer amount." }, { status: 400 });
+          }
+
+          // Apply lock to Post
+          await postRef.update({
+            paymentStatus: 'locked_for_offer_payment',
+            paymentLockedBy: uid, // OBO / Post Owner is the one paying
+            paymentLockedAt: admin.firestore.FieldValue.serverTimestamp(),
+            paymentOfferId: offerId,
+            paymentOrderId: orderId
+          });
+
+          const options = {
+            amount: Math.round(offerAmount * 100), // in paise
+            currency: "INR",
+            receipt: orderId,
+          };
+
+          const response = await razorpay.orders.create(options);
+          
+          return NextResponse.json({
+            requiresPayment: true,
+            order_id: response.id,
+            receipt: orderId,
+            amount: options.amount,
+            currency: "INR"
+          });
+        } catch (checkoutErr: any) {
+          console.error("Offer checkout generation error:", checkoutErr);
+          return NextResponse.json({ error: "Failed to generate checkout order." }, { status: 500 });
+        }
       }
 
       // 1. Accept this offer, decline all other pending offers on this post
