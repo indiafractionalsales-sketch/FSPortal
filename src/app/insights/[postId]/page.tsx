@@ -146,6 +146,7 @@ export default function PostInsightsPage() {
 
   const [post, setPost] = useState<any>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [attendanceHistory, setAttendanceHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
@@ -181,6 +182,20 @@ export default function PostInsightsPage() {
     if (res.ok) {
       const data = await res.json();
       setLeads(data.leads || []);
+    }
+  }, [postId]);
+
+  const fetchAttendanceHistory = useCallback(async (token: string) => {
+    try {
+      const res = await fetch(`/api/attendance/post-history?postId=${postId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAttendanceHistory(data.history || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch attendance history", err);
     }
   }, [postId]);
 
@@ -243,6 +258,7 @@ export default function PostInsightsPage() {
         }
 
         await fetchLeads(token);
+        await fetchAttendanceHistory(token);
       } catch (err) {
         console.error(err);
       } finally {
@@ -250,7 +266,7 @@ export default function PostInsightsPage() {
       }
     });
     return () => unsub();
-  }, [router, postId, fetchLeads]);
+  }, [router, postId, fetchLeads, fetchAttendanceHistory]);
 
   const handleProcessAll = async () => {
     setProcessing(true);
@@ -469,6 +485,82 @@ export default function PostInsightsPage() {
                 </div>
               </div>
             </div>
+
+            {/* ATTENDANCE SHIFT HISTORY CARD */}
+            {attendanceHistory.length > 0 && (
+              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3 mb-4">
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010]">Attendance & Shift Logs</p>
+                    <p className="text-xs text-gray-400 font-headline mt-0.5">Location tracking and check-in history</p>
+                  </div>
+                  <Clock className="w-4 h-4 text-gray-400" />
+                </div>
+
+                <div className="space-y-4">
+                  {attendanceHistory.map((session) => {
+                    const checkInDate = new Date(session.checkIn.timestamp);
+                    const checkOutDate = session.checkOut ? new Date(session.checkOut.timestamp) : null;
+                    
+                    return (
+                      <div key={session.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-3 bg-gray-50/50 border border-gray-100 rounded-xl">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                            session.status === 'active' 
+                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                              : session.status === 'flagged'
+                              ? 'bg-amber-50 text-amber-600 border border-amber-100 animate-pulse'
+                              : 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                          }`}>
+                            <MapPin className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-gray-800">
+                              {checkInDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                              {session.status === 'active' && (
+                                <span className="ml-2 text-[8px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse">
+                                  On-site Now
+                                </span>
+                              )}
+                              {session.status === 'flagged' && (
+                                <span className="ml-2 text-[8px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                  Pending Override
+                                </span>
+                              )}
+                            </p>
+                            <div className="flex items-center gap-4 text-[10px] text-gray-500 mt-1">
+                              <span>
+                                Arrived: <strong className="text-gray-700">{checkInDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
+                                {session.checkIn.verified ? " (Verified)" : " (Override)"}
+                              </span>
+                              {checkOutDate && (
+                                <span>
+                                  Departed: <strong className="text-gray-700">{checkOutDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
+                                  {session.checkOut.verified ? " (Verified)" : " (Unverified)"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0 self-end md:self-auto">
+                          {session.totalDurationMinutes ? (
+                            <div className="text-right">
+                              <p className="text-xs font-bold text-gray-800">
+                                {Math.floor(session.totalDurationMinutes / 60)}h {session.totalDurationMinutes % 60}m
+                              </p>
+                              <p className="text-[9px] uppercase text-gray-400 tracking-wider font-headline">duration</p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">Shift in progress</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* PENDING LEAD ACTIONS */}
             {pendingLeads.length > 0 && (
