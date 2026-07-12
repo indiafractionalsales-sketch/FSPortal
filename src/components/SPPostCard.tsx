@@ -487,7 +487,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   className="bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-indigo-850 animate-fade-in"
                 >
                   <MapPin className="w-2.5 h-2.5" />
-                  Attendance
+                  Check-in
                 </button>
               )}
               {/* Insights - visible to both SP and OBO for this sold deal */}
