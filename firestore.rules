@@ -69,5 +69,18 @@ service cloud.firestore {
                       || request.auth.uid == resource.data.targetUid);
       // Reviews cannot be updated or deleted once submitted
     }
+
+    // Attendance & Location Tracking
+    match /Attendance/{attendanceId} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.partnerId
+                      || request.auth.uid == resource.data.clientId);
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.partnerId;
+      allow update: if request.auth != null
+                    && (request.auth.uid == resource.data.partnerId
+                        || request.auth.uid == resource.data.clientId);
+      allow delete: if false;
+    }
   }
 }

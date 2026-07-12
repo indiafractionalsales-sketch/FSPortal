@@ -24,6 +24,7 @@ import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
 import MakeOfferDrawer from "@/components/MakeOfferDrawer";
 import OffersPanel from "@/components/OffersPanel";
+import AttendanceDrawer from "@/components/AttendanceDrawer";
 
 
 interface CommentData {
@@ -109,6 +110,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [showAttendance, setShowAttendance] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
   const [reviewChecked, setReviewChecked] = useState(false);
@@ -470,6 +472,22 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                 >
                   <Camera className="w-2.5 h-2.5" />
                   Capture Lead
+                </button>
+              )}
+              {/* Attendance - visible only to the Sales Partner */}
+              {post.paymentStatus === 'sold' && 
+                ((post.postType === 'sp' && currentUid === post.ownerUid) ||
+                 (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowAttendance(true);
+                  }}
+                  className="bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-indigo-850 animate-fade-in"
+                >
+                  <MapPin className="w-2.5 h-2.5" />
+                  Check-in
                 </button>
               )}
               {/* Insights - visible to both SP and OBO for this sold deal */}
@@ -991,6 +1009,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             ? post.paymentLockedBy
             : post.ownerUid
         }
+      />
+
+      {/* Attendance Drawer */}
+      <AttendanceDrawer
+        isOpen={showAttendance}
+        onClose={() => setShowAttendance(false)}
+        postId={post.__id || ''}
+        clientName={post.eventName || post.expectedOutcomes || 'Client Location'}
       />
 
       {/* Rating Modal */}
