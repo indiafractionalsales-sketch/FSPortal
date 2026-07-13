@@ -22,8 +22,13 @@ export async function POST(req: NextRequest) {
     const token = authHeader.split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    // Strict validation: Verify Admin Custom User Claims
-    if (!decodedToken.admin) {
+    if (!adminDb) {
+      return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
+    }
+
+    // Validation: Verify isAdmin flag on the user document
+    const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
+    if (!userDoc.exists || userDoc.data()?.isAdmin !== true) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 

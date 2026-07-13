@@ -51,9 +51,11 @@ export default function AdminPricingPage() {
       } else {
         setUser(currentUser);
         try {
-          // Verify custom claims for admin permission on client-side
-          const tokenResult = await currentUser.getIdTokenResult();
-          if (tokenResult.claims.admin) {
+          // Fetch user document from Firestore to verify isAdmin flag directly
+          const idToken = await currentUser.getIdToken();
+          const userData = await getDocument("users", currentUser.uid, idToken, "default");
+          
+          if (userData && userData.isAdmin === true) {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);
@@ -61,6 +63,8 @@ export default function AdminPricingPage() {
         } catch (err) {
           console.error("Failed to parse claims:", err);
           setIsAdmin(false);
+        } finally {
+          setLoading(false);
         }
       }
     });
@@ -117,11 +121,7 @@ export default function AdminPricingPage() {
     }
   }, [user, isAdmin, selectedRegion]);
 
-  useEffect(() => {
-    if (user && isAdmin !== null) {
-      setLoading(false);
-    }
-  }, [isAdmin]);
+
 
   const handlePlanChange = (planKey: string, fieldKey: string, value: any) => {
     if (!config) return;

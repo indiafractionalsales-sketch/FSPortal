@@ -422,12 +422,12 @@ export default function PricingPage() {
               <div className="mt-4 flex items-baseline">
                 <span className="text-4xl font-headline font-bold text-white">
                   {currencySymbol}
-                  {billingCycle === "yearly" ? Math.round(growthPlan.costYear / 12) : growthPlan.costMonth}
+                  {billingCycle === "yearly" ? growthPlan.costYear : growthPlan.costMonth}
                 </span>
-                <span className="text-gray-500 text-xs ml-1">/ month</span>
+                <span className="text-gray-500 text-xs ml-1">/ {billingCycle === "yearly" ? "year" : "month"}</span>
               </div>
               <p className="text-xs text-gray-450 mt-2">
-                {billingCycle === "yearly" ? `Billed ${currencySymbol}${growthPlan.costYear} annually` : "Billed monthly"}
+                {billingCycle === "yearly" ? `Billed once annually` : "Billed monthly"}
               </p>
               
               <div className="h-px bg-white/5 my-6" />
@@ -480,12 +480,12 @@ export default function PricingPage() {
               <div className="mt-4 flex items-baseline">
                 <span className="text-4xl font-headline font-bold text-white">
                   {currencySymbol}
-                  {billingCycle === "yearly" ? Math.round(proPlan.costYear / 12) : proPlan.costMonth}
+                  {billingCycle === "yearly" ? proPlan.costYear : proPlan.costMonth}
                 </span>
-                <span className="text-gray-500 text-xs ml-1">/ month</span>
+                <span className="text-gray-500 text-xs ml-1">/ {billingCycle === "yearly" ? "year" : "month"}</span>
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                {billingCycle === "yearly" ? `Billed ${currencySymbol}${proPlan.costYear} annually` : "Billed monthly"}
+                {billingCycle === "yearly" ? `Billed once annually` : "Billed monthly"}
               </p>
               
               <div className="h-px bg-indigo-500/10 my-6" />
@@ -537,12 +537,12 @@ export default function PricingPage() {
               <div className="mt-4 flex items-baseline">
                 <span className="text-4xl font-headline font-bold text-white">
                   {currencySymbol}
-                  {billingCycle === "yearly" ? Math.round(enterprisePlan.costYear / 12) : enterprisePlan.costMonth}
+                  {billingCycle === "yearly" ? enterprisePlan.costYear : enterprisePlan.costMonth}
                 </span>
-                <span className="text-gray-500 text-xs ml-1">/ month</span>
+                <span className="text-gray-500 text-xs ml-1">/ {billingCycle === "yearly" ? "year" : "month"}</span>
               </div>
               <p className="text-xs text-gray-450 mt-2">
-                {billingCycle === "yearly" ? `Billed ${currencySymbol}${enterprisePlan.costYear} annually` : "Billed monthly"}
+                {billingCycle === "yearly" ? `Billed once annually` : "Billed monthly"}
               </p>
               
               <div className="h-px bg-white/5 my-6" />
