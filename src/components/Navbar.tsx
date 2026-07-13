@@ -16,7 +16,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Bell, Settings, LogOut, Scan } from "lucide-react";
+import { Home, Bell, Settings, LogOut, Scan, CreditCard } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
@@ -148,6 +148,13 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
                 >
                   <Settings className="w-3.5 h-3.5" />
                   My Profile
+                </button>
+                <button
+                  onClick={() => { router.push("/pricing"); setShowProfileMenu(false); }}
+                  className="w-full text-left px-3 py-2 text-xs font-headline font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors rounded-md"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Upgrade & Billing
                 </button>
                 <button
                   onClick={handleLogout}

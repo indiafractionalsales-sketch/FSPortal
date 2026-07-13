@@ -243,3 +243,57 @@ export async function queryCollection(
   const lastDoc = docs.length > 0 ? docs[docs.length - 1] : null;
   return { docs, lastDoc };
 }
+
+/**
+ * List all documents in a subcollection path via REST API.
+ * E.g., listSubcollection("users/userId/Invoices", idToken)
+ * Uses runQuery to correctly bind wildcard parameters in Security Rules.
+ */
+export async function listSubcollection(
+  path: string,
+  idToken: string,
+  databaseId: string = "default"
+): Promise<Record<string, unknown>[]> {
+  const segments = path.split("/");
+  const collectionId = segments.pop();
+  const parentPath = segments.join("/");
+
+  const url = `${getBaseUrl(databaseId)}/${parentPath}:runQuery`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId }]
+      }
+    })
+  });
+
+  if (res.status === 404) return [];
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      err?.error?.message || `Firestore list subcollection failed (${res.status})`
+    );
+  }
+
+  const results = await res.json();
+  if (!Array.isArray(results)) return [];
+
+  const docs: Record<string, unknown>[] = [];
+  for (const result of results) {
+    if (result.document?.fields) {
+      const item = fromFsDoc(result.document);
+      const nameParts = (result.document.name as string).split("/");
+      item.__id = nameParts[nameParts.length - 1];
+      docs.push(item);
+    }
+  }
+
+  return docs;
+}
+

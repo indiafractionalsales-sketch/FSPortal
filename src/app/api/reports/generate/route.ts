@@ -12,6 +12,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb, admin } from '@/lib/firebase-admin';
+import { checkAndConsumeQuota } from '@/lib/services/billing';
+
 
 // Simple PDF generation using raw PDF syntax (no external library needed)
 function generatePdfContent(leads: any[], title: string): Buffer {
@@ -75,6 +77,15 @@ export async function POST(req: NextRequest) {
 
     if (!adminDb) {
       return NextResponse.json({ error: 'Database not initialized' }, { status: 500 });
+    }
+
+    // Validate and consume report generation quota
+    const quotaCheck = await checkAndConsumeQuota(uid, 'reports');
+    if (!quotaCheck.allowed) {
+      if (quotaCheck.error === 'subscription_expired') {
+        return NextResponse.json({ error: 'Subscription expired. Please renew.' }, { status: 402 });
+      }
+      return NextResponse.json({ error: 'Report generation quota exceeded. Please upgrade your plan.' }, { status: 402 });
     }
 
     const body = await req.json();

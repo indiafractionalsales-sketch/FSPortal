@@ -96,6 +96,8 @@ export default function HomePage() {
     logo: "",
     banner: ""
   });
+  const [planName, setPlanName] = useState<string>("");
+
 
   // Monitor auth state changes
   useEffect(() => {
@@ -117,7 +119,10 @@ export default function HomePage() {
       try {
         const idToken = await user.getIdToken();
 
-        const userData = await getDocument("users", user.uid, idToken, "default");
+        const userData = await getDocument("users", user.uid, idToken, "default") as any;
+        if (userData?.billing?.planName) {
+          setPlanName(userData.billing.planName);
+        }
         if (userData?.role) {
           const dbId = (userData.databaseId as string) || "default";
           setUserType(userData.role as "obo" | "sp" | "tpsp");
@@ -397,6 +402,13 @@ export default function HomePage() {
               <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider truncate">
                 {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
               </p>
+              {planName && (
+                <div className="mt-1">
+                  <span className="inline-block text-[8px] font-headline font-bold bg-[#701010]/10 text-[#701010] border border-[#701010]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    {planName}
+                  </span>
+                </div>
+              )}
               <p className="text-xs text-gray-500 mt-1 leading-snug truncate" title={user?.email || ""}>{user?.email || ""}</p>
             </div>
           </div>
@@ -443,6 +455,15 @@ export default function HomePage() {
                 >
                   <span className="text-base">✨</span>
                   <span className="text-xs font-headline font-bold uppercase tracking-wider">AI Powered Networking</span>
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => router.push('/pricing')} 
+                  className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
+                >
+                  <span className="text-base">💳</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider">Plans & Subscriptions</span>
                 </button>
               </li>
             </ul>

@@ -15,6 +15,8 @@ import { adminDb, admin, getUserDatabaseId, getDbForId } from '@/lib/firebase-ad
 import { extractLead } from '@/ai/flows/lead-extraction';
 import { ai } from '@/ai/genkit';
 import { vertexAI } from '@genkit-ai/google-genai';
+import { checkAndConsumeQuota } from '@/lib/services/billing';
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,6 +62,15 @@ export async function POST(req: NextRequest) {
 
     if (leadData.status !== 'pending') {
       return NextResponse.json({ error: `Lead is already ${leadData.status}` }, { status: 409 });
+    }
+
+    // Validate and consume card scanning quota
+    const quotaCheck = await checkAndConsumeQuota(uid, 'cardScans');
+    if (!quotaCheck.allowed) {
+      if (quotaCheck.error === 'subscription_expired') {
+        return NextResponse.json({ error: 'Subscription expired. Please renew.' }, { status: 402 });
+      }
+      return NextResponse.json({ error: 'Card processing quota exceeded. Please upgrade your plan.' }, { status: 402 });
     }
 
     // Mark as processing
