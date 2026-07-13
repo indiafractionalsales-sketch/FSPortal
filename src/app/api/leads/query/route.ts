@@ -14,6 +14,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { admin, adminDb, getDbForId, getUserDatabaseId } from '@/lib/firebase-admin';
 import { ai } from '@/ai/genkit';
 import { vertexAI } from '@genkit-ai/google-genai';
+import { checkAndConsumeQuota } from '@/lib/services/billing';
+
 
 async function fetchWebsiteContent(url: string): Promise<string> {
   try {
@@ -74,31 +76,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Pre-Flight Billing / Credit Check
-    let billingEnabled = true;
-    try {
-      const userProfile = await adminDb.collection('users').doc(uid).get();
-      if (userProfile.exists) {
-        const billing = userProfile.data()?.billing;
-        if (billing) {
-          // Verify if general subscription is still valid
-          if (billing.validUntil && new Date(billing.validUntil) < new Date()) {
-            return NextResponse.json({ error: 'Subscription expired. Please renew.' }, { status: 402 });
-          }
-          // Verify if AI search feature is enabled
-          const searchFeat = billing.features?.aiSearch;
-          if (searchFeat && !searchFeat.enabled) {
-            return NextResponse.json({ error: 'AI Powered Networking is not enabled in your current plan.' }, { status: 403 });
-          }
-          // Verify metered credits
-          if (searchFeat && searchFeat.creditType === 'metered' && searchFeat.creditsRemaining <= 0) {
-            return NextResponse.json({ error: 'Out of credits. Please purchase more search credits.' }, { status: 402 });
-          }
-          billingEnabled = searchFeat?.enabled ?? true;
-        }
+    const quotaCheck = await checkAndConsumeQuota(uid, 'aiSearch');
+    if (!quotaCheck.allowed) {
+      if (quotaCheck.error === 'subscription_expired') {
+        return NextResponse.json({ error: 'Subscription expired. Please renew.' }, { status: 402 });
       }
-    } catch (billingErr) {
-      console.warn("Skipping billing pre-flight check due to error:", billingErr);
+      return NextResponse.json({ error: 'AI Networking search quota exceeded. Please upgrade your plan or purchase top-up credits.' }, { status: 402 });
     }
+
 
     // 3. Resolve user's regional database ID
     const databaseId = await getUserDatabaseId(uid);
@@ -338,26 +323,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 7. Post-execution: Decrement metered credits if enabled
-    try {
-      if (billingEnabled) {
-        const userRef = adminDb.collection('users').doc(uid);
-        await adminDb.runTransaction(async (t) => {
-          const uDoc = await t.get(userRef);
-          if (uDoc.exists) {
-            const billing = uDoc.data()?.billing;
-            const searchFeat = billing?.features?.aiSearch;
-            if (searchFeat && searchFeat.creditType === 'metered' && searchFeat.creditsRemaining > 0) {
-              t.update(userRef, {
-                'billing.features.aiSearch.creditsRemaining': admin.firestore.FieldValue.increment(-1),
-              });
-            }
-          }
-        });
-      }
-    } catch (creditErr) {
-      console.warn("Failed to decrement credit count:", creditErr);
-    }
+
 
     return NextResponse.json({
       report: reportText,
