@@ -13,7 +13,7 @@
  * Indian and international intellectual property laws.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
@@ -115,6 +115,9 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
   const [reviewChecked, setReviewChecked] = useState(false);
   
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isCheckingAttendance, setIsCheckingAttendance] = useState(false);
+  
   // Offers states
   const [isOfferDrawerOpen, setIsOfferDrawerOpen] = useState(false);
   const [isOffersPanelOpen, setIsOffersPanelOpen] = useState(false);
@@ -140,6 +143,30 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const formattedDate = post.date
     ? new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
+
+  const isPartner = post.paymentStatus === 'sold' && ((post.postType === 'sp' && currentUid === post.ownerUid) || (post.postType === 'obo' && currentUid === post.paymentLockedBy));
+
+  const checkAttendanceStatus = async () => {
+    if (!isPartner) return;
+    try {
+      setIsCheckingAttendance(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const res = await fetch(`/api/attendance/status?postId=${post.__id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setIsCheckedIn(data.active);
+    } catch {
+      setIsCheckedIn(false);
+    } finally {
+      setIsCheckingAttendance(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAttendanceStatus();
+  }, [isPartner, post.__id]);
 
   const getCurrencySymbol = (currency: string) => {
     switch(currency) {
@@ -535,14 +562,13 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               </button>
             )}
             {/* Attendance - visible only to the Sales Partner */}
-            {((post.postType === 'sp' && currentUid === post.ownerUid) ||
-              (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+            {isPartner && (
               <button
                 onClick={() => setShowAttendance(true)}
                 className="flex-shrink-0 bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-indigo-850"
               >
                 <MapPin className="w-2.5 h-2.5" />
-                Check-in
+                {isCheckingAttendance ? "..." : isCheckedIn ? "Active Session" : "Check-in"}
               </button>
             )}
             {/* Insights - visible to both SP and OBO for this sold deal */}
@@ -994,7 +1020,10 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       {/* Attendance Drawer */}
       <AttendanceDrawer
         isOpen={showAttendance}
-        onClose={() => setShowAttendance(false)}
+        onClose={() => {
+          setShowAttendance(false);
+          checkAttendanceStatus();
+        }}
         postId={post.__id || ''}
         clientName={post.eventName || post.expectedOutcomes || 'Client Location'}
       />
