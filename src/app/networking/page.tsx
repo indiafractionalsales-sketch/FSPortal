@@ -19,6 +19,7 @@ import Link from "next/link";
 import {
   Search, LogOut, ChevronLeft, ChevronRight, ArrowLeft, Loader2, Sparkles, Send
 } from "lucide-react";
+import LeftSidebar from "@/components/LeftSidebar";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getDocument } from "@/lib/firestore-rest";
@@ -188,78 +189,15 @@ export default function AIPoweredNetworkingPage() {
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-[1920px] w-full mx-auto">
         
         {/* Left Sidebar Profile Column */}
-        <div className="w-full lg:w-[280px] flex-shrink-0 flex flex-col p-4 bg-white border-r border-gray-100 space-y-4 overflow-y-auto custom-scrollbar">
-          
-          {/* User Widget */}
-          <div className="bg-gray-50/50 rounded-xl p-3 border border-gray-100 flex items-center gap-3">
-            {avatar ? (
-              <img src={avatar} alt="Profile" className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm" />
-            ) : (
-              <div className="w-11 h-11 rounded-full bg-[#701010] flex items-center justify-center text-white font-bold text-lg font-serif shadow-sm">
-                {initials}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <button
-                onClick={() => router.push("/profile")}
-                className="font-serif font-bold text-sm text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full truncate font-serif"
-              >
-                {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
-              </button>
-              <p className="text-[10px] font-headline text-gray-500 mt-0.5 uppercase tracking-wider truncate">
-                {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
-              </p>
-              <p className="text-[10px] text-gray-400 truncate leading-snug">{user?.email || ""}</p>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-4 py-4 flex-1">
-            <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-55">Quick Links</h4>
-            <ul className="space-y-1.5">
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🌍</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">Global Feed</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">📝</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">💼</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
-                </button>
-              </li>
-              <div className="h-px bg-gray-100 my-2" />
-              <li>
-                <button onClick={() => router.push('/my-network')} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🤝</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">My Network</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🔖</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">Saved Items</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => router.push('/networking')} 
-                  className="w-full flex items-center gap-2.5 px-2 py-2 bg-[#701010]/5 text-[#701010] transition-all rounded-lg text-left"
-                >
-                  <span className="text-base">✨</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider">AI Powered Networking</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <LeftSidebar
+          user={user}
+          userType={userType}
+          spData={spData}
+          oboData={oboData}
+          tpspData={tpspData}
+          planName={""}
+          className="lg:w-[280px]"
+        />
 
         {/* Center Dashboard View (The AI Chat Panel) */}
         <div className="flex-1 flex flex-col bg-gray-50/50 overflow-hidden border-r border-gray-100">
