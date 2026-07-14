@@ -458,53 +458,6 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   CLOSED
                 </span>
               )}
-              {/* Capture Lead - visible only to the Sales Partner */}
-              {post.paymentStatus === 'sold' && 
-                ((post.postType === 'sp' && currentUid === post.ownerUid) ||
-                 (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowLeadCapture(true);
-                  }}
-                  className="bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-gray-850 animate-fade-in"
-                >
-                  <Camera className="w-2.5 h-2.5" />
-                  Capture Lead
-                </button>
-              )}
-              {/* Attendance - visible only to the Sales Partner */}
-              {post.paymentStatus === 'sold' && 
-                ((post.postType === 'sp' && currentUid === post.ownerUid) ||
-                 (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowAttendance(true);
-                  }}
-                  className="bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 border border-indigo-850 animate-fade-in"
-                >
-                  <MapPin className="w-2.5 h-2.5" />
-                  Check-in
-                </button>
-              )}
-              {/* Insights - visible to both SP and OBO for this sold deal */}
-              {post.paymentStatus === 'sold' && 
-                ((post.postType === 'sp' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy)) ||
-                 (post.postType === 'obo' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy))) && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    router.push(`/insights/${post.__id}`);
-                  }}
-                  className="bg-white hover:bg-gray-50 text-[#701010] border border-[#701010]/20 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer ml-1 animate-fade-in"
-                >
-                  📈 Insights
-                </button>
-              )}
               {post.postType === "obo" && (
                 <span
                   className="font-sans font-normal text-xs text-gray-600 ml-1.5 cursor-pointer hover:underline"
@@ -520,6 +473,22 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           </div>
         </Link>
         <div className="flex items-center gap-2">
+          {/* Package Capsules */}
+          {post.packages && post.packages.length > 0 && (
+            <div className="flex items-center gap-1.5 mr-2">
+              {post.packages.map((pkg, idx) => (
+                <button
+                  key={pkg.id || idx}
+                  onClick={() => setViewingPackage(pkg)}
+                  className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
+                  {calculateTotalCost(pkg.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Top-Right Minimalist Like Button */}
           <button 
             onClick={(e) => {
@@ -537,21 +506,6 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-blue-600' : ''}`} /> 
             {likeCount > 0 && <span className="font-headline font-semibold">{likeCount}</span>}
           </button>
-          {/* Package Capsules */}
-          {post.packages && post.packages.length > 0 && (
-            <div className="flex items-center gap-1.5 mr-2">
-              {post.packages.map((pkg, idx) => (
-                <button
-                  key={pkg.id || idx}
-                  onClick={() => setViewingPackage(pkg)}
-                  className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
-                  {calculateTotalCost(pkg.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
-                </button>
-              ))}
-            </div>
-          )}
 
           {isOwner && onEdit && post.paymentStatus !== 'sold' && (
             <button
@@ -564,6 +518,46 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           )}
         </div>
       </div>
+      
+      {/* Action Buttons (Full width to utilize space below price tags) */}
+      {post.paymentStatus === 'sold' && (
+        <div className="px-4 pb-3 -mt-1">
+          <div className="flex flex-wrap items-center gap-1.5 pl-[3.25rem]">
+            {/* Capture Lead - visible only to the Sales Partner */}
+            {((post.postType === 'sp' && currentUid === post.ownerUid) ||
+              (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+              <button
+                onClick={() => setShowLeadCapture(true)}
+                className="flex-shrink-0 bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-gray-850"
+              >
+                <Camera className="w-2.5 h-2.5" />
+                Capture Lead
+              </button>
+            )}
+            {/* Attendance - visible only to the Sales Partner */}
+            {((post.postType === 'sp' && currentUid === post.ownerUid) ||
+              (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+              <button
+                onClick={() => setShowAttendance(true)}
+                className="flex-shrink-0 bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-indigo-850"
+              >
+                <MapPin className="w-2.5 h-2.5" />
+                Check-in
+              </button>
+            )}
+            {/* Insights - visible to both SP and OBO for this sold deal */}
+            {((post.postType === 'sp' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy)) ||
+              (post.postType === 'obo' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy))) && (
+              <button
+                onClick={() => router.push(`/insights/${post.__id}`)}
+                className="flex-shrink-0 bg-white hover:bg-gray-50 text-[#701010] border border-[#701010]/20 text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                📈 Insights
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {post.postType === "obo" ? (
         <>
@@ -883,7 +877,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
       {/* Action Buttons */}
       <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
-        {post.postType === "obo" ? (
+        {post.postType === "obo" && (
           // Offer-based OBO Post
           !isOwner ? (
             // Sales Partner User sees "Respond"
@@ -934,15 +928,6 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               Responses ({offerCount})
             </button>
           )
-        ) : (
-          // Fixed price / Standard SP Post: Keep standard Like action in bar as fallback
-          <button 
-            onClick={handleLike} 
-            className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${isLiked ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
-          >
-            <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-blue-600' : ''}`} /> 
-            {likeCount > 0 ? `${likeCount} Like${likeCount > 1 ? 's' : ''}` : 'Like'}
-          </button>
         )}
 
         <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
@@ -954,22 +939,17 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       </div>
 
       {post.paymentStatus === 'sold' && (
-        <div className="border-t border-gray-100 mx-4 py-3 mt-1 space-y-2">
-          {/* Row 1: Release Payment */}
-          {currentUid === post.paymentLockedBy && (
-            <div className="flex items-center justify-end">
+        <div className="border-t border-gray-100 mx-4 py-3 mt-1">
+          {((post.postType === 'sp' && currentUid === post.paymentLockedBy) ||
+            (post.postType === 'obo' && currentUid === post.ownerUid)) && (
+            <div className="flex items-center justify-end gap-2 flex-wrap">
               <button 
                 onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
               >
                 💰 Release Payment
               </button>
-            </div>
-          )}
-          {/* Row 2: Rate Partner (Buyer only) */}
-          {((post.postType === 'sp' && currentUid === post.paymentLockedBy) ||
-            (post.postType === 'obo' && currentUid === post.ownerUid)) && (
-            <div className="flex items-center justify-end">
+              
               <button
                 onClick={async () => {
                   if (!reviewChecked) {

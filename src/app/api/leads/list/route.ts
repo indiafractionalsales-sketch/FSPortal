@@ -31,12 +31,33 @@ export async function GET(req: NextRequest) {
     const postId = searchParams.get('postId');
     const status = searchParams.get('status'); // optional filter
 
-    // Route to the SP's country-specific database
-    const dbId = await getUserDatabaseId(uid);
-    const spDb = getDbForId(dbId) || adminDb;
+    let targetSpUid = uid;
+    let spDbId = await getUserDatabaseId(uid);
 
-    // Build query — always scoped to this SP
-    let q = spDb.collection('Leads').where('capturedByUid', '==', uid);
+    if (postId) {
+      // If fetching leads for a specific post, the caller might be the Business Owner
+      // or the Sales Partner. We need to find the correct SP's UID to query the right database.
+      const postDoc = await adminDb.collection('Posts').doc(postId).get();
+      if (postDoc.exists) {
+        const postData = postDoc.data();
+        const spUid = postData?.postType === 'sp' ? postData?.ownerUid : postData?.paymentLockedBy;
+        const boUid = postData?.postType === 'sp' ? postData?.paymentLockedBy : postData?.ownerUid;
+
+        // Verify caller is either the Sales Partner or the Business Owner for this deal
+        if (uid !== spUid && uid !== boUid) {
+           return NextResponse.json({ error: 'Unauthorized to view leads for this deal' }, { status: 403 });
+        }
+        
+        targetSpUid = spUid;
+        spDbId = await getUserDatabaseId(spUid);
+      }
+    }
+
+    // Route to the SP's country-specific database
+    const spDb = getDbForId(spDbId) || adminDb;
+
+    // Build query — always scoped to the Sales Partner who captured the leads
+    let q = spDb.collection('Leads').where('capturedByUid', '==', targetSpUid);
     if (postId) q = q.where('postId', '==', postId);
     if (status) q = q.where('status', '==', status);
     q = q.orderBy('createdAt', 'desc');
@@ -50,7 +71,7 @@ export async function GET(req: NextRequest) {
       processedAt: doc.data().processedAt?.toDate?.()?.toISOString() || null,
     }));
 
-    return NextResponse.json({ leads, databaseId: dbId });
+    return NextResponse.json({ leads, databaseId: spDbId });
 
   } catch (error: any) {
     console.error('Leads list error:', error);
