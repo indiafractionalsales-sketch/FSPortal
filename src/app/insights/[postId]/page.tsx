@@ -19,6 +19,7 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
 import { getDocument } from "@/lib/firestore-rest";
+import LeftSidebar from "@/components/LeftSidebar";
 import {
   Phone, Mail, MapPin, Calendar, User as UserIcon,
   Flame, Sun, Snowflake, ArrowLeft, Loader2,
@@ -314,101 +315,16 @@ export default function PostInsightsPage() {
       <div className="flex-1 flex overflow-hidden pb-16 md:pb-0">
 
         {/* Left Sidebar (copied from home page) */}
-        <div className={`w-full md:w-[260px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : 'hidden'} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100`}>
-
-          {/* Profile Card */}
-          <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
-            <div className="h-16 bg-[#701010] relative overflow-hidden">
-              {(oboData.banner || spData.banner || tpspData.banner) && <img src={oboData.banner || spData.banner || tpspData.banner} alt="Banner" className="w-full h-full object-cover" />}
-            </div>
-
-            <div className="px-4 pb-4">
-              <div className="relative -mt-8 mb-2">
-                {spData.profilePhoto ? (
-                  <img
-                    src={spData.profilePhoto}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full border-4 border-white shadow-sm object-cover"
-                  />
-                ) : oboData.logo || tpspData.logo ? (
-                  <img
-                    src={oboData.logo || tpspData.logo}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full border-4 border-white shadow-sm object-cover"
-                  />
-                ) : user?.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full border-4 border-white shadow-sm object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full border-4 border-white bg-gray-100 flex items-center justify-center text-gray-800 font-bold text-xl shadow-sm">
-                    {user?.email?.charAt(0).toUpperCase() ?? "P"}
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => router.push("/profile")}
-                className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full truncate font-serif"
-              >
-                {spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || user?.email || "Partner User"}
-              </button>
-              <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider truncate">
-                {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1 leading-snug truncate">{user?.email || ""}</p>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-4 py-4 flex-grow">
-            <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-50">Quick Links</h4>
-            <ul className="space-y-1.5">
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🌍</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">Global Feed</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">📝</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">My Posts</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">💼</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">My Deals</span>
-                </button>
-              </li>
-              <div className="h-px bg-gray-100 my-2" />
-              <li>
-                <button onClick={() => router.push('/my-network')} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🤝</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">My Network</span>
-                </button>
-              </li>
-              <li>
-                <button onClick={() => router.push("/home")} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-55 transition-all rounded-lg text-left text-gray-700">
-                  <span className="text-base">🔖</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">Saved Items</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => router.push('/networking')} 
-                  className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
-                >
-                  <span className="text-base">✨</span>
-                  <span className="text-xs font-headline font-bold uppercase tracking-wider font-headline">AI Powered Networking</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <LeftSidebar
+          user={user}
+          userType={userType}
+          spData={spData}
+          oboData={oboData}
+          tpspData={tpspData}
+          planName={""}
+          mobileTab={mobileTab}
+          setMobileTab={setMobileTab}
+        />
 
         {/* Center Dashboard Area */}
         <div className={`flex-1 ${mobileTab === 'feed' ? 'flex' : 'hidden'} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-[#faf8f5]`}>
