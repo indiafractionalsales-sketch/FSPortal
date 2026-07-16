@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server';
 import { admin, adminDb, getDbForId, getUserDatabaseId } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import { sendDealFinalizationEmail } from '@/lib/mailer';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || '',
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
     let authorUid = postData.ownerUid;
     let packageId = postData.paymentPackageId;
     let offerId = null;
+    let offerData: any = null;
 
     if (postData.paymentStatus !== 'sold') {
       if (postData.paymentStatus === 'locked_for_offer_payment') {
@@ -94,7 +96,7 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: 'Associated offer not found' }, { status: 404 });
         }
 
-        const offerData = offerDoc.data()!;
+        offerData = offerDoc.data()!;
         const allOffersSnapshot = await postRef.collection("Offers").where("status", "==", "pending").get();
         
         const batch = adminDb.batch();
@@ -147,6 +149,7 @@ export async function POST(req: Request) {
         const offerDoc = await offerRef.get();
         if (offerDoc.exists) {
           authorUid = offerDoc.data()?.offerorUid;
+          offerData = offerDoc.data();
         }
         offerId = postData.acceptedOfferId;
         packageId = null;
@@ -177,6 +180,7 @@ export async function POST(req: Request) {
 
       // Write to both buyer and author databases
       const dbsToWrite = Array.from(new Set([buyerDbId, authorDbId]));
+      let dealCreated = false;
       for (const dbId of dbsToWrite) {
         const db = getDbForId(dbId);
         if (db) {
@@ -185,7 +189,77 @@ export async function POST(req: Request) {
           if (!dealSnap.exists) {
             await dealRef.set(dealPayload);
             console.log(`Created Deal record in database: ${dbId}`);
+            dealCreated = true;
           }
+        }
+      }
+
+      // 5.5 Trigger Email Notification on successful Deal Record insertion (non-blocking)
+      if (dealCreated) {
+        try {
+          // Fetch OBO (Buyer) details
+          let oboEmail = "buyer@fractionalsalespartner.com";
+          try {
+            const oboUser = await admin.auth().getUser(buyerUid);
+            oboEmail = oboUser.email || oboEmail;
+          } catch (authErr) {
+            console.error("Failed to fetch OBO email:", authErr);
+          }
+
+          let oboBrandName = "Business Owner";
+          const oboProfileDoc = await adminDb.collection("OBO_Profile").doc(buyerUid).get();
+          if (oboProfileDoc.exists) {
+            oboBrandName = oboProfileDoc.data()?.brandName || oboBrandName;
+          }
+
+          // Fetch SP (Author/Seller) details
+          let spEmail = "partner@fractionalsalespartner.com";
+          try {
+            const spUser = await admin.auth().getUser(authorUid);
+            spEmail = spUser.email || spEmail;
+          } catch (authErr) {
+            console.error("Failed to fetch SP email:", authErr);
+          }
+
+          let spName = "Sales Partner";
+          const spProfileDoc = await adminDb.collection("SP_Profile").doc(authorUid).get();
+          if (spProfileDoc.exists) {
+            spName = spProfileDoc.data()?.fullName || spName;
+          }
+
+          // Determine post title and budget text based on Flow A (package) vs Flow B (offer)
+          let postTitle = "Commercial Sales Representation Project";
+          let budgetRangeText = "";
+
+          if (offerId) {
+            postTitle = postData.expectedOutcomes || "Commercial Sales Representation Project";
+            if (postData.pricingType === "range") {
+              budgetRangeText = `${postData.budgetCurrency} ${postData.budgetMin} – ${postData.budgetMax}`;
+            } else {
+              budgetRangeText = "Open Pitch";
+            }
+          } else {
+            postTitle = postData.title || "Sales Package Engagement";
+            budgetRangeText = `${dealPayload.currency} ${dealPayload.amount.toLocaleString()}`;
+          }
+
+          console.log(`>>> [API PAYMENT-STATUS] Sending deal finalization email. OBO: ${oboEmail}, SP: ${spEmail}`);
+
+          await sendDealFinalizationEmail({
+            oboBrandName,
+            oboEmail,
+            postTitle,
+            budgetRange: budgetRangeText,
+            spName,
+            spEmail,
+            offerAmount: dealPayload.amount,
+            offerCurrency: dealPayload.currency,
+            spMessage: offerData?.message || (offerId ? "Offer Accepted" : "Package Purchase"),
+            postId: postDoc.id,
+            offerId: offerId || `pkg_${packageId}`,
+          });
+        } catch (emailErr) {
+          console.error("Failed to send deal finalization email after payment:", emailErr);
         }
       }
     }
