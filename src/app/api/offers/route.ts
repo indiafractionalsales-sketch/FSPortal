@@ -363,21 +363,24 @@ export async function PATCH(req: Request) {
         budgetRangeText = "Open Pitch";
       }
 
-      // 4. Trigger Email Notification (Nodemailer SMTP helper) - Commented out for now
-      // await sendDealFinalizationEmail({
-      //   oboBrandName,
-      //   oboEmail,
-      //   postTitle: postData.expectedOutcomes || "Commercial Sales Representation Project",
-      //   budgetRange: budgetRangeText,
-      //   spName: offerData.offerorName,
-      //   spEmail,
-      //   offerAmount: offerData.amount,
-      //   offerCurrency: offerData.currency,
-      //   spMessage: offerData.message,
-      //   postId,
-      //   offerId,
-      // });
-      console.log("Email notification skipped for now as requested.");
+      // 4. Trigger Email Notification (Mailtrap API)
+      try {
+        await sendDealFinalizationEmail({
+          oboBrandName,
+          oboEmail,
+          postTitle: postData.expectedOutcomes || "Commercial Sales Representation Project",
+          budgetRange: budgetRangeText,
+          spName: offerData.offerorName,
+          spEmail,
+          offerAmount: offerData.amount,
+          offerCurrency: offerData.currency,
+          spMessage: offerData.message,
+          postId,
+          offerId,
+        });
+      } catch (emailErr) {
+        console.error("Failed to send deal finalization email:", emailErr);
+      }
 
       return NextResponse.json({ success: true });
     }
