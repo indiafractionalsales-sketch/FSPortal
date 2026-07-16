@@ -201,6 +201,33 @@ export default function OnboardingWizard() {
         await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);
       }
 
+      // Trigger Welcome Email (non-blocking, handled gracefully)
+      try {
+        let displayName = "User";
+        if (userType === "sp") {
+          displayName = spData.fullName || "Sales Partner";
+        } else if (userType === "obo") {
+          displayName = oboData.brandName || oboData.legalName || "Business Owner";
+        } else if (userType === "tpsp") {
+          displayName = tpspData.companyName || "Service Provider";
+        }
+
+        await fetch("/api/welcome-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            email: user.email,
+            name: displayName,
+            role: userType
+          })
+        });
+      } catch (emailErr) {
+        console.error("Failed to trigger welcome email:", emailErr);
+      }
+
       router.push("/home");
     } catch (err: any) {
       setError(err.message || "Failed to create profile");
