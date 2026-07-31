@@ -98,6 +98,32 @@ interface SPPostCardProps {
   onViewDetails?: () => void;
 }
 
+function ExpandableText({ text, limit = 180, className = "" }: { text: string; limit?: number; className?: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!text) return null;
+  if (text.length <= limit) {
+    return <p className={className}>{text}</p>;
+  }
+
+  return (
+    <p className={className}>
+      {isExpanded ? text : `${text.slice(0, limit).trim()}... `}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsExpanded(!isExpanded);
+        }}
+        className="ml-1 font-bold text-[#701010] hover:underline focus:outline-none inline-flex items-center gap-0.5 cursor-pointer"
+      >
+        {isExpanded ? "Show less" : "Read more"}
+      </button>
+    </p>
+  );
+}
+
 export default function SPPostCard({ post, authorName, authorAvatar, currentUserCurrency, onEdit, onViewDetails }: SPPostCardProps) {
 
   const [viewingPackage, setViewingPackage] = useState<any | null>(null);
@@ -591,7 +617,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           <div className="px-4 pb-3">
             {post.expectedOutcomes && (
               <div>
-                <p className="text-sm text-gray-800 leading-relaxed font-sans line-clamp-4">{post.expectedOutcomes}</p>
+                <ExpandableText text={post.expectedOutcomes} limit={200} className="text-sm text-gray-800 leading-relaxed font-sans" />
               </div>
             )}
           </div>
@@ -776,7 +802,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           {/* Description — shown prominently above media */}
           {post.description && (
             <div className="px-4 pb-3">
-              <p className="text-xs text-gray-700 leading-relaxed font-sans line-clamp-3">{post.description}</p>
+              <ExpandableText text={post.description} limit={180} className="text-xs text-gray-700 leading-relaxed font-sans" />
             </div>
           )}
 
