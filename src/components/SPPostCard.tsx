@@ -510,7 +510,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
-                  {calculateTotalCost(pkg.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
+                  {calculateTotalCost(pkg.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
                 </button>
               ))}
             </div>
@@ -1057,7 +1057,12 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             <div>
               <h2 className="font-serif font-bold text-lg text-gray-900">{viewingPackage.name || "Package Details"}</h2>
               <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider mt-0.5 font-bold">
-                Total: {calculateTotalCost(viewingPackage.items || []).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
+                Total (INR): {calculateTotalCost(viewingPackage.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+                {viewingPackage.outwardCurrency && viewingPackage.outwardCurrency !== 'INR' && (
+                  <span className="ml-2 bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                    SP&apos;s Currency: {viewingPackage.outwardCurrency}
+                  </span>
+                )}
               </p>
             </div>
             <button 
@@ -1073,7 +1078,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
               <div className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100">
                 <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item</div>
-                <div className="col-span-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost ({getCurrencySymbol(currencyStr)})</div>
+                <div className="col-span-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Amount (₹ INR)</div>
               </div>
               
               <div className="divide-y divide-gray-50">
@@ -1081,7 +1086,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   <div key={item.id || i} className="grid grid-cols-12 gap-3 py-3 items-center">
                     <div className="col-span-8 text-sm text-gray-700">{item.description || "—"}</div>
                     <div className="col-span-4 text-sm font-semibold text-gray-900 text-right">
-                      {parseFloat(item.cost || 0).toLocaleString(currencyStr === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: currencyStr })}
+                      {parseFloat(item.cost || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
                     </div>
                   </div>
                 ))}
