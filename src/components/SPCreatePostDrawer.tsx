@@ -39,6 +39,7 @@ interface Package {
   id: string;
   name: string;
   items: LineItem[];
+  outwardCurrency: string; // SP's home currency for reference only — amounts are always in INR
 }
 
 const InputHelper = ({ icon: Icon, label, value, onChange, placeholder, type = "text" }: any) => (
@@ -140,7 +141,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     setPackages([...packages, { 
       id: Date.now().toString(), 
       name: `Package ${packages.length + 1}`, 
-      items: [{ id: Date.now().toString() + "_1", description: "", cost: "" }] 
+      items: [{ id: Date.now().toString() + "_1", description: "", cost: "" }],
+      outwardCurrency: preferredCurrency || "USD", // SP's home currency — for reference only
     }]);
   };
 
@@ -182,11 +184,12 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     setPackages(packages.map(p => p.id === pkgId ? { ...p, name } : p));
   };
 
+  // Amounts are always in INR — outwardCurrency is only stored for SP's reference
   const calculateTotalCost = (items: LineItem[]) => {
     return items.reduce((total, item) => {
       const cost = parseFloat(item.cost) || 0;
       return total + cost;
-    }, 0).toLocaleString(preferredCurrency === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: preferredCurrency });
+    }, 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
   };
 
   const handleNext = () => {
@@ -421,26 +424,36 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                 <div className="space-y-6">
                   {packages.map((pkg, index) => (
                     <div key={pkg.id} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">{index + 1}</span>
+                      <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="w-5 h-5 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-black shrink-0">{index + 1}</span>
                           <input 
                             value={pkg.name} 
                             onChange={(e) => updatePackageName(pkg.id, e.target.value)}
-                            className="bg-transparent border-none font-bold text-gray-900 focus:ring-0 p-0 text-sm w-48 focus:outline-none" 
+                            className="bg-transparent border-none font-bold text-gray-900 focus:ring-0 p-0 text-sm focus:outline-none min-w-0 truncate" 
                             placeholder="Package Name" 
                           />
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Total Cost</span>
-                            <span className="text-sm font-black text-indigo-700">{calculateTotalCost(pkg.items)}</span>
+                        <div className="flex items-center gap-3 shrink-0">
+                          {/* Your currency — read-only from profile */}
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Your Currency</span>
+                            <span className="text-[10px] font-bold text-gray-500 bg-white border border-gray-200 rounded-full px-2.5 py-0.5">
+                              {getCurrencySymbol(preferredCurrency)} {preferredCurrency}
+                            </span>
+                          </div>
+                          <div className="w-px h-6 bg-gray-200" />
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest">Charged in</span>
+                            <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-2.5 py-0.5">
+                              {calculateTotalCost(pkg.items)}
+                            </span>
                           </div>
                           <button 
                             onClick={() => removePackage(pkg.id)}
-                            className="text-red-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                            className="text-gray-300 hover:text-red-500 p-1 hover:bg-red-50 rounded-lg transition-colors"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
@@ -448,7 +461,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                       <div className="p-4 bg-white space-y-3">
                         <div className="grid grid-cols-12 gap-3 pb-2 border-b border-gray-100">
                           <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item Description</div>
-                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Cost ({getCurrencySymbol(preferredCurrency)})</div>
+                          <div className="col-span-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Amount (₹ INR)</div>
                           <div className="col-span-1"></div>
                         </div>
                         
