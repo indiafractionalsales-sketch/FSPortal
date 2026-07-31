@@ -103,11 +103,11 @@ function ExpandableText({ text, limit = 180, className = "" }: { text: string; l
 
   if (!text) return null;
   if (text.length <= limit) {
-    return <p className={className}>{text}</p>;
+    return <p className={`${className} whitespace-pre-wrap break-words`}>{text}</p>;
   }
 
   return (
-    <p className={className}>
+    <p className={`${className} whitespace-pre-wrap break-words`}>
       {isExpanded ? text : `${text.slice(0, limit).trim()}... `}
       <button
         type="button"
