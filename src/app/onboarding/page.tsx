@@ -22,6 +22,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { saveDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
+import { getVisitorId } from "@/lib/fingerprint";
 
 // Helper Components (Must be outside the main component to prevent focus loss on re-render)
 const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false }: any) => (
@@ -148,12 +149,34 @@ export default function OnboardingWizard() {
     try {
       const idToken = await user.getIdToken();
 
+      // Fetch client device fingerprint and execute security telemetry check
+      const visitorId = await getVisitorId();
+      const telemetryRes = await fetch("/api/security/telemetry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "SIGN_UP",
+          visitorId,
+          userId: user.uid,
+          extraDetails: { userType },
+        }),
+      });
+
+      const telemetryData = await telemetryRes.json();
+      if (telemetryRes.status === 403 || telemetryData.blocked) {
+        setError(telemetryData.message || "Registration limit exceeded for this device.");
+        setSaving(false);
+        return;
+      }
+
       // Fetch client IP for audit trail
-      let clientIp = "unknown";
+      let clientIp = telemetryData.telemetry?.ip || "unknown";
       try {
-        const ipRes = await fetch("/api/ip");
-        const ipData = await ipRes.json();
-        clientIp = ipData.ip || "unknown";
+        if (!clientIp || clientIp === "unknown") {
+          const ipRes = await fetch("/api/ip");
+          const ipData = await ipRes.json();
+          clientIp = ipData.ip || "unknown";
+        }
       } catch { /* IP fetch failure is non-blocking */ }
 
       // Click-wrap audit trail metadata

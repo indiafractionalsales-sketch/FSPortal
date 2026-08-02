@@ -18,6 +18,7 @@ import { X, Image as ImageIcon, MapPin, Calendar, Clock, Globe, Video, Users, Ch
 import { auth } from "@/lib/firebase";
 import { saveDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
+import { getVisitorId } from "@/lib/fingerprint";
 
 interface SPCreatePostDrawerProps {
   isOpen: boolean;
@@ -224,6 +225,22 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
 
     try {
       const idToken = await user.getIdToken();
+
+      // Trigger background telemetry log
+      try {
+        const visitorId = await getVisitorId();
+        fetch("/api/security/telemetry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "CREATE_POST",
+            visitorId,
+            userId: user.uid,
+            extraDetails: { eventName: formData.eventName },
+          }),
+        }).catch(() => {});
+      } catch { /* Non-blocking telemetry */ }
+
       let uploadedImageUrl = "";
       
       if (imagePreview && imagePreview.startsWith("data:")) {

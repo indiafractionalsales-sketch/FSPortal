@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.7",
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@genkit-ai/google-genai": "^1.39.0",
     "@genkit-ai/vertexai": "^1.39.0",
     "@hookform/resolvers": "^4.1.3",
