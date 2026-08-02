@@ -21,50 +21,18 @@ function CloudflareLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M16.48 10.74c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4a4 4 0 0 0-4-3.86z" fill="#F38020" />
-      <path d="M19.4 12.6a4.002 4.002 0 0 0-3.92-3.86c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4z" opacity="0.9" />
+      <path d="M19.4 12.6a4.002 4.002 0 0 0-3.92-3.86c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4z" opacity="0.9" fill="#F38020" />
     </svg>
   );
 }
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-14 pb-10 border-t border-sky-400/30 font-sans shadow-2xl">
+    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-12 pb-10 border-t border-sky-400/30 font-sans shadow-2xl">
       <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
         
-        {/* Main Footer Header Row */}
-        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8 pb-10 border-b border-white/20">
-
-          {/* Brand Logo & Tagline */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg">
-            <Link href="/">
-              <span className="font-serif font-bold text-2xl md:text-3xl tracking-tight text-white hover:text-sky-200 transition-colors">
-                Fractional Sales Partner
-              </span>
-            </Link>
-            <p className="text-sky-100/90 text-xs md:text-sm mt-3 leading-relaxed font-medium">
-              Empowering MSMEs from emerging markets to scale globally through verified fractional sales expertise.
-            </p>
-          </div>
-
-          {/* Social Icons */}
-          <div className="flex items-center gap-3">
-            <a href="#" aria-label="Twitter" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Twitter className="w-4 h-4" />
-            </a>
-            <a href="#" aria-label="LinkedIn" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a href="#" aria-label="Instagram" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a href="#" aria-label="Facebook" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Facebook className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-
-        {/* Highlighted Trust & Security Banner */}
-        <div className="my-8 p-4 md:p-6 bg-white/10 backdrop-blur-md border border-white/25 rounded-2xl flex flex-col lg:flex-row items-center justify-between gap-6 shadow-xl">
+        {/* 1. TOP SECTION: Security Trust Banner First */}
+        <div className="mb-10 p-4 md:p-6 bg-white/10 backdrop-blur-md border border-white/25 rounded-2xl flex flex-col lg:flex-row items-center justify-between gap-6 shadow-xl">
           
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div className="p-3 bg-white text-[#0284c7] rounded-xl shadow-md flex-shrink-0">
@@ -83,7 +51,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* 3 Trust Badges with Official Cloudflare Logo */}
+          {/* 3 Trust Badges with Cloudflare Logo */}
           <div className="flex flex-wrap justify-center items-center gap-3 text-xs text-white">
             <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
               <CloudflareLogo className="w-4 h-4" />
@@ -108,8 +76,40 @@ export function Footer() {
           </Link>
         </div>
 
-        {/* Bottom Legal & Links Bar */}
-        <div className="pt-6 border-t border-white/20 flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6 text-xs text-sky-100">
+        {/* 2. MIDDLE SECTION: Brand Logo & Tagline + Social Icons */}
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8 pb-10 border-b border-white/20">
+
+          {/* Brand Logo & Tagline */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg">
+            <Link href="/">
+              <span className="font-serif font-bold text-2xl md:text-3xl tracking-tight text-white hover:text-sky-200 transition-colors">
+                Fractional Sales Partner
+              </span>
+            </Link>
+            <p className="text-sky-100/90 text-xs md:text-sm mt-3 leading-relaxed font-medium">
+              Empowering MSMEs from emerging markets to scale globally through verified fractional sales expertise.
+            </p>
+          </div>
+
+          {/* Social Icons (Twitter, LinkedIn, Instagram, Facebook) */}
+          <div className="flex items-center gap-3">
+            <a href="#" aria-label="Twitter" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+              <Twitter className="w-4 h-4" />
+            </a>
+            <a href="#" aria-label="LinkedIn" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a href="#" aria-label="Instagram" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a href="#" aria-label="Facebook" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+              <Facebook className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+
+        {/* 3. BOTTOM SECTION: Legal Disclaimer & Navigation Links */}
+        <div className="pt-6 flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6 text-xs text-sky-100">
           
           {/* Legal Disclaimer & Registered Address */}
           <div className="flex flex-col gap-1 text-center lg:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
