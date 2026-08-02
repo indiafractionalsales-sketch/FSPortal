@@ -53,7 +53,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Section: Legal Disclaimer & Perfectly Aligned Navigation Links */}
+        {/* Bottom Section: Legal Disclaimer & Perfectly Aligned 4-Link Bar */}
         <div className="pt-6 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-6 text-xs text-sky-100">
           
           {/* Legal Disclaimer & Registered Address */}
@@ -64,7 +64,7 @@ export function Footer() {
             <p className="text-sky-100/70">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
           </div>
 
-          {/* Perfectly Aligned 1-Line Legal Navigation Links */}
+          {/* Perfectly Aligned 4 Legal Navigation Links */}
           <div className="flex flex-wrap items-center justify-center lg:justify-end gap-x-5 sm:gap-x-6 gap-y-2 text-xs uppercase tracking-wider font-semibold">
             <Link
               href="/security"
@@ -79,8 +79,6 @@ export function Footer() {
             <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Privacy Policy</Link>
             <span className="text-white/30 hidden sm:inline">•</span>
             <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Refund & Cancellation</Link>
-            <span className="text-white/30 hidden sm:inline">•</span>
-            <Link href="/legal/contact" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Contact Us</Link>
           </div>
 
         </div>
