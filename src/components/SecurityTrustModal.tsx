@@ -13,7 +13,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { ShieldCheck, Lock, Fingerprint, FileText, CheckCircle2, X, ExternalLink, ShieldAlert, Zap } from "lucide-react";
+import { ShieldCheck, Lock, Fingerprint, FileText, CheckCircle2, X, ExternalLink, ShieldAlert, Zap, AlertTriangle, ArrowRight, Shield, Globe, Users, Database } from "lucide-react";
 import Link from "next/link";
 
 interface SecurityTrustModalProps {
@@ -38,15 +38,15 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
 
   return (
     <div 
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-8 bg-slate-900/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden my-auto max-h-[85vh] flex flex-col z-[100000]"
+        className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-sky-100 overflow-hidden my-auto max-h-[88vh] flex flex-col z-[100000]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#701010] via-[#500b0b] to-[#1a1a1a] p-5 sm:p-6 text-white relative flex-shrink-0">
+        {/* Header - Fresh Trustworthy Blue */}
+        <div className="bg-gradient-to-r from-[#075985] via-[#0284c7] to-[#0369a1] p-5 sm:p-6 text-white relative flex-shrink-0 shadow-md">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer z-10"
@@ -56,158 +56,270 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
           </button>
 
           <div className="flex items-center gap-3.5 pr-10">
-            <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-inner flex-shrink-0">
-              <ShieldCheck className="w-7 h-7 text-amber-400" />
+            <div className="p-3 bg-white text-[#0284c7] rounded-xl shadow-lg flex-shrink-0">
+              <ShieldCheck className="w-8 h-8 text-[#0284c7]" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[9px] font-mono tracking-widest uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-bold">
-                  Platform Security Center
+                <span className="text-[9px] font-mono tracking-widest uppercase bg-white/20 text-white border border-white/30 px-2.5 py-0.5 rounded-full font-bold">
+                  Verified Security & Trust Architecture
                 </span>
-                <span className="inline-flex items-center gap-1 text-[9px] font-sans bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Systems Protected
+                <span className="inline-flex items-center gap-1 text-[9px] font-sans bg-emerald-400/20 text-emerald-100 border border-emerald-300/30 px-2.5 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                  Systems Fully Protected
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-serif font-bold text-white mt-1 leading-tight">
-                Trust & Security Architecture
+                Threat Mitigation & Security Architecture
               </h2>
-              <p className="text-xs text-white/70 font-sans mt-0.5">
-                Enterprise-grade multi-layer defense, device fingerprinting, and regulatory compliance.
+              <p className="text-xs text-sky-100 font-sans mt-0.5">
+                Visual analysis of potential security threats and our enterprise-grade defense implementations.
               </p>
             </div>
           </div>
         </div>
 
         {/* Modal Body - Scrollable */}
-        <div className="p-5 sm:p-6 md:p-8 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+        <div className="p-5 sm:p-6 md:p-8 overflow-y-auto space-y-6 flex-1 custom-scrollbar bg-slate-50">
           
           {/* Top Security Overview Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3.5 rounded-xl border border-sky-100 shadow-sm">
             <div className="text-center p-2">
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Edge Protection</p>
-              <p className="text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 flex items-center justify-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Cloudflare WAF
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Edge Protection</p>
+              <p className="text-xs sm:text-sm font-bold text-[#0284c7] mt-0.5 flex items-center justify-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Cloudflare WAF
               </p>
             </div>
-            <div className="text-center p-2 border-l border-gray-200">
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Account Cap Limit</p>
-              <p className="text-xs sm:text-sm font-bold text-[#701010] mt-0.5">Max 3 / Device</p>
+            <div className="text-center p-2 border-l border-slate-100">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Anti-Fraud Limit</p>
+              <p className="text-xs sm:text-sm font-bold text-purple-700 mt-0.5">Max 3 / Physical Device</p>
             </div>
-            <div className="text-center p-2 border-l border-gray-200">
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">SSL Encryption</p>
-              <p className="text-xs sm:text-sm font-bold text-gray-900 mt-0.5">256-Bit HSTS TLS</p>
+            <div className="text-center p-2 border-l border-slate-100">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">SSL Encryption</p>
+              <p className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">256-Bit HSTS TLS</p>
             </div>
-            <div className="text-center p-2 border-l border-gray-200">
-              <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Privacy Compliance</p>
-              <p className="text-xs sm:text-sm font-bold text-blue-600 mt-0.5">DPDPA 2023 & IT Act</p>
+            <div className="text-center p-2 border-l border-slate-100">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Privacy Compliance</p>
+              <p className="text-xs sm:text-sm font-bold text-emerald-700 mt-0.5">DPDPA 2023 & IT Act</p>
             </div>
           </div>
 
-          {/* Security Pillars Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Security Threat vs Solution Cards */}
+          <div className="space-y-6">
             
-            {/* Pillar 1 */}
-            <div className="p-4 sm:p-5 border border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-amber-50 text-amber-700 rounded-lg">
-                  <Zap className="w-5 h-5" />
+            {/* Card 1: Cloudflare Edge Defense */}
+            <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-sky-50 text-[#0284c7] rounded-lg">
+                    <Globe className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">1. Edge Defense & Bot Mitigation</h3>
+                    <p className="text-[11px] text-slate-500">Cloudflare Anycast WAF Proxy • DDoS Shield</p>
+                  </div>
                 </div>
-                <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">
                   ACTIVE EDGE SHIELD
                 </span>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">1. Cloudflare Edge Defense</h3>
-              <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                All network traffic is proxied via Cloudflare Anycast edge servers, mitigating DDoS attacks, scraping bots, and brute-force intrusions before hitting application servers.
-              </p>
-              <ul className="mt-3 space-y-1 text-[11px] text-gray-600 font-sans">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Bot Fight Mode & Automated Scraper Defense</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Strict Transport Security (HSTS) Forced HTTPS</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Automatic Email Address Obfuscation</li>
+
+              {/* Threat vs Solution Visual Diagram Box */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {/* Threat */}
+                <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Potential Threat Vector:</span>
+                  </div>
+                  <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
+                    Automated scraper bots, DDoS traffic floods, and SQL injection probes attempting to overload origin database servers and harvest contact data.
+                  </p>
+                </div>
+
+                {/* Solution */}
+                <div className="p-3.5 bg-sky-50/90 border border-sky-200/80 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-[#0369a1] font-bold mb-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#0284c7]" />
+                    <span>Implemented Solution:</span>
+                  </div>
+                  <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
+                    Cloudflare Edge Proxy intercepts traffic globally, executing Bot Fight Mode, HSTS 256-Bit SSL, and rate-limiting before packets reach backend code.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Bot Fight Mode Active</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> HSTS 256-Bit Forced HTTPS</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Automatic Email Obfuscation</li>
               </ul>
             </div>
 
-            {/* Pillar 2 */}
-            <div className="p-4 sm:p-5 border border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-[#701010]/10 text-[#701010] rounded-lg">
-                  <Fingerprint className="w-5 h-5" />
+            {/* Card 2: Anti-Fraud Device Hashing */}
+            <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-purple-50 text-purple-700 rounded-lg">
+                    <Fingerprint className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">2. Anti-Fraud & Multi-Account Capping</h3>
+                    <p className="text-[11px] text-slate-500">Persistent FingerprintJS Visitor Hashing • Max 3 Capping</p>
+                  </div>
                 </div>
-                <span className="text-[9px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full">
-                  MAX 3 ACCOUNTS / DEVICE
+                <span className="text-[9px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-full">
+                  ENFORCED (MAX 3)
                 </span>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">2. Anti-Fraud Device Hashing</h3>
-              <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                Integrated with persistent client-side device fingerprinting (`visitorId`), enforcing a strict policy capping registrations to a maximum of 3 accounts per physical device.
-              </p>
-              <ul className="mt-3 space-y-1 text-[11px] text-gray-600 font-sans">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Multi-Account Spammer Capping (HTTP 403 Block)</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Hardware & Canvas Component Hash Verification</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Background Identity Telemetry Check</li>
+
+              {/* Threat vs Solution Visual Diagram Box */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {/* Threat */}
+                <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Potential Threat Vector:</span>
+                  </div>
+                  <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
+                    Malicious actors creating 10+ fake ghost accounts from a single physical device to spam deal feeds, manipulate pricing, or submit fraudulent posts.
+                  </p>
+                </div>
+
+                {/* Solution */}
+                <div className="p-3.5 bg-purple-50/90 border border-purple-200/80 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-purple-800 font-bold mb-1.5">
+                    <ShieldCheck className="w-4 h-4 text-purple-600" />
+                    <span>Implemented Solution:</span>
+                  </div>
+                  <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
+                    Hardware canvas & component visitor hashing (`visitorId`) strictly caps registrations to Max 3 accounts per physical device, automatically throwing HTTP 403 blocks on 4th attempts.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Max 3 Accounts / Device Cap</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Canvas & Hardware Telemetry</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Automatic HTTP 403 Denial</li>
               </ul>
             </div>
 
-            {/* Pillar 3 */}
-            <div className="p-4 sm:p-5 border border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-blue-50 text-blue-700 rounded-lg">
-                  <FileText className="w-5 h-5" />
+            {/* Card 3: Network Telemetry & Audit Logs */}
+            <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-blue-50 text-blue-700 rounded-lg">
+                    <Database className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">3. Network Telemetry & Audit Logging</h3>
+                    <p className="text-[11px] text-slate-500">Real-time IP Extraction • Dedicated Firestore Audit Trail</p>
+                  </div>
                 </div>
-                <span className="text-[9px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full">
                   IMMUTABLE LOGS
                 </span>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">3. Network Telemetry & Audit Logs</h3>
-              <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                Every login, onboarding action, and high-value transaction records immutable network telemetry into dedicated Firestore audit collections for legal accountability.
-              </p>
-              <ul className="mt-3 space-y-1 text-[11px] text-gray-600 font-sans">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> IP, Country, City & User-Agent Tracking</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Automatic VPN / Proxy Header Detection</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Isolated Audit Logs Timeline Collection</li>
+
+              {/* Threat vs Solution Visual Diagram Box */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {/* Threat */}
+                <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Potential Threat Vector:</span>
+                  </div>
+                  <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
+                    Anonymous IP spoofing, fraudulent deal submissions via hidden VPN proxies, and unverified transactional activity with zero legal trail.
+                  </p>
+                </div>
+
+                {/* Solution */}
+                <div className="p-3.5 bg-blue-50/90 border border-blue-200/80 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-blue-800 font-bold mb-1.5">
+                    <ShieldCheck className="w-4 h-4 text-blue-600" />
+                    <span>Implemented Solution:</span>
+                  </div>
+                  <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
+                    Server-side telemetry captures real-time IP, country, city, user-agent, and proxy headers into an isolated, immutable `AuditLogs` Firestore collection.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> IP & Geolocation Telemetry</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> VPN / Proxy Detection</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Immutable `AuditLogs` Storage</li>
               </ul>
             </div>
 
-            {/* Pillar 4 */}
-            <div className="p-4 sm:p-5 border border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
-                  <Lock className="w-5 h-5" />
+            {/* Card 4: DPDPA 2023 & Regulatory Compliance */}
+            <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">4. Regulatory & Data Privacy Compliance</h3>
+                    <p className="text-[11px] text-slate-500">Digital Personal Data Protection Act 2023 • IT Act 2000</p>
+                  </div>
                 </div>
-                <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">
                   DPDPA 2023 COMPLIANT
                 </span>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">4. Privacy & Regulatory Compliance</h3>
-              <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                Platform telemetry operates strictly under Section 4 Legitimate Interests of the Digital Personal Data Protection Act 2023 & Information Technology Act 2000.
-              </p>
-              <ul className="mt-3 space-y-1 text-[11px] text-gray-600 font-sans">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Zero Intrusive Camera or Location Requests</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Explicit Legitimate Interest Security Mandate</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" /> Transparent Legal Privacy Policy Alignment</li>
+
+              {/* Threat vs Solution Visual Diagram Box */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                {/* Threat */}
+                <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Potential Threat Vector:</span>
+                  </div>
+                  <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
+                    Over-intrusive data harvesting, unauthorized permission prompts (microphone/precise GPS), and data processing lacking explicit legal mandates.
+                  </p>
+                </div>
+
+                {/* Solution */}
+                <div className="p-3.5 bg-emerald-50/90 border border-emerald-200/80 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-emerald-800 font-bold mb-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Implemented Solution:</span>
+                  </div>
+                  <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
+                    Telemetry operates strictly under Section 4 Legitimate Interests of DPDPA 2023 for platform integrity, with zero intrusive device permissions requested.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Zero Intrusive Permissions</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Section 4 Legitimate Interest</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Indian IT Act 2000 Aligned</li>
               </ul>
             </div>
 
           </div>
 
-          {/* Legal Notice Bar */}
-          <div className="p-4 bg-gray-900 text-white rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+          {/* Legal Guarantee Banner */}
+          <div className="p-4 bg-slate-900 text-white rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs shadow-md">
             <div className="flex items-center gap-3">
-              <ShieldAlert className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <ShieldAlert className="w-6 h-6 text-sky-400 flex-shrink-0" />
               <div>
-                <p className="font-bold text-gray-100">Biztribe Legal & Security Guarantee</p>
-                <p className="text-gray-400 text-[11px]">
-                  All platform anti-fraud mechanisms operate under official security blueprints to defend legitimate sales partners and MSMEs.
+                <p className="font-bold text-white">Biztribe Legal & Security Blueprint Guarantee</p>
+                <p className="text-slate-300 text-[11px]">
+                  All platform security mechanisms operate under verified architectural blueprints to defend legitimate MSMEs and Sales Partners.
                 </p>
               </div>
             </div>
             <Link
               href="/legal/privacy"
               onClick={onClose}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition-colors flex-shrink-0"
+              className="px-4 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition-colors flex-shrink-0 shadow-sm"
             >
               Read Privacy Policy <ExternalLink className="w-3.5 h-3.5" />
             </Link>
@@ -216,13 +328,13 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
-          <p className="text-[11px] text-gray-500 font-mono">
-            Security Version 1.0.0 • Cloudflare Edge Active
+        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between flex-shrink-0">
+          <p className="text-[11px] text-slate-500 font-mono">
+            Security Version 1.0.0 • Verified Trust Active
           </p>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+            className="px-5 py-2 bg-[#075985] hover:bg-[#0369a1] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-sm"
           >
             Close Security Center
           </button>
