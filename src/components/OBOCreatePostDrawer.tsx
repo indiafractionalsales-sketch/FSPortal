@@ -18,6 +18,7 @@ import { X, MapPin, Briefcase, Globe, Target, CheckSquare, DollarSign, Package, 
 import { auth } from "@/lib/firebase";
 import { saveDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
+import { getVisitorId } from "@/lib/fingerprint";
 
 interface OBOCreatePostDrawerProps {
   isOpen: boolean;
@@ -272,7 +273,22 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
 
     try {
       const idToken = await user.getIdToken();
-      
+
+      // Trigger background telemetry log
+      try {
+        const visitorId = await getVisitorId();
+        fetch("/api/security/telemetry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "CREATE_POST",
+            visitorId,
+            userId: user.uid,
+            extraDetails: { targetIndustry: formData.targetIndustry },
+          }),
+        }).catch(() => {});
+      } catch { /* Non-blocking telemetry */ }
+
       let uploadedImageUrl = "";
       if (imagePreview && imagePreview.startsWith("data:")) {
         const timestamp = Date.now();

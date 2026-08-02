@@ -27,6 +27,8 @@ import {
 import { auth, googleProvider } from "@/lib/firebase";
 import { getDocument } from "@/lib/firestore-rest";
 
+import { getVisitorId } from "@/lib/fingerprint";
+
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,26 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
+          // Perform device fingerprinting & security telemetry check
+          const visitorId = await getVisitorId();
+          const telemetryRes = await fetch("/api/security/telemetry", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "LOGIN",
+              visitorId,
+              userId: currentUser.uid,
+            }),
+          });
+
+          const telemetryData = await telemetryRes.json();
+          if (telemetryRes.status === 403 || telemetryData.blocked) {
+            setError(telemetryData.message || "Device limit exceeded.");
+            await auth.signOut();
+            setLoading(false);
+            return;
+          }
+
           const idToken = await currentUser.getIdToken();
           const profile = await getDocument("users", currentUser.uid, idToken);
           if (profile && profile.role) {
@@ -44,8 +66,8 @@ export default function LoginPage() {
           } else {
             router.replace("/onboarding");
           }
-        } catch (e) {
-          // If error or not found, go to onboarding
+        } catch (e: any) {
+          console.error("Login verification error:", e);
           router.replace("/onboarding");
         }
       } else {
