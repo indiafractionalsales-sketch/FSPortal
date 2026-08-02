@@ -56,11 +56,12 @@ export function Footer() {
         {/* Bottom Section: Legal Disclaimer & Unbroken 1-Line Navigation Links */}
         <div className="pt-6 flex flex-col xl:flex-row justify-between items-center gap-6 text-xs text-sky-100">
           
-          {/* Legal Disclaimer & Registered Address */}
+          {/* Legal Disclaimer, Address, Email & CIN */}
           <div className="flex flex-col gap-0.5 text-center xl:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
             <p className="text-white font-medium">© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
             <p className="text-sky-100/80">"Fractional Sales Partner" is a registered brand of Biztribe Trading & Consultancy India Private Limited.</p>
-            <p className="text-sky-100/70">B-1001, Kapil Akhila, Baner, Pune – 411 045, Maharashtra, India | CIN: U62020PN2026PTC251766</p>
+            <p className="text-sky-100/70">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
+            <p className="text-sky-100/70">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
           </div>
 
           {/* Strictly 1-Line Non-Wrapping Legal Navigation Bar */}
