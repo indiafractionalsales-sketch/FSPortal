@@ -28,41 +28,41 @@ function CloudflareLogo({ className = "w-4 h-4" }: { className?: string }) {
 
 export function SecurityTrustSection() {
   return (
-    <section className="w-full bg-slate-900 py-10 border-t border-b border-sky-900/50 shadow-inner font-sans">
+    <section className="w-full bg-[#f8fafc] py-10 border-t border-slate-200 font-sans">
       <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
         
-        {/* Standalone Security Trust Panel */}
-        <div className="p-5 md:p-6 bg-gradient-to-r from-[#075985] via-[#0284c7] to-[#0369a1] border border-sky-400/30 rounded-2xl flex flex-col lg:flex-row items-center justify-between gap-6 shadow-2xl text-white">
+        {/* Light, Cool, Smart Security Trust Panel */}
+        <div className="p-6 md:p-8 bg-gradient-to-r from-sky-50/90 via-blue-50/80 to-indigo-50/90 border border-sky-200/80 rounded-2xl flex flex-col lg:flex-row items-center justify-between gap-6 shadow-md hover:shadow-lg transition-all text-slate-900">
           
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <div className="p-3.5 bg-white text-[#0284c7] rounded-2xl shadow-lg flex-shrink-0">
-              <Award className="w-7 h-7" />
+            <div className="p-3.5 bg-white text-[#0284c7] rounded-2xl shadow-sm border border-sky-100 flex-shrink-0">
+              <Award className="w-7 h-7 text-[#0284c7]" />
             </div>
             <div>
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-sky-900 bg-sky-100 px-2.5 py-0.5 rounded-full shadow-sm">
+                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-[#0369a1] bg-sky-100/90 px-2.5 py-0.5 rounded-full border border-sky-200 shadow-2xs">
                   Verified Security Architecture
                 </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-white mt-1">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
                 Protected by Cloudflare Edge & Anti-Fraud Shield
               </h3>
             </div>
           </div>
 
-          {/* 3 Micro Trust Badges */}
-          <div className="flex flex-wrap justify-center items-center gap-3 text-xs text-white">
-            <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
+          {/* 3 Light Micro Trust Badges */}
+          <div className="flex flex-wrap justify-center items-center gap-3 text-xs text-slate-800">
+            <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-sky-200/80 shadow-xs font-semibold">
               <CloudflareLogo className="w-4 h-4" />
               <span>Protected by Cloudflare</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
-              <Fingerprint className="w-4 h-4 text-purple-200" />
+            <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-purple-200/80 shadow-xs font-semibold text-purple-900">
+              <Fingerprint className="w-4 h-4 text-purple-600" />
               <span>Anti-Fraud (Max 3)</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
-              <Lock className="w-4 h-4 text-amber-300" />
+            <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-amber-200/80 shadow-xs font-semibold text-amber-900">
+              <Lock className="w-4 h-4 text-amber-600" />
               <span>256-Bit TLS HSTS</span>
             </div>
           </div>
@@ -70,7 +70,7 @@ export function SecurityTrustSection() {
           {/* Direct Link to /security */}
           <Link
             href="/security"
-            className="px-5 py-2.5 bg-white hover:bg-sky-50 text-[#0369a1] font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl cursor-pointer flex-shrink-0 hover:scale-105"
+            className="px-5 py-2.5 bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg cursor-pointer flex-shrink-0 hover:scale-105"
           >
             Trust & Security Center <ChevronRight className="w-4 h-4" />
           </Link>
