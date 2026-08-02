@@ -113,8 +113,7 @@ To maintain optimal database performance and prevent document bloat on user prof
 
 ### 4.1 Legal Alignment under Indian Law (DPDPA 2023)
 * **Lawful Basis:** Processing is grounded in **Legitimate Interest** for security, fraud mitigation, and protection of platform integrity under Section 4 of the DPDPA 2023.
-* **Privacy Policy Notice:** Covered under **Section 3.E (Technical and Usage Data)** and **Section 5 (Purpose of Processing: Fraud Prevention)** of the Platform Privacy Policy located at `fractionalsales.com/legal/privacy`.
-* **Zero Intrusiveness:** No intrusive permissions (such as microphone, camera, or precise GPS location) are requested for baseline telemetry.
+* **Privacy Policy Notice:** This Policy governs the collection, receipt, possession, storage, handling, usage, processing, disclosure, transfer, and protection of Personal Data ("Personal Data") of all individuals ("Data Principals") who access or use the platform operating at **fractionalsalespartner.com** ("Platform") or any associated mobile applications, APIs, or services (collectively, "Services"). No intrusive permissions (such as microphone, camera, or precise GPS location) are requested for baseline telemetry.
 
 ---
 

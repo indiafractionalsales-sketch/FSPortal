@@ -14,7 +14,7 @@
 
 **Document Version:** 1.0.0  
 **Date Created:** 2 August 2026  
-**Primary Objective:** Provide a detailed architectural blueprint for configuring Cloudflare’s enterprise-grade, zero-cost ($0) edge security capabilities to defend `fractionalsales.com` against scrapers, DDoS attacks, API abuse, and email harvesting.
+**Primary Objective:** Provide a detailed architectural blueprint for configuring Cloudflare’s enterprise-grade, zero-cost ($0) edge security capabilities to defend `fractionalsalespartner.com` against scrapers, DDoS attacks, API abuse, and email harvesting.
 
 ---
 

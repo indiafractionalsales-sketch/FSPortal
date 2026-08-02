@@ -1,5 +1,18 @@
+/**
+ * Copyright (c) 2026 Biztribe Trading & Consultancy India Private Limited.
+ * All rights reserved.
+ *
+ * This file is part of the Fractional Sales Partner platform.
+ * CONFIDENTIAL AND PROPRIETARY — Unauthorised copying, redistribution,
+ * modification, or use of this file, via any medium, is strictly prohibited.
+ * Violation will result in civil and criminal prosecution under the
+ * Copyright Act 1957, Information Technology Act 2000, and applicable
+ * Indian and international intellectual property laws.
+ */
+
 "use client";
 
+import React from "react";
 import { useRouter } from "next/navigation";
 
 interface LeftSidebarProps {
@@ -123,21 +136,6 @@ export default function LeftSidebar({
               <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
             </button>
           </li>
-          {/* Future implementation: My Network & Saved Items
-          <div className="h-px bg-gray-100 my-2" />
-          <li>
-            <button onClick={() => router.push('/my-network')} className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700">
-              <span className="text-base">🤝</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">My Network</span>
-            </button>
-          </li>
-          <li>
-            <button className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 transition-all rounded-lg text-left text-gray-700">
-              <span className="text-base">🔖</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">Saved Items</span>
-            </button>
-          </li>
-          */}
           <li>
             <button 
               onClick={() => router.push('/networking')} 
@@ -154,6 +152,16 @@ export default function LeftSidebar({
             >
               <span className="text-base">💳</span>
               <span className="text-xs font-headline font-bold uppercase tracking-wider">Plans & Subscriptions</span>
+            </button>
+          </li>
+          <div className="h-px bg-gray-100 my-2" />
+          <li>
+            <button 
+              onClick={() => router.push('/security')} 
+              className="w-full flex items-center gap-2.5 px-2 py-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0369a1] transition-all rounded-lg text-left cursor-pointer"
+            >
+              <span className="text-base">🛡️</span>
+              <span className="text-xs font-headline font-bold uppercase tracking-wider text-[#0369a1]">Trust & Security</span>
             </button>
           </li>
         </ul>
