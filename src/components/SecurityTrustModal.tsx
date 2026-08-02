@@ -73,7 +73,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 Threat Mitigation & Security Architecture
               </h2>
               <p className="text-xs text-sky-100 font-sans mt-0.5">
-                Visual threat analysis detailing Cloudflare Edge, Firebase Rules, and Anti-Fraud implementations.
+                Visual threat analysis detailing Edge Proxy, Database Access Controls, and Anti-Fraud implementations.
               </p>
             </div>
           </div>
@@ -91,9 +91,9 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </p>
             </div>
             <div className="text-center p-2 border-l border-slate-100">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Database Rules</p>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Access Controls</p>
               <p className="text-xs sm:text-sm font-bold text-[#0284c7] mt-0.5 flex items-center justify-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Firebase Rules
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Database Rules
               </p>
             </div>
             <div className="text-center p-2 border-l border-slate-100">
@@ -155,7 +155,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </ul>
             </div>
 
-            {/* Card 2: Firebase Built-in Security Rules & Auth JWT */}
+            {/* Card 2: Database Access Rules & Cryptographic JWT Auth */}
             <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2.5">
@@ -163,12 +163,12 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <KeyRound className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">2. Firebase Security Rules & Auth Tokens</h3>
-                    <p className="text-[11px] text-slate-500">Firebase Firestore Rules • Cryptographic JWT Verification</p>
+                    <h3 className="font-bold text-slate-900 text-base">2. Database Security Rules & Auth Tokens</h3>
+                    <p className="text-[11px] text-slate-500">Declarative Security Rules • Cryptographic JWT Verification</p>
                   </div>
                 </div>
                 <span className="text-[9px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full">
-                  FIREBASE ENFORCED
+                  DATABASE ENFORCED
                 </span>
               </div>
 
@@ -180,7 +180,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <span>Potential Threat Vector:</span>
                   </div>
                   <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
-                    Unauthenticated database reads/writes, forged user IDs, or direct database tampering bypassing application UI controls.
+                    Unauthenticated database reads/writes, forged user identity parameters, or direct database tampering bypassing application UI controls.
                   </p>
                 </div>
                 <div className="p-3.5 bg-amber-50/90 border border-amber-200/80 rounded-xl">
@@ -189,15 +189,15 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <span>Implemented Solution:</span>
                   </div>
                   <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
-                    Declarative `firestore.rules` validate cryptographic Firebase Auth JWT tokens (`request.auth.uid == userId`), ensuring zero unauthorized data access.
+                    Declarative server security rules validate cryptographically signed auth tokens (`request.auth.uid == userId`), ensuring zero unauthorized data access.
                   </p>
                 </div>
               </div>
 
               <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Firestore Security Rules</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Database Access Control Rules</li>
                 <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Cryptographic Auth Tokens</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Multi-Region Data Segregation</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Multi-Region Data Isolation</li>
               </ul>
             </div>
 
@@ -256,7 +256,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-base">4. Network Telemetry & Audit Logging</h3>
-                    <p className="text-[11px] text-slate-500">Real-time IP Extraction • Dedicated Firestore Audit Trail</p>
+                    <p className="text-[11px] text-slate-500">Real-time IP Extraction • Dedicated Audit Trail Storage</p>
                   </div>
                 </div>
                 <span className="text-[9px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full">
@@ -281,7 +281,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <span>Implemented Solution:</span>
                   </div>
                   <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
-                    Server-side telemetry captures real-time IP, country, city, user-agent, and proxy headers into an isolated, immutable `AuditLogs` Firestore collection.
+                    Server-side telemetry captures real-time IP, country, city, user-agent, and proxy headers into an isolated, immutable `AuditLogs` database collection.
                   </p>
                 </div>
               </div>
