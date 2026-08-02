@@ -53,32 +53,31 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Section: Legal Disclaimer & Perfectly Aligned 4-Link Bar */}
-        <div className="pt-6 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-6 text-xs text-sky-100">
+        {/* Bottom Section: Legal Disclaimer & Unbroken 1-Line Navigation Links */}
+        <div className="pt-6 flex flex-col xl:flex-row justify-between items-center gap-6 text-xs text-sky-100">
           
           {/* Legal Disclaimer & Registered Address */}
-          <div className="flex flex-col gap-0.5 text-center lg:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
+          <div className="flex flex-col gap-0.5 text-center xl:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
             <p className="text-white font-medium">© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
             <p className="text-sky-100/80">"Fractional Sales Partner" is a registered brand of Biztribe Trading & Consultancy India Private Limited.</p>
-            <p className="text-sky-100/70">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
-            <p className="text-sky-100/70">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
+            <p className="text-sky-100/70">B-1001, Kapil Akhila, Baner, Pune – 411 045, Maharashtra, India | CIN: U62020PN2026PTC251766</p>
           </div>
 
-          {/* Perfectly Aligned 4 Legal Navigation Links */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-x-5 sm:gap-x-6 gap-y-2 text-xs uppercase tracking-wider font-semibold">
+          {/* Strictly 1-Line Non-Wrapping Legal Navigation Bar */}
+          <div className="flex items-center justify-center xl:justify-end gap-3 sm:gap-4 md:gap-5 text-[11px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap flex-shrink-0">
             <Link
               href="/security"
-              className="hover:text-white text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer font-bold"
+              className="hover:text-white text-amber-300 transition-colors flex items-center gap-1 cursor-pointer font-bold"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-300 flex-shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 flex-shrink-0" />
               <span>Trust & Security</span>
             </Link>
-            <span className="text-white/30 hidden sm:inline">•</span>
-            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Terms & Conditions</Link>
-            <span className="text-white/30 hidden sm:inline">•</span>
-            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Privacy Policy</Link>
-            <span className="text-white/30 hidden sm:inline">•</span>
-            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Refund & Cancellation</Link>
+            <span className="text-white/30">•</span>
+            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors">Terms & Conditions</Link>
+            <span className="text-white/30">•</span>
+            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors">Privacy Policy</Link>
+            <span className="text-white/30">•</span>
+            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors">Refund & Cancellation</Link>
           </div>
 
         </div>
