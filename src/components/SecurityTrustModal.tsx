@@ -13,7 +13,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { ShieldCheck, Lock, Fingerprint, FileText, CheckCircle2, X, ExternalLink, ShieldAlert, Zap, AlertTriangle, ArrowRight, Shield, Globe, Users, Database } from "lucide-react";
+import { ShieldCheck, Lock, Fingerprint, FileText, CheckCircle2, X, ExternalLink, ShieldAlert, Zap, AlertTriangle, Globe, Database, KeyRound } from "lucide-react";
 import Link from "next/link";
 
 interface SecurityTrustModalProps {
@@ -62,7 +62,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[9px] font-mono tracking-widest uppercase bg-white/20 text-white border border-white/30 px-2.5 py-0.5 rounded-full font-bold">
-                  Verified Security & Trust Architecture
+                  Verified Security Architecture
                 </span>
                 <span className="inline-flex items-center gap-1 text-[9px] font-sans bg-emerald-400/20 text-emerald-100 border border-emerald-300/30 px-2.5 py-0.5 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
@@ -73,7 +73,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 Threat Mitigation & Security Architecture
               </h2>
               <p className="text-xs text-sky-100 font-sans mt-0.5">
-                Visual analysis of potential security threats and our enterprise-grade defense implementations.
+                Visual threat analysis detailing Cloudflare Edge, Firebase Rules, and Anti-Fraud implementations.
               </p>
             </div>
           </div>
@@ -91,12 +91,14 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </p>
             </div>
             <div className="text-center p-2 border-l border-slate-100">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Anti-Fraud Limit</p>
-              <p className="text-xs sm:text-sm font-bold text-purple-700 mt-0.5">Max 3 / Physical Device</p>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Database Rules</p>
+              <p className="text-xs sm:text-sm font-bold text-[#0284c7] mt-0.5 flex items-center justify-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Firebase Rules
+              </p>
             </div>
             <div className="text-center p-2 border-l border-slate-100">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">SSL Encryption</p>
-              <p className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">256-Bit HSTS TLS</p>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Anti-Fraud Capping</p>
+              <p className="text-xs sm:text-sm font-bold text-purple-700 mt-0.5">Max 3 / Device</p>
             </div>
             <div className="text-center p-2 border-l border-slate-100">
               <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Privacy Compliance</p>
@@ -115,7 +117,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <Globe className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">1. Edge Defense & Bot Mitigation</h3>
+                    <h3 className="font-bold text-slate-900 text-base">1. Edge Protection & Bot Mitigation</h3>
                     <p className="text-[11px] text-slate-500">Cloudflare Anycast WAF Proxy • DDoS Shield</p>
                   </div>
                 </div>
@@ -124,27 +126,24 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 </span>
               </div>
 
-              {/* Threat vs Solution Visual Diagram Box */}
+              {/* Threat vs Solution */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                {/* Threat */}
                 <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
                   <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span>Potential Threat Vector:</span>
                   </div>
                   <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
-                    Automated scraper bots, DDoS traffic floods, and SQL injection probes attempting to overload origin database servers and harvest contact data.
+                    Automated scraper bots, DDoS traffic floods, and malicious SQL/Script injection probes targeting origin database servers.
                   </p>
                 </div>
-
-                {/* Solution */}
                 <div className="p-3.5 bg-sky-50/90 border border-sky-200/80 rounded-xl">
                   <div className="flex items-center gap-1.5 text-[#0369a1] font-bold mb-1.5">
                     <ShieldCheck className="w-4 h-4 text-[#0284c7]" />
                     <span>Implemented Solution:</span>
                   </div>
                   <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
-                    Cloudflare Edge Proxy intercepts traffic globally, executing Bot Fight Mode, HSTS 256-Bit SSL, and rate-limiting before packets reach backend code.
+                    Cloudflare Edge Proxy intercepts packets globally, executing Bot Fight Mode, HSTS 256-Bit SSL, and rate-limiting before traffic reaches backend code.
                   </p>
                 </div>
               </div>
@@ -156,7 +155,53 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </ul>
             </div>
 
-            {/* Card 2: Anti-Fraud Device Hashing */}
+            {/* Card 2: Firebase Built-in Security Rules & Auth JWT */}
+            <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-amber-50 text-amber-700 rounded-lg">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">2. Firebase Security Rules & Auth Tokens</h3>
+                    <p className="text-[11px] text-slate-500">Firebase Firestore Rules • Cryptographic JWT Verification</p>
+                  </div>
+                </div>
+                <span className="text-[9px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full">
+                  FIREBASE ENFORCED
+                </span>
+              </div>
+
+              {/* Threat vs Solution */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Potential Threat Vector:</span>
+                  </div>
+                  <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
+                    Unauthenticated database reads/writes, forged user IDs, or direct database tampering bypassing application UI controls.
+                  </p>
+                </div>
+                <div className="p-3.5 bg-amber-50/90 border border-amber-200/80 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-amber-800 font-bold mb-1.5">
+                    <ShieldCheck className="w-4 h-4 text-amber-600" />
+                    <span>Implemented Solution:</span>
+                  </div>
+                  <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
+                    Declarative `firestore.rules` validate cryptographic Firebase Auth JWT tokens (`request.auth.uid == userId`), ensuring zero unauthorized data access.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 font-sans pt-1">
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Firestore Security Rules</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Cryptographic Auth Tokens</li>
+                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> Multi-Region Data Segregation</li>
+              </ul>
+            </div>
+
+            {/* Card 3: Anti-Fraud Device Hashing */}
             <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2.5">
@@ -164,7 +209,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <Fingerprint className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">2. Anti-Fraud & Multi-Account Capping</h3>
+                    <h3 className="font-bold text-slate-900 text-base">3. Anti-Fraud & Multi-Account Capping</h3>
                     <p className="text-[11px] text-slate-500">Persistent FingerprintJS Visitor Hashing • Max 3 Capping</p>
                   </div>
                 </div>
@@ -173,27 +218,24 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 </span>
               </div>
 
-              {/* Threat vs Solution Visual Diagram Box */}
+              {/* Threat vs Solution */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                {/* Threat */}
                 <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
                   <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span>Potential Threat Vector:</span>
                   </div>
                   <p className="text-rose-900 text-[11px] leading-relaxed font-medium">
-                    Malicious actors creating 10+ fake ghost accounts from a single physical device to spam deal feeds, manipulate pricing, or submit fraudulent posts.
+                    Malicious actors creating 10+ fake ghost accounts from a single physical device to spam deal feeds or submit fraudulent posts.
                   </p>
                 </div>
-
-                {/* Solution */}
                 <div className="p-3.5 bg-purple-50/90 border border-purple-200/80 rounded-xl">
                   <div className="flex items-center gap-1.5 text-purple-800 font-bold mb-1.5">
                     <ShieldCheck className="w-4 h-4 text-purple-600" />
                     <span>Implemented Solution:</span>
                   </div>
                   <p className="text-slate-800 text-[11px] leading-relaxed font-medium">
-                    Hardware canvas & component visitor hashing (`visitorId`) strictly caps registrations to Max 3 accounts per physical device, automatically throwing HTTP 403 blocks on 4th attempts.
+                    Hardware canvas & component visitor hashing (`visitorId`) strictly caps registrations to Max 3 accounts per physical device, throwing HTTP 403 blocks on 4th attempts.
                   </p>
                 </div>
               </div>
@@ -205,7 +247,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </ul>
             </div>
 
-            {/* Card 3: Network Telemetry & Audit Logs */}
+            {/* Card 4: Network Telemetry & Audit Logs */}
             <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2.5">
@@ -213,7 +255,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <Database className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">3. Network Telemetry & Audit Logging</h3>
+                    <h3 className="font-bold text-slate-900 text-base">4. Network Telemetry & Audit Logging</h3>
                     <p className="text-[11px] text-slate-500">Real-time IP Extraction • Dedicated Firestore Audit Trail</p>
                   </div>
                 </div>
@@ -222,9 +264,8 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 </span>
               </div>
 
-              {/* Threat vs Solution Visual Diagram Box */}
+              {/* Threat vs Solution */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                {/* Threat */}
                 <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
                   <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
@@ -234,8 +275,6 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     Anonymous IP spoofing, fraudulent deal submissions via hidden VPN proxies, and unverified transactional activity with zero legal trail.
                   </p>
                 </div>
-
-                {/* Solution */}
                 <div className="p-3.5 bg-blue-50/90 border border-blue-200/80 rounded-xl">
                   <div className="flex items-center gap-1.5 text-blue-800 font-bold mb-1.5">
                     <ShieldCheck className="w-4 h-4 text-blue-600" />
@@ -254,7 +293,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
               </ul>
             </div>
 
-            {/* Card 4: DPDPA 2023 & Regulatory Compliance */}
+            {/* Card 5: DPDPA 2023 & Regulatory Compliance */}
             <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2.5">
@@ -262,7 +301,7 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     <Lock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">4. Regulatory & Data Privacy Compliance</h3>
+                    <h3 className="font-bold text-slate-900 text-base">5. Regulatory & Data Privacy Compliance</h3>
                     <p className="text-[11px] text-slate-500">Digital Personal Data Protection Act 2023 • IT Act 2000</p>
                   </div>
                 </div>
@@ -271,9 +310,8 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                 </span>
               </div>
 
-              {/* Threat vs Solution Visual Diagram Box */}
+              {/* Threat vs Solution */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                {/* Threat */}
                 <div className="p-3.5 bg-rose-50/80 border border-rose-200/60 rounded-xl">
                   <div className="flex items-center gap-1.5 text-rose-700 font-bold mb-1.5">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
@@ -283,8 +321,6 @@ export function SecurityTrustModal({ isOpen, onClose }: SecurityTrustModalProps)
                     Over-intrusive data harvesting, unauthorized permission prompts (microphone/precise GPS), and data processing lacking explicit legal mandates.
                   </p>
                 </div>
-
-                {/* Solution */}
                 <div className="p-3.5 bg-emerald-50/90 border border-emerald-200/80 rounded-xl">
                   <div className="flex items-center gap-1.5 text-emerald-800 font-bold mb-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
