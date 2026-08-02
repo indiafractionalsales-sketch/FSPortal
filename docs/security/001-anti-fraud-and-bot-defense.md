@@ -94,6 +94,19 @@ Three years down the line, when reviewing why specific technologies were selecte
   2. **Location Mismatch:** Compare the IP country (e.g., Germany) with the user's declared profile country (e.g., India).
   3. **Velocity Checks:** Track request frequency from single IP ranges to stop brute-force attacks.
 
+### 3.4 Data Storage & Audit Logging Architecture (Database Design)
+To maintain optimal database performance and prevent document bloat on user profiles, security data is partitioned across three specialized layers:
+
+1. **`Users` Collection (Latest Snapshot Only):**
+   * Stores **only the most recent** security metadata (`lastLoginIp`, `lastLoginCountry`, `lastVisitorId`, `isVpn`).
+   * *Purpose:* Enables immediate, zero-latency risk checks when a user interacts with the app.
+2. **`DeviceFingerprints/{visitorId}` Collection (Multi-Account Lookup):**
+   * Stores `associatedUserIds` and `accountCount` mapped to each physical device hash.
+   * *Purpose:* Enforces the strict cap of maximum 3 accounts per device in under 5ms.
+3. **`AuditLogs` Collection (Immutable Security History):**
+   * Stores the complete, chronological timeline of every sign-up, login, post creation, and payment event (`logId`, `userId`, `timestamp`, `ip`, `geo`, `visitorId`, `action`).
+   * *Purpose:* Preserves full security audit trails without bloating the primary `Users` database documents.
+
 ---
 
 ## 4. Privacy & Compliance Framework
