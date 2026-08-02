@@ -85,7 +85,7 @@ Three years down the line, when reviewing why specific technologies were selecte
 * **How it operates:** Executes client-side asynchronously without blocking rendering (~15ms execution time).
 * **Signals Collected:** WebGL renderer, canvas hash, screen resolution, system fonts, timezone offset, CPU hardware concurrency.
 * **Outcome:** Generates a deterministic 32-character `visitorId`.
-* **Enforcement Rule:** If more than $N$ (e.g., 2) distinct user accounts are created from the same `visitorId` within 24 hours, flag account for admin manual review.
+* **Enforcement Rule:** Strict cap of **maximum 3 accounts per physical device fingerprint (`visitorId`)**. A legitimate user might reasonably have 1 Business Owner profile and 1 Sales Partner profile (or share a device with 1 colleague), but any attempt to register a 4th account from the same device triggers an automatic block and flags all linked accounts for manual fraud review.
 
 ### 3.3 Tier 3: Server-Side IP & Telemetry Engine
 * **How it operates:** Next.js API middleware intercepts `x-forwarded-for` and `x-real-ip` headers.
