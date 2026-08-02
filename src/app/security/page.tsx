@@ -14,7 +14,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Lock, Fingerprint, CheckCircle2, ExternalLink, ShieldAlert, AlertTriangle, Database, KeyRound, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Lock, Fingerprint, CheckCircle2, ExternalLink, ShieldAlert, AlertTriangle, Database, KeyRound, ArrowLeft, Zap, Mail, Shield, Server } from "lucide-react";
 import { Footer } from "@/components/sections/footer";
 
 function CloudflareIcon({ className = "w-6 h-6" }: { className?: string }) {
@@ -75,31 +75,48 @@ export default function SecurityPage() {
       {/* Main Content Area */}
       <main className="flex-1 container mx-auto max-w-[1200px] px-4 sm:px-8 py-12 space-y-10">
         
-        {/* Security Overview Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-5 rounded-2xl border border-sky-100 shadow-sm">
-          <div className="p-3 text-center">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Edge Protection</p>
-            <p className="text-sm sm:text-base font-extrabold text-[#0284c7] mt-1 flex items-center justify-center gap-1.5">
-              <CloudflareIcon className="w-4 h-4" /> Cloudflare WAF
-            </p>
+        {/* Top 5 Verified Active Security Features Summary Banner */}
+        <div className="bg-white border border-sky-100 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <ShieldCheck className="w-5 h-5 text-[#0284c7]" />
+            <h2 className="text-base font-bold text-slate-900">Active Platform Defense Features Checklist</h2>
           </div>
-          <div className="p-3 text-center border-l border-slate-100">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Database Access</p>
-            <p className="text-sm sm:text-base font-extrabold text-[#0284c7] mt-1 flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Declarative Rules
-            </p>
-          </div>
-          <div className="p-3 text-center border-l border-slate-100">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Anti-Fraud Limit</p>
-            <p className="text-sm sm:text-base font-extrabold text-purple-700 mt-1">
-              Max 3 / Device
-            </p>
-          </div>
-          <div className="p-3 text-center border-l border-slate-100">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Privacy Law</p>
-            <p className="text-sm sm:text-base font-extrabold text-emerald-700 mt-1">
-              DPDPA 2023 Act
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5">
+              <span className="text-emerald-600 font-bold text-sm">🟢</span>
+              <div>
+                <p className="font-bold text-slate-900">Cloudflare Edge Bot Shield</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">Malicious crawlers & scraping scripts are blocked at the DNS edge before hitting your app.</p>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5">
+              <span className="text-emerald-600 font-bold text-sm">🟢</span>
+              <div>
+                <p className="font-bold text-slate-900">Email Address Obfuscation</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">Contact emails on your site are encrypted on the edge to prevent spammer harvesting.</p>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5">
+              <span className="text-emerald-600 font-bold text-sm">🟢</span>
+              <div>
+                <p className="font-bold text-slate-900">HSTS & Full SSL Encryption</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">100% strict 256-Bit HTTPS encryption enforced across all user web browsers.</p>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5">
+              <span className="text-emerald-600 font-bold text-sm">🟢</span>
+              <div>
+                <p className="font-bold text-slate-900">Device Fingerprint (Max 3 Cap)</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">Limits registrations to 3 accounts per physical device with full immutable audit logging.</p>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl flex items-start gap-2.5 lg:col-span-2">
+              <span className="text-emerald-600 font-bold text-sm">🟢</span>
+              <div>
+                <p className="font-bold text-slate-900">Global Anycast CDN Speed Boost</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">Web pages and static assets are cached worldwide across Cloudflare's 300+ edge datacenters.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -116,10 +133,10 @@ export default function SecurityPage() {
           </p>
         </div>
 
-        {/* 5 Security Cards */}
+        {/* 5 Detailed Security Cards */}
         <div className="space-y-6">
 
-          {/* Card 1: Edge Proxy & DDoS Shield */}
+          {/* Card 1: Cloudflare Edge Protection & Bot Shield */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
@@ -131,8 +148,8 @@ export default function SecurityPage() {
                   <p className="text-xs text-slate-500">Cloudflare Anycast WAF Proxy • Automated Bot Fight Mode</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-center">
-                ACTIVE EDGE SHIELD
+              <span className="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-center flex items-center gap-1">
+                🟢 ACTIVE EDGE SHIELD
               </span>
             </div>
 
@@ -177,8 +194,8 @@ export default function SecurityPage() {
                   <p className="text-xs text-slate-500">Declarative Security Rules • Signed Auth Token Verification</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full self-start sm:self-center">
-                DATABASE ENFORCED
+              <span className="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full self-start sm:self-center flex items-center gap-1">
+                🟢 DATABASE ENFORCED
               </span>
             </div>
 
@@ -219,12 +236,12 @@ export default function SecurityPage() {
                   <Fingerprint className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-lg">3. Anti-Fraud & Multi-Account Capping</h3>
+                  <h3 className="font-bold text-slate-900 text-lg">3. Device Fingerprinting & Multi-Account Cap</h3>
                   <p className="text-xs text-slate-500">Persistent FingerprintJS Visitor Hashing • Max 3 Capping</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-full self-start sm:self-center">
-                ENFORCED (MAX 3)
+              <span className="text-xs font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-full self-start sm:self-center flex items-center gap-1">
+                🟢 ENFORCED (MAX 3)
               </span>
             </div>
 
@@ -269,8 +286,8 @@ export default function SecurityPage() {
                   <p className="text-xs text-slate-500">Real-time IP Extraction • Dedicated Audit Trail Storage</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full self-start sm:self-center">
-                IMMUTABLE LOGS
+              <span className="text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full self-start sm:self-center flex items-center gap-1">
+                🟢 IMMUTABLE LOGS
               </span>
             </div>
 
@@ -315,8 +332,8 @@ export default function SecurityPage() {
                   <p className="text-xs text-slate-500">Digital Personal Data Protection Act 2023 • IT Act 2000</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-center">
-                DPDPA 2023 COMPLIANT
+              <span className="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-center flex items-center gap-1">
+                🟢 DPDPA 2023 COMPLIANT
               </span>
             </div>
 
