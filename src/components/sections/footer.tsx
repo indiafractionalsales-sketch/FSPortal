@@ -18,11 +18,11 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-14 pb-10 border-t border-sky-400/30 font-sans shadow-2xl">
+    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-12 pb-8 border-t border-sky-400/30 font-sans shadow-2xl">
       <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
         
         {/* Top Footer Header Row: Brand Logo & Tagline + Social Icons */}
-        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8 pb-10 border-b border-white/20">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-6 pb-8 border-b border-white/20">
 
           {/* Brand Logo & Tagline */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg">
@@ -31,7 +31,7 @@ export function Footer() {
                 Fractional Sales Partner
               </span>
             </Link>
-            <p className="text-sky-100/90 text-xs md:text-sm mt-3 leading-relaxed font-medium">
+            <p className="text-sky-100/90 text-xs md:text-sm mt-2 leading-relaxed font-medium">
               Empowering MSMEs from emerging markets to scale globally through verified fractional sales expertise.
             </p>
           </div>
@@ -53,29 +53,34 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Section: Legal Disclaimer & Navigation Links */}
-        <div className="pt-8 flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6 text-xs text-sky-100">
+        {/* Bottom Section: Legal Disclaimer & Perfectly Aligned Navigation Links */}
+        <div className="pt-6 flex flex-col lg:flex-row justify-between items-center lg:items-center gap-6 text-xs text-sky-100">
           
           {/* Legal Disclaimer & Registered Address */}
-          <div className="flex flex-col gap-1 text-center lg:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
+          <div className="flex flex-col gap-0.5 text-center lg:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
             <p className="text-white font-medium">© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
             <p className="text-sky-100/80">"Fractional Sales Partner" is a registered brand of Biztribe Trading & Consultancy India Private Limited.</p>
-            <p className="mt-0.5 text-sky-100/70">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
+            <p className="text-sky-100/70">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
             <p className="text-sky-100/70">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
           </div>
 
-          {/* Legal Navigation Links with Prominent Trust & Security Link */}
-          <div className="flex flex-wrap justify-center lg:justify-end items-center gap-x-6 gap-y-2 text-xs uppercase tracking-wider font-semibold">
+          {/* Perfectly Aligned 1-Line Legal Navigation Links */}
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-x-5 sm:gap-x-6 gap-y-2 text-xs uppercase tracking-wider font-semibold">
             <Link
               href="/security"
-              className="hover:text-white text-amber-300 hover:underline transition-all flex items-center gap-1.5 cursor-pointer font-bold bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 shadow-sm"
+              className="hover:text-white text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer font-bold"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-300" /> Trust & Security
+              <ShieldCheck className="w-4 h-4 text-emerald-300 flex-shrink-0" />
+              <span>Trust & Security</span>
             </Link>
-            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors">Terms & Conditions</Link>
-            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors">Privacy Policy</Link>
-            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors">Refund & Cancellation</Link>
-            <Link href="/legal/contact" className="hover:text-white text-sky-100 transition-colors">Contact Us</Link>
+            <span className="text-white/30 hidden sm:inline">•</span>
+            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Terms & Conditions</Link>
+            <span className="text-white/30 hidden sm:inline">•</span>
+            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Privacy Policy</Link>
+            <span className="text-white/30 hidden sm:inline">•</span>
+            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Refund & Cancellation</Link>
+            <span className="text-white/30 hidden sm:inline">•</span>
+            <Link href="/legal/contact" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">Contact Us</Link>
           </div>
 
         </div>
