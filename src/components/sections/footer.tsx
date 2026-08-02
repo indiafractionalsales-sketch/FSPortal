@@ -47,7 +47,13 @@ export function Footer() {
             <a href="#" aria-label="Instagram" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="#" aria-label="Facebook" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+            <a 
+              href="https://www.facebook.com/profile.php?id=61588738602286" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Facebook" 
+              className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm"
+            >
               <Facebook className="w-4 h-4" />
             </a>
           </div>
