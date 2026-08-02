@@ -18,7 +18,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-12 pb-8 border-t border-sky-400/30 font-sans shadow-2xl">
+    <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-10 sm:pt-12 pb-8 border-t border-sky-400/30 font-sans shadow-2xl overflow-hidden">
       <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
         
         {/* Top Footer Header Row: Brand Logo & Tagline + Social Icons */}
@@ -47,38 +47,54 @@ export function Footer() {
             <a href="#" aria-label="Instagram" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="#" aria-label="Facebook" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
+            <a 
+              href="https://www.facebook.com/profile.php?id=61588738602286" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Facebook" 
+              className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm"
+            >
               <Facebook className="w-4 h-4" />
             </a>
           </div>
         </div>
 
-        {/* Bottom Section: Legal Disclaimer & Unbroken 1-Line Navigation Links */}
+        {/* Bottom Section: Mobile-Responsive Legal Disclaimer & Navigation Links */}
         <div className="pt-6 flex flex-col xl:flex-row justify-between items-center gap-6 text-xs text-sky-100">
           
-          {/* Legal Disclaimer, Address, Email & CIN */}
-          <div className="flex flex-col gap-0.5 text-center xl:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
+          {/* Legal Disclaimer, Email & CIN */}
+          <div className="flex flex-col gap-1 text-center xl:text-left text-[11px] leading-relaxed max-w-xl opacity-90">
             <p className="text-white font-medium">© {new Date().getFullYear()} Biztribe Trading & Consultancy India Private Limited. All rights reserved.</p>
-            <p className="text-sky-100/80">"Fractional Sales Partner" is a registered brand of Biztribe Trading & Consultancy India Private Limited.</p>
-            <p className="text-sky-100/70">B-1001, Kapil Akhila, Pancard Club Road, Baner, Pune – 411 045, Maharashtra, India</p>
-            <p className="text-sky-100/70">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
+            <p className="text-sky-100/80">Email: sales@fractionalsalespartner.com | CIN: U62020PN2026PTC251766</p>
           </div>
 
-          {/* Strictly 1-Line Non-Wrapping Legal Navigation Bar */}
-          <div className="flex items-center justify-center xl:justify-end gap-3 sm:gap-4 md:gap-5 text-[11px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap flex-shrink-0">
+          {/* Fully Mobile-Responsive Legal Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-center xl:justify-end gap-x-4 sm:gap-x-5 md:gap-x-6 gap-y-2.5 text-[11px] sm:text-xs uppercase tracking-wider font-semibold">
             <Link
               href="/security"
-              className="hover:text-white text-amber-300 transition-colors flex items-center gap-1 cursor-pointer font-bold"
+              className="hover:text-white text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer font-bold whitespace-nowrap"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 flex-shrink-0" />
               <span>Trust & Security</span>
             </Link>
-            <span className="text-white/30">•</span>
-            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors">Terms & Conditions</Link>
-            <span className="text-white/30">•</span>
-            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors">Privacy Policy</Link>
-            <span className="text-white/30">•</span>
-            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors">Refund & Cancellation</Link>
+
+            <span className="text-white/30 hidden sm:inline">•</span>
+
+            <Link href="/legal/terms" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">
+              Terms & Conditions
+            </Link>
+
+            <span className="text-white/30 hidden sm:inline">•</span>
+
+            <Link href="/legal/privacy" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">
+              Privacy Policy
+            </Link>
+
+            <span className="text-white/30 hidden sm:inline">•</span>
+
+            <Link href="/legal/refund" className="hover:text-white text-sky-100 transition-colors whitespace-nowrap">
+              Refund & Cancellation
+            </Link>
           </div>
 
         </div>
