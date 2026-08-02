@@ -14,8 +14,17 @@
 
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Lock, Fingerprint, FileText, CheckCircle2, ExternalLink, ShieldAlert, Zap, AlertTriangle, Globe, Database, KeyRound, ArrowLeft, Award, Shield } from "lucide-react";
+import { ShieldCheck, Lock, Fingerprint, CheckCircle2, ExternalLink, ShieldAlert, AlertTriangle, Database, KeyRound, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/sections/footer";
+
+function CloudflareIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16.48 10.74c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4a4 4 0 0 0-4-3.86z" fill="#F38020" />
+      <path d="M19.4 12.6a4.002 4.002 0 0 0-3.92-3.86c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4z" opacity="0.9" fill="#F38020" />
+    </svg>
+  );
+}
 
 export default function SecurityPage() {
   return (
@@ -51,12 +60,12 @@ export default function SecurityPage() {
             </div>
 
             <div className="p-4 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl flex items-center gap-4 flex-shrink-0">
-              <div className="p-3 bg-white text-[#0284c7] rounded-xl shadow-md">
-                <ShieldCheck className="w-8 h-8" />
+              <div className="p-3 bg-white rounded-xl shadow-md">
+                <CloudflareIcon className="w-8 h-8" />
               </div>
               <div>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">Enterprise Grade</p>
-                <p className="text-sm font-extrabold text-amber-300">256-Bit HSTS Secured</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Protected By</p>
+                <p className="text-sm font-extrabold text-amber-300">Cloudflare Edge WAF</p>
               </div>
             </div>
           </div>
@@ -71,7 +80,7 @@ export default function SecurityPage() {
           <div className="p-3 text-center">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Edge Protection</p>
             <p className="text-sm sm:text-base font-extrabold text-[#0284c7] mt-1 flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Cloudflare WAF
+              <CloudflareIcon className="w-4 h-4" /> Cloudflare WAF
             </p>
           </div>
           <div className="p-3 text-center border-l border-slate-100">
@@ -114,12 +123,12 @@ export default function SecurityPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-sky-50 text-[#0284c7] rounded-xl">
-                  <Globe className="w-6 h-6" />
+                <div className="p-3 bg-orange-50 text-[#F38020] rounded-xl border border-orange-100">
+                  <CloudflareIcon className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-lg">1. Edge Protection & Bot Mitigation</h3>
-                  <p className="text-xs text-slate-500">Cloudflare Anycast WAF Proxy • Automated Bot Shield</p>
+                  <h3 className="font-bold text-slate-900 text-lg">1. Cloudflare Edge Protection & Bot Shield</h3>
+                  <p className="text-xs text-slate-500">Cloudflare Anycast WAF Proxy • Automated Bot Fight Mode</p>
                 </div>
               </div>
               <span className="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full self-start sm:self-center">

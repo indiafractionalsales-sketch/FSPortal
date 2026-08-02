@@ -16,6 +16,16 @@ import React from "react";
 import { Twitter, Linkedin, Instagram, Facebook, ShieldCheck, Lock, Fingerprint, ChevronRight, Award } from "lucide-react";
 import Link from "next/link";
 
+// Official Cloudflare Vector Brand Icon Component
+function CloudflareLogo({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16.48 10.74c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4a4 4 0 0 0-4-3.86z" fill="#F38020" />
+      <path d="M19.4 12.6a4.002 4.002 0 0 0-3.92-3.86c-.38 0-.74.07-1.07.19a4.84 4.84 0 0 0-9.21.6 3.6 3.6 0 0 0-2.6 3.47c0 2 1.62 3.6 3.6 3.6h9.28c2.2 0 4-1.78 4-4z" opacity="0.9" />
+    </svg>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="bg-gradient-to-br from-[#075985] via-[#0284c7] to-[#0369a1] text-white pt-14 pb-10 border-t border-sky-400/30 font-sans shadow-2xl">
@@ -63,21 +73,21 @@ export function Footer() {
             <div>
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-sky-900 bg-sky-100 px-2.5 py-0.5 rounded-full shadow-sm">
-                  Verified Trust & Security Architecture
+                  Verified Security Architecture
                 </span>
                 <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
               </div>
               <h4 className="text-base font-bold text-white mt-1">
-                Enterprise Security, Anti-Fraud & Regulatory Shield
+                Protected by Cloudflare Edge & Anti-Fraud Shield
               </h4>
             </div>
           </div>
 
-          {/* 3 Trust Badges */}
+          {/* 3 Trust Badges with Official Cloudflare Logo */}
           <div className="flex flex-wrap justify-center items-center gap-3 text-xs text-white">
             <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
-              <ShieldCheck className="w-4 h-4 text-emerald-300" />
-              <span>Cloudflare WAF</span>
+              <CloudflareLogo className="w-4 h-4" />
+              <span>Protected by Cloudflare</span>
             </div>
             <div className="flex items-center gap-2 bg-white/15 px-3.5 py-1.5 rounded-xl border border-white/20 shadow-sm font-medium">
               <Fingerprint className="w-4 h-4 text-purple-200" />
