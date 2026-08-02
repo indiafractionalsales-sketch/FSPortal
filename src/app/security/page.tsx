@@ -14,7 +14,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Lock, Fingerprint, CheckCircle2, ExternalLink, ShieldAlert, AlertTriangle, Database, KeyRound, ArrowLeft, Zap, Mail, Shield, Server } from "lucide-react";
+import { ShieldCheck, Lock, Fingerprint, CheckCircle2, ExternalLink, ShieldAlert, AlertTriangle, Database, KeyRound, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/sections/footer";
 
 function CloudflareIcon({ className = "w-6 h-6" }: { className?: string }) {
@@ -73,7 +73,7 @@ export default function SecurityPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 container mx-auto max-w-[1200px] px-4 sm:px-8 py-12 space-y-10">
+      <main className="flex-1 container mx-auto max-w-[1200px] px-4 sm:px-8 py-12 space-y-8">
         
         {/* Top 5 Verified Active Security Features Summary Banner */}
         <div className="bg-white border border-sky-100 rounded-2xl p-6 shadow-sm space-y-4">
@@ -118,19 +118,6 @@ export default function SecurityPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Threat vs Solution Section Title */}
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#0284c7] font-bold bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-            5 Core Security Pillars
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
-            Threat Vectors & Implemented Solutions
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            Comprehensive defense mechanisms engineered into every layer of our application stack.
-          </p>
         </div>
 
         {/* 5 Detailed Security Cards */}
