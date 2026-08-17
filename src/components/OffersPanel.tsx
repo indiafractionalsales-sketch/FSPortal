@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { X, Loader2, CheckCircle2, User, Clock, AlertTriangle, Check, Trash2 } from "lucide-react";
+import { X, Loader2, CheckCircle2, User, Clock, AlertTriangle, Check, Trash2, FileText } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 interface Offer {
@@ -348,10 +348,21 @@ export default function OffersPanel({
                     <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-3 gap-3">
                       <div>
                         {isOfferAccepted && (
-                          <span className="inline-flex items-center gap-1.5 text-[9px] font-headline font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Accepted & Finalized
-                          </span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center gap-1.5 text-[9px] font-headline font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              Accepted & Finalized
+                            </span>
+                            <a 
+                              href={`/api/agreements/download?order_id=${postId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[10px] font-headline font-bold uppercase tracking-wider text-[#701010] bg-red-50 hover:bg-red-100 border border-amber-200 px-2.5 py-1 rounded-lg transition-all"
+                            >
+                              <FileText className="w-3 h-3 text-[#701010]" />
+                              Service Agreement (PDF)
+                            </a>
+                          </div>
                         )}
                         {isOfferDeclined && (
                           <span className="inline-flex items-center gap-1.5 text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-full">
