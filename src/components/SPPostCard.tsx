@@ -18,13 +18,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera } from "lucide-react";
+import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
 import MakeOfferDrawer from "@/components/MakeOfferDrawer";
 import OffersPanel from "@/components/OffersPanel";
 import AttendanceDrawer from "@/components/AttendanceDrawer";
+import { ServiceAgreementModal } from "@/components/ServiceAgreementModal";
 
 
 interface CommentData {
@@ -75,6 +76,7 @@ interface SPPost {
   postType?: string;
   paymentStatus?: string;
   paymentLockedBy?: string;
+  paymentOrderId?: string;
   likedBy?: string[];
 
   // Range pricing
@@ -140,6 +142,10 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
   const [reviewChecked, setReviewChecked] = useState(false);
+  
+  // Service Agreement states
+  const [isAgreementAccepted, setIsAgreementAccepted] = useState(false);
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
   
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isCheckingAttendance, setIsCheckingAttendance] = useState(false);
@@ -399,6 +405,11 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
 
   const handleCheckout = async (packageId: string) => {
     try {
+      if (!isAgreementAccepted) {
+        alert("Please read and accept the Fractional Sales Partner Service Agreement before proceeding with payment.");
+        setIsAgreementModalOpen(true);
+        return;
+      }
       setIsCheckingOut(true);
       
       const isScriptLoaded = await loadRazorpayScript();
@@ -1002,6 +1013,16 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                 💰 Release Payment
               </button>
               
+              <a 
+                href={`/api/agreements/download?order_id=${post.paymentOrderId || post.__id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <FileText className="w-3 h-3 text-[#701010]" />
+                Agreement (PDF)
+              </a>
+
               <button
                 onClick={async () => {
                   if (!reviewChecked) {
@@ -1118,8 +1139,46 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                 ))}
               </div>
             </div>
+
+            {/* Service Agreement Acceptance Section */}
+            <div className="mt-4 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                  <Tag className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Service Agreement</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAgreementModalOpen(true)}
+                  className="text-[11px] font-bold text-[#701010] hover:underline flex items-center gap-1"
+                >
+                  <Pencil className="w-3 h-3 hidden" />
+                  Read Full Agreement &rarr;
+                </button>
+              </div>
+
+              <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={isAgreementAccepted}
+                  onChange={(e) => setIsAgreementAccepted(e.target.checked)}
+                  className="mt-0.5 rounded border-amber-300 text-[#701010] focus:ring-[#701010] w-4 h-4"
+                />
+                <span className="text-[11px] text-amber-950 font-medium leading-tight">
+                  I have read and agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsAgreementModalOpen(true)}
+                    className="underline text-[#701010] font-bold"
+                  >
+                    Fractional Sales Partner Service Agreement
+                  </button>{" "}
+                  and Terms &amp; Conditions.
+                </span>
+              </label>
+            </div>
             
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-5 flex justify-end gap-3">
               <button
                 onClick={() => setViewingPackage(null)}
                 className="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors shadow-sm"
@@ -1129,8 +1188,12 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               {!isOwner && post.paymentStatus !== 'sold' && (
                 <button
                   onClick={() => handleCheckout(viewingPackage.id)}
-                  disabled={isCheckingOut}
-                  className="px-6 py-2 bg-[#701010] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#5a0c0c] transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[140px]"
+                  disabled={isCheckingOut || !isAgreementAccepted}
+                  className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[140px] ${
+                    !isAgreementAccepted
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-[#701010] text-white hover:bg-[#5a0c0c]"
+                  }`}
                 >
                   {isCheckingOut ? (
                     <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -1143,6 +1206,29 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           </div>
         </div>
       </div>
+    )}
+
+    {/* Service Agreement Modal */}
+    {viewingPackage && (
+      <ServiceAgreementModal
+        isOpen={isAgreementModalOpen}
+        onClose={() => setIsAgreementModalOpen(false)}
+        onAccept={() => setIsAgreementAccepted(true)}
+        isAccepted={isAgreementAccepted}
+        agreementData={{
+          agreementRef: `FSP-SA-${Date.now().toString().slice(-6)}`,
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+          clientName: auth.currentUser?.displayName || "Business Owner",
+          clientEmail: auth.currentUser?.email || "N/A",
+          spName: authorName || "Sales Partner",
+          spEmail: "support@fractionalsalespartner.com",
+          packageName: viewingPackage.name || "Package Representation",
+          totalAmount: calculateTotalCost(viewingPackage.items || []),
+          currency: "INR",
+          lineItems: viewingPackage.items || [],
+          eventName: post.eventName || post.expectedOutcomes || "Event Representation",
+        }}
+      />
     )}
 
     {/* Comments Drawer */}

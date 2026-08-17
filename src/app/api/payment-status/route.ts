@@ -14,7 +14,8 @@ import { NextResponse } from 'next/server';
 import { admin, adminDb, getDbForId, getUserDatabaseId } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { sendDealFinalizationEmail } from '@/lib/mailer';
+import { sendDealFinalizationEmail, sendServiceAgreementEmail } from '@/lib/mailer';
+import { generateServiceAgreementPDF } from '@/lib/pdf-generator';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || '',
@@ -199,18 +200,24 @@ export async function POST(req: Request) {
         try {
           // Fetch OBO (Buyer) details
           let oboEmail = "buyer@fractionalsalespartner.com";
+          let oboPersonName = "";
           try {
             const oboUser = await admin.auth().getUser(buyerUid);
             oboEmail = oboUser.email || oboEmail;
+            oboPersonName = oboUser.displayName || "";
           } catch (authErr) {
             console.error("Failed to fetch OBO email:", authErr);
           }
 
-          let oboBrandName = "Business Owner";
+          let oboCompanyName = "";
           const oboProfileDoc = await adminDb.collection("OBO_Profile").doc(buyerUid).get();
           if (oboProfileDoc.exists) {
-            oboBrandName = oboProfileDoc.data()?.brandName || oboBrandName;
+            const oboData = oboProfileDoc.data()!;
+            oboCompanyName = oboData.companyName || oboData.brandName || oboData.organizationName || "";
+            oboPersonName = oboPersonName || oboData.fullName || oboData.contactPerson || oboData.brandName || "Business Owner";
           }
+
+          const oboBrandName = oboCompanyName || oboPersonName || "Business Owner";
 
           // Fetch SP (Author/Seller) details
           let spEmail = "partner@fractionalsalespartner.com";
@@ -258,6 +265,70 @@ export async function POST(req: Request) {
             postId: postDoc.id,
             offerId: offerId || `pkg_${packageId}`,
           });
+
+          // Generate & Send Service Agreement PDF Email
+          try {
+            const agreementRef = `FSP-SA-${receipt.slice(-8).toUpperCase()}`;
+            const lineItems = postData.packages?.find((p: any) => p.id === packageId)?.items || [{ description: postTitle, cost: dealPayload.amount }];
+
+            // 1. Save Immutable Agreement Audit Trail Record in Firestore
+            const agreementPayload = {
+              agreementRef,
+              version: '1.0',
+              postId: postDoc.id,
+              orderId: receipt,
+              rzpPaymentId: razorpay_payment_id,
+              rzpOrderId: razorpay_order_id,
+              buyerUid,
+              buyerEmail: oboEmail,
+              buyerCompanyName: oboCompanyName,
+              buyerPersonName: oboPersonName,
+              spUid: authorUid,
+              spEmail: spEmail,
+              spName: spName,
+              packageName: postTitle,
+              totalAmount: dealPayload.amount,
+              currency: dealPayload.currency,
+              lineItems,
+              createdAt: new Date().toISOString(),
+              acceptedAt: new Date().toISOString(),
+            };
+
+            await adminDb.collection('Agreements').doc(`SA_${receipt}`).set(agreementPayload);
+            console.log(`Saved immutable Service Agreement record in Firestore: SA_${receipt}`);
+
+            // 2. Generate PDF Buffer
+            const pdfBuffer = await generateServiceAgreementPDF({
+              agreementRef,
+              date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+              companyName: oboCompanyName,
+              clientName: oboPersonName || "Business Owner",
+              clientEmail: oboEmail,
+              spName: spName,
+              spEmail: spEmail,
+              packageName: postTitle,
+              totalAmount: dealPayload.amount,
+              currency: dealPayload.currency,
+              lineItems,
+              eventName: postData.eventName || postTitle,
+              paymentTxnId: razorpay_payment_id,
+              paymentTimestamp: new Date().toISOString(),
+            });
+
+            // 3. Dispatch Email with PDF attachment & download link
+            await sendServiceAgreementEmail({
+              clientName: oboBrandName,
+              clientEmail: oboEmail,
+              spEmail: spEmail,
+              packageName: postTitle,
+              totalAmount: dealPayload.amount,
+              currency: dealPayload.currency,
+              agreementRef,
+              pdfBuffer,
+            });
+          } catch (pdfErr) {
+            console.error("❌ Failed to generate/send Service Agreement PDF:", pdfErr);
+          }
         } catch (emailErr) {
           console.error("Failed to send deal finalization email after payment:", emailErr);
         }
