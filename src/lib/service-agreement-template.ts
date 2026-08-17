@@ -33,7 +33,7 @@ export const STANDARD_PACKAGE_INCLUSIONS = [
   "A 6x3 ft. standee, 500 pamphlets, and a GDPR-compliant system to capture leads on your behalf.",
   "Product display space to showcase your samples so that visitors/prospects can taste/view them.",
   "Local storage & transportation logistics.",
-  "3-day paid Instagram/Facebook marketing campaign targeted in and around Sutton, London.",
+  "3-day paid Instagram/Facebook marketing campaign targeted in and around the event venue location.",
   "A pre-event alignment call with your sales partner one week prior, so you can brief them on how you'd like your products exhibited on the day.",
 ];
 
@@ -104,7 +104,7 @@ b. CORPORATE AUTHORITY & PERSONAL LIABILITY WARRANTY: Any individual executing t
   2. 6x3 ft. standee, 500 promotional pamphlets, and a GDPR-compliant lead capture system.
   3. Dedicated product display space for sample exhibition/tasting.
   4. Local storage & transportation logistics handling.
-  5. 3-day paid targeted Instagram/Facebook marketing campaigns in Sutton, London.
+  5. 3-day paid targeted Instagram/Facebook marketing campaigns in and around the event venue location.
   6. Pre-event alignment call with the assigned Sales Partner 1 week prior to event date.
 
 b. BRIEFING & COLLATERAL OBLIGATIONS: The Business Owner must conduct an alignment meeting prior to the event, convey marketing schemes, share product specifications, and submit standee artwork and flyers on time.`,
