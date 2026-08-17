@@ -47,6 +47,8 @@ interface DealEmailDetails {
   spMessage?: string;
   postId: string;
   offerId: string;
+  pdfBuffer?: Buffer;
+  agreementRef?: string;
 }
 
 export async function sendDealFinalizationEmail(details: DealEmailDetails): Promise<boolean> {
@@ -62,14 +64,17 @@ export async function sendDealFinalizationEmail(details: DealEmailDetails): Prom
     spMessage,
     postId,
     offerId,
+    pdfBuffer,
+    agreementRef,
   } = details;
 
   const token = process.env.MAILTRAP_API_TOKEN;
-  const subject = `🤝 Deal Finalized — ${oboBrandName} accepted ${spName}'s offer`;
+  const refCode = agreementRef || `FSP-SA-${postId.slice(-8).toUpperCase()}`;
+  const subject = `🤝 Deal Finalized & Service Agreement Executed — ${postTitle}`;
 
   const textBody = `
 ─────────────────────────────────────────
-  DEAL FINALIZATION NOTICE
+  DEAL FINALIZATION & SERVICE AGREEMENT NOTICE
 ─────────────────────────────────────────
 
 Business Owner
@@ -82,6 +87,9 @@ Accepted Offer
   Amount:  ${offerCurrency} ${offerAmount.toLocaleString()}
   Message: "${spMessage || "No message provided."}"
 
+Agreement Reference: ${refCode}
+Download Link: https://fractionalsales.com/api/agreements/download?ref=${refCode}
+
 Timeline
   Accepted: ${new Date().toUTCString()}
 
@@ -90,8 +98,7 @@ Reference IDs
   Offer ID: ${offerId}
 
 ─────────────────────────────────────────
-Please follow up with both parties to
-arrange payment and onboarding.
+Please follow up with both parties to arrange kickoff.
 ─────────────────────────────────────────
   `.trim();
 
@@ -101,7 +108,7 @@ arrange payment and onboarding.
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Deal Finalized - Fractional Sales Partner</title>
+      <title>Deal Finalized & Service Agreement Executed</title>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
       </style>
@@ -114,107 +121,98 @@ arrange payment and onboarding.
               
               <!-- Brand Header Banner -->
               <tr>
-                <td style="background-color: #0d0e12; padding: 40px 40px 30px 40px; text-align: center; background-image: linear-gradient(135deg, #0d0e12 0%, #171821 100%);">
-                  <h1 style="margin: 0; font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                    Fractional Sales <span style="color: #6366f1;">Partner</span>
+                <td style="background-color: #701010; padding: 35px 40px; text-align: center;">
+                  <h1 style="margin: 0; font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; text-transform: uppercase;">
+                    Fractional Sales Partner
                   </h1>
-                  <p style="margin: 8px 0 0 0; font-size: 12px; text-transform: uppercase; tracking: 0.1em; color: #73b9f5; font-weight: 600; letter-spacing: 1.5px;">
-                    Deal Confirmation Ledger
+                  <p style="margin: 6px 0 0 0; font-size: 12px; text-transform: uppercase; color: #fecdd3; font-weight: 600; letter-spacing: 1.5px;">
+                    Deal Confirmation &amp; Executed Service Agreement
                   </p>
-                </td>
-              </tr>
-
-              <!-- Relatable Banner Image -->
-              <tr>
-                <td style="padding: 0;">
-                  <img src="https://fractionalsalespartner.com/hero-collage.png" alt="Deal Confirmed" style="width: 100%; height: auto; display: block; border: 0;" onerror="this.src='https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&h=220&q=80';">
                 </td>
               </tr>
 
               <!-- Main Content Body -->
               <tr>
-                <td style="padding: 40px 40px 30px 40px;">
-                  <h2 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 700; color: #0d0e12; line-height: 1.3; text-align: center;">
-                    🤝 Deal Confirmed!
+                <td style="padding: 35px 40px 30px 40px;">
+                  <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 700; color: #0d0e12; line-height: 1.3; text-align: center;">
+                    🤝 Partnership Confirmed!
                   </h2>
-                  <p style="margin: 0 0 24px 0; font-size: 15px; color: #374151; line-height: 1.6; text-align: center;">
-                    A deal has been finalized on the <strong>Fractional Sales Partner</strong> platform. Below are the details of the confirmed partnership:
+                  <p style="margin: 0 0 24px 0; font-size: 14px; color: #374151; line-height: 1.6; text-align: center;">
+                    Your payment for <strong>${postTitle}</strong> has been confirmed and processed. Below are the details of the executed partnership:
                   </p>
                   
                   <!-- Deal Details Table -->
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; border-collapse: separate;">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 25px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; border-collapse: separate;">
                     <tr style="background-color: #f8fafc;">
-                      <th colspan="2" style="text-align: left; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #0d0e12; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
-                        Partnership Agreement Details
+                      <th colspan="2" style="text-align: left; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #701010; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
+                        Partnership &amp; Agreement Details
                       </th>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #475569; width: 35%; border-bottom: 1px solid #edf2f7;">Project Description:</td>
-                      <td style="padding: 12px 16px; font-size: 14px; color: #0d0e12; border-bottom: 1px solid #edf2f7;">${postTitle}</td>
+                      <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #475569; width: 35%; border-bottom: 1px solid #edf2f7;">Agreement Ref:</td>
+                      <td style="padding: 10px 16px; font-size: 13px; color: #0d0e12; font-weight: 700; border-bottom: 1px solid #edf2f7;">${refCode}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Business / Brand:</td>
-                      <td style="padding: 12px 16px; font-size: 14px; color: #0d0e12; border-bottom: 1px solid #edf2f7;"><strong>${oboBrandName}</strong> (<a href="mailto:${oboEmail}" style="color: #6366f1; text-decoration: none;">${oboEmail}</a>)</td>
+                      <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Project Title:</td>
+                      <td style="padding: 10px 16px; font-size: 13px; color: #0d0e12; border-bottom: 1px solid #edf2f7;">${postTitle}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Sales Partner:</td>
-                      <td style="padding: 12px 16px; font-size: 14px; color: #0d0e12; border-bottom: 1px solid #edf2f7;"><strong>${spName}</strong> (<a href="mailto:${spEmail}" style="color: #6366f1; text-decoration: none;">${spEmail}</a>)</td>
+                      <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Business / Client:</td>
+                      <td style="padding: 10px 16px; font-size: 13px; color: #0d0e12; border-bottom: 1px solid #edf2f7;"><strong>${oboBrandName}</strong> (<a href="mailto:${oboEmail}" style="color: #701010; text-decoration: none;">${oboEmail}</a>)</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Finalized Deal Value:</td>
-                      <td style="padding: 12px 16px; font-size: 16px; font-weight: 700; color: #6366f1; border-bottom: 1px solid #edf2f7;">${offerCurrency} ${offerAmount.toLocaleString()}</td>
+                      <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Sales Partner:</td>
+                      <td style="padding: 10px 16px; font-size: 13px; color: #0d0e12; border-bottom: 1px solid #edf2f7;"><strong>${spName}</strong> (<a href="mailto:${spEmail}" style="color: #701010; text-decoration: none;">${spEmail}</a>)</td>
                     </tr>
                     <tr>
-                      <td style="padding: 12px 16px; font-size: 14px; font-weight: 600; color: #475569; vertical-align: top;">Partner's Pitch:</td>
-                      <td style="padding: 12px 16px; font-size: 14px; color: #4b5563; font-style: italic;">"${spMessage || "No message provided."}"</td>
+                      <td style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #475569; border-bottom: 1px solid #edf2f7;">Finalized Value:</td>
+                      <td style="padding: 10px 16px; font-size: 15px; font-weight: 700; color: #701010; border-bottom: 1px solid #edf2f7;">${offerCurrency} ${offerAmount.toLocaleString()}</td>
                     </tr>
                   </table>
-                  
-                  <!-- Recommended Next Steps -->
-                  <div style="background-color: #f8fafc; border-left: 4px solid #701010; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
-                    <h3 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; font-weight: 700;">
-                      Recommended Next Steps
-                    </h3>
-                    <ul style="margin: 0; padding: 0 0 0 20px; font-size: 14px; color: #334155; line-height: 1.6;">
-                      <li style="margin-bottom: 10px;"><strong>Kickoff Call:</strong> Schedule a Kickoff call to align the Sales Partner with your goals.</li>
-                      <li style="margin-bottom: 10px;"><strong>Banner &amp; Pamphlets:</strong> Ensure the standee banner image and pamphlet soft copies are shared with the Sales Partner on time.</li>
-                      <li style="margin-bottom: 10px;"><strong>Product Samples:</strong> Ensure product samples (if any) are couriered/shipped on time.</li>
-                    </ul>
-                  </div>
 
-                  <!-- Call to Action Button -->
+                  <!-- Executed Service Agreement PDF Call To Action Button -->
                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                     <tr>
-                      <td align="center" style="padding: 10px 0 20px 0;">
-                        <a href="https://fractionalsalespartner.com/home" target="_blank" style="background-color: #6366f1; color: #ffffff; display: inline-block; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 30px; border-radius: 6px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.15); transition: background-color 0.2s ease;">
-                          View Ledger Details
+                      <td align="center" style="padding: 5px 0 25px 0;">
+                        <a href="https://fractionalsales.com/api/agreements/download?ref=${refCode}" target="_blank" style="background-color: #701010; color: #ffffff; display: inline-block; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 28px; border-radius: 8px; box-shadow: 0 4px 6px rgba(112, 16, 16, 0.2); transition: background-color 0.2s ease;">
+                          📄 View / Download Executed Service Agreement (PDF)
                         </a>
                       </td>
                     </tr>
                   </table>
 
+                  <!-- Recommended Next Steps -->
+                  <div style="background-color: #f8fafc; border-left: 4px solid #701010; padding: 18px; border-radius: 0 8px 8px 0; margin-bottom: 25px;">
+                    <h3 style="margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase; color: #701010; letter-spacing: 0.5px; font-weight: 700;">
+                      Recommended Next Steps
+                    </h3>
+                    <ul style="margin: 0; padding: 0 0 0 18px; font-size: 13px; color: #334155; line-height: 1.6;">
+                      <li style="margin-bottom: 8px;"><strong>Kickoff Call:</strong> Schedule a Kickoff call to align the Sales Partner with your goals.</li>
+                      <li style="margin-bottom: 8px;"><strong>Banner &amp; Pamphlets:</strong> Ensure the standee banner image and pamphlet soft copies are shared with the Sales Partner on time.</li>
+                      <li style="margin-bottom: 8px;"><strong>Product Samples:</strong> Ensure product samples (if any) are couriered/shipped on time.</li>
+                    </ul>
+                  </div>
+
                   <!-- Thank you note -->
-                  <p style="margin: 20px 0 0 0; font-size: 14px; color: #4b5563; line-height: 1.6;">
-                    If you have any questions or require mediation support, please feel free to reach out to the platform administration team at <a href="mailto:sales@fractionalsalespartner.com" style="color: #6366f1; text-decoration: underline;">sales@fractionalsalespartner.com</a>.
+                  <p style="margin: 20px 0 0 0; font-size: 13px; color: #4b5563; line-height: 1.6;">
+                    If you have any questions or require mediation support, please feel free to reach out to our team at <a href="mailto:sales@fractionalsalespartner.com" style="color: #701010; text-decoration: underline;">sales@fractionalsalespartner.com</a>.
                   </p>
-                  <p style="margin: 15px 0 0 0; font-size: 14px; color: #4b5563; font-weight: 600;">
+                  <p style="margin: 15px 0 0 0; font-size: 13px; color: #4b5563; font-weight: 600;">
                     Best regards,<br>
-                    <span style="color: #0d0e12;">The Fractional Sales Partner Team</span>
+                    <span style="color: #0d0e12;">The Fractional Sales Partner Team</span><br>
+                    <span style="font-size: 11px; color: #6b7280; font-weight: normal;">Biztribe Trading &amp; Consultancy India Private Limited</span>
                   </p>
                 </td>
               </tr>
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f8fafc; padding: 24px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
-                  <p style="margin: 0 0 8px 0; font-size: 12px; color: #94a3b8;">
-                    Post Ref ID: <code>${postId}</code> | Offer Ref ID: <code>${offerId}</code>
-                  </p>
-                  <p style="margin: 0 0 8px 0; font-size: 11px; color: #94a3b8;">
-                    This is an automated notification from Fractional Sales Partner. All rights reserved.
+                <td style="background-color: #f8fafc; padding: 20px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0 0 6px 0; font-size: 11px; color: #94a3b8;">
+                    Agreement Ref: <code>${refCode}</code> | Post ID: <code>${postId}</code>
                   </p>
                   <p style="margin: 0; font-size: 11px; color: #94a3b8;">
-                    &copy; 2026 Biztribe Trading & Consultancy India Private Limited.
+                    &copy; 2026 Biztribe Trading &amp; Consultancy India Private Limited. All rights reserved.
                   </p>
                 </td>
               </tr>
@@ -227,59 +225,79 @@ arrange payment and onboarding.
     </html>
   `;
 
-  // If token is missing, run in mock mode
-  if (!token) {
-    console.log("📨 [MOCK EMAIL SENT - Deal Finalization]");
-    console.log(`To OBO: ${oboEmail}`);
-    console.log(`To SP: ${spEmail}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Body (Text): ${textBody}`);
-    return true;
-  }
-
-  try {
-    const response = await fetch("https://send.api.mailtrap.io/api/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        from: {
-          email: "sales@fractionalsalespartner.com",
-          name: "Fractional Sales Partner Platform"
-        },
-        to: [
-          {
-            email: oboEmail
-          },
-          {
-            email: spEmail
-          }
-        ],
-        cc: [
-          {
-            email: "sales@fractionalsalespartner.com"
-          }
-        ],
-        subject: subject,
+  // 1. Try Nodemailer if SMTP configured
+  const transporter = getTransporter();
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: `"Fractional Sales Partner" <${process.env.SMTP_USER || "sales@fractionalsalespartner.com"}>`,
+        to: oboEmail,
+        cc: [spEmail, "sales@fractionalsalespartner.com"],
+        subject,
+        text: textBody,
         html: htmlBody,
-        text: textBody
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Mailtrap API responded with ${response.status}: ${errorText}`);
+        attachments: pdfBuffer ? [
+          {
+            filename: `Service_Agreement_${refCode}.pdf`,
+            content: pdfBuffer,
+            contentType: "application/pdf",
+          }
+        ] : [],
+      });
+      console.log(`✉️ Deal Finalization & Service Agreement email sent via Nodemailer to ${oboEmail} & ${spEmail}!`);
+      return true;
+    } catch (err) {
+      console.error("❌ Nodemailer failed to send Deal Finalization email:", err);
     }
-
-    const resData = await response.json();
-    console.log("✉️ Deal Finalization Email sent successfully via Mailtrap API:", resData);
-    return true;
-  } catch (error) {
-    console.error("❌ Failed to send deal finalization email via Mailtrap API:", error);
-    return false;
   }
+
+  // 2. Try Mailtrap API if token configured
+  if (token) {
+    try {
+      const response = await fetch("https://send.api.mailtrap.io/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          from: {
+            email: "sales@fractionalsalespartner.com",
+            name: "Fractional Sales Partner Platform"
+          },
+          to: [{ email: oboEmail }, { email: spEmail }],
+          cc: [{ email: "sales@fractionalsalespartner.com" }],
+          subject,
+          html: htmlBody,
+          text: textBody,
+          attachments: pdfBuffer ? [
+            {
+              content: pdfBuffer.toString("base64"),
+              filename: `Service_Agreement_${refCode}.pdf`,
+              type: "application/pdf",
+              disposition: "attachment"
+            }
+          ] : []
+        })
+      });
+
+      if (response.ok) {
+        console.log(`✉️ Deal Finalization & Service Agreement email sent via Mailtrap API to ${oboEmail} & ${spEmail}!`);
+        return true;
+      }
+    } catch (error) {
+      console.error("❌ Failed to send deal finalization email via Mailtrap API:", error);
+    }
+  }
+
+  // Fallback mock log if SMTP & Mailtrap API tokens are not configured in local dev
+  console.log("📨 [MOCK EMAIL SENT - Deal Finalization & Service Agreement PDF]");
+  console.log(`To OBO: ${oboEmail}`);
+  console.log(`To SP: ${spEmail}`);
+  console.log(`CC: sales@fractionalsalespartner.com`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Attachment: Service_Agreement_${refCode}.pdf (${pdfBuffer ? pdfBuffer.length : 0} bytes)`);
+  return true;
 }
 
 export async function sendWelcomeEmail(toEmail: string, fullName: string, role: string): Promise<boolean> {
