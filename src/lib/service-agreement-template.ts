@@ -145,7 +145,7 @@ b. SAMPLE RETURNS & BACKWARD LOGISTICS: Display samples will not be returned to 
       },
       {
         heading: "7. COMMERCIAL TERMS, REFUND POLICY & FORCE MAJEURE",
-        content: `a. PAYMENTS & BOOTH BOOKING: Payments are non-refundable and booth bookings are non-cancellable by the Business Owner, except if the Sales Partner fails to present themselves on event day or if booth allocations become full prior to payment receipt (100% refund).
+        content: `a. PAYMENTS, BOOTH BOOKINGS & UNFULFILLED REPRESENTATION REFUND: Payment must be made in full in advance before booth/stall booking. Booking is non-cancellable by the Business Owner. All payments made are non-refundable, EXCEPT in the event that no Sales Partner is available or assigned, or if the assigned Sales Partner fails to present themselves at the venue on the event date to represent and showcase the Business Owner's products. In such unfulfilled representation scenarios (where no person represents or showcases your products on the event date), or if booth allocations become fully booked prior to receiving payment, the Company shall issue a 100% full refund of the package consideration paid by the Business Owner.
 
 b. ORGANISER CANCELLATION: If the event is cancelled directly by the Event Organiser, the Company will refund payments minus non-recoverable incurred collateral expenses.
 
