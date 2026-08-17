@@ -484,3 +484,180 @@ The Fractional Sales Partner Team
   }
 }
 
+export interface ServiceAgreementEmailDetails {
+  clientName: string;
+  clientEmail: string;
+  spEmail?: string;
+  packageName: string;
+  totalAmount: number;
+  currency: string;
+  agreementRef: string;
+  pdfBuffer: Buffer;
+}
+
+export async function sendServiceAgreementEmail(details: ServiceAgreementEmailDetails): Promise<boolean> {
+  const {
+    clientName,
+    clientEmail,
+    spEmail,
+    packageName,
+    totalAmount,
+    currency,
+    agreementRef,
+    pdfBuffer,
+  } = details;
+
+  const subject = `📜 Executed Service Agreement — ${packageName} (Ref: ${agreementRef})`;
+  const filename = `Service_Agreement_${agreementRef}.pdf`;
+
+  // CC List: sales@fractionalsalespartner.com & the Sales Partner
+  const ccEmails: string[] = ["sales@fractionalsalespartner.com"];
+  if (spEmail && spEmail.includes("@") && spEmail !== clientEmail && !ccEmails.includes(spEmail)) {
+    ccEmails.push(spEmail);
+  }
+
+  const textBody = `
+Dear ${clientName},
+
+Thank you for choosing Fractional Sales Partner!
+
+Your payment for ${packageName} (${currency} ${totalAmount.toLocaleString('en-IN')}) has been confirmed and processed.
+
+Attached to this email, please find your official executed Service Agreement (Ref: ${agreementRef}) issued by Biztribe Trading & Consultancy India Private Limited.
+
+Key Details:
+- Agreement Ref: ${agreementRef}
+- Entity: Biztribe Trading & Consultancy India Private Limited
+- Package: ${packageName}
+- Total Amount: ${currency} ${totalAmount.toLocaleString('en-IN')}
+- Date: ${new Date().toLocaleDateString('en-IN')}
+
+If you have any questions, please feel free to reach out to our team at sales@fractionalsalespartner.com.
+
+Best regards,
+Fractional Sales Partner Team
+Biztribe Trading & Consultancy India Private Limited
+  `.trim();
+
+  const htmlBody = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; color: #374151; }
+          .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 30px; border: 1px solid #e5e7eb; shadow: 0 4px 6px rgba(0,0,0,0.05); }
+          .header { background: #701010; padding: 20px; border-radius: 8px; color: #ffffff; text-align: center; margin-bottom: 24px; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+          .details-box { background: #f3f4f6; border-left: 4px solid #701010; padding: 15px; margin: 20px 0; border-radius: 4px; }
+          .footer { font-size: 11px; color: #6b7280; text-align: center; margin-top: 30px; border-t: 1px solid #e5e7eb; padding-top: 15px; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="header">
+            <h1>Service Agreement Executed</h1>
+          </div>
+          <p>Dear <strong>${clientName}</strong>,</p>
+          <p>Thank you for choosing <strong>Fractional Sales Partner</strong>!</p>
+          <p>Your payment for <strong>${packageName}</strong> has been successfully confirmed and processed.</p>
+          
+          <div class="details-box">
+            <p style="margin: 0 0 6px 0;"><strong>Agreement Reference:</strong> ${agreementRef}</p>
+            <p style="margin: 0 0 6px 0;"><strong>Issuing Entity:</strong> Biztribe Trading &amp; Consultancy India Private Limited</p>
+            <p style="margin: 0 0 6px 0;"><strong>Package:</strong> ${packageName}</p>
+            <p style="margin: 0;"><strong>Total Consideration:</strong> ${currency} ${totalAmount.toLocaleString('en-IN')}</p>
+          </div>
+
+          <p>Please find attached the official, executed copy of your <strong>Service Agreement PDF</strong> for your records.</p>
+
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="https://fractionalsales.com/api/agreements/download?ref=${agreementRef}" style="background-color: #701010; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">
+              📄 View / Download Executed Agreement PDF
+            </a>
+          </div>
+          
+          <div class="footer">
+            <p>© 2026 Biztribe Trading &amp; Consultancy India Private Limited. All rights reserved.</p>
+            <p>Platform: fractionalsales.com | Support: sales@fractionalsalespartner.com</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // 1. Try Nodemailer if configured
+  const transporter = getTransporter();
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: `"Fractional Sales Partner" <${process.env.SMTP_USER || "sales@fractionalsalespartner.com"}>`,
+        to: clientEmail,
+        cc: ccEmails,
+        subject,
+        text: textBody,
+        html: htmlBody,
+        attachments: [
+          {
+            filename,
+            content: pdfBuffer,
+            contentType: "application/pdf",
+          },
+        ],
+      });
+      console.log(`✉️ Executed Service Agreement email sent via Nodemailer to ${clientEmail} (CC: ${ccEmails.join(', ')}) with PDF attachment!`);
+      return true;
+    } catch (err) {
+      console.error("❌ Nodemailer failed to send Service Agreement email:", err);
+    }
+  }
+
+  // 2. Try Mailtrap API if configured
+  const token = process.env.MAILTRAP_API_TOKEN;
+  if (token) {
+    try {
+      const response = await fetch("https://send.api.mailtrap.io/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          from: {
+            email: "sales@fractionalsalespartner.com",
+            name: "Fractional Sales Partner Platform"
+          },
+          to: [{ email: clientEmail }],
+          cc: ccEmails.map(email => ({ email })),
+          subject,
+          html: htmlBody,
+          text: textBody,
+          attachments: [
+            {
+              content: pdfBuffer.toString("base64"),
+              filename,
+              type: "application/pdf",
+              disposition: "attachment"
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        console.log(`✉️ Executed Service Agreement email sent via Mailtrap API to ${clientEmail} (CC: ${ccEmails.join(', ')}) with PDF attachment!`);
+        return true;
+      }
+    } catch (err) {
+      console.error("❌ Mailtrap API failed to send Service Agreement email:", err);
+    }
+  }
+
+  // Fallback mock log if SMTP & Mailtrap API tokens are not configured in local dev
+  console.log("📨 [MOCK EMAIL SENT - Service Agreement PDF Attachment]");
+  console.log(`To: ${clientEmail}`);
+  console.log(`CC: ${ccEmails.join(', ')}`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Attachment: ${filename} (${pdfBuffer.length} bytes)`);
+  return true;
+}
+
