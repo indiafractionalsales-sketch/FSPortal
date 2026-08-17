@@ -171,14 +171,14 @@ arrange payment and onboarding.
                   </table>
                   
                   <!-- Recommended Next Steps -->
-                  <div style="background-color: #f8fafc; border-left: 4px solid #6366f1; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
+                  <div style="background-color: #f8fafc; border-left: 4px solid #701010; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
                     <h3 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; font-weight: 700;">
                       Recommended Next Steps
                     </h3>
                     <ul style="margin: 0; padding: 0 0 0 20px; font-size: 14px; color: #334155; line-height: 1.6;">
-                      <li style="margin-bottom: 10px;"><strong>Kickoff Call:</strong> Schedule a kickoff call to align on target accounts, timelines, and reporting.</li>
-                      <li style="margin-bottom: 10px;"><strong>Contract Details:</strong> Draft and sign the official engagement terms offline.</li>
-                      <li style="margin-bottom: 10px;"><strong>Milestones & Payments:</strong> Coordinate billing milestones and setup payment structures.</li>
+                      <li style="margin-bottom: 10px;"><strong>Kickoff Call:</strong> Schedule a Kickoff call to align the Sales Partner with your goals.</li>
+                      <li style="margin-bottom: 10px;"><strong>Banner &amp; Pamphlets:</strong> Ensure the standee banner image and pamphlet soft copies are shared with the Sales Partner on time.</li>
+                      <li style="margin-bottom: 10px;"><strong>Product Samples:</strong> Ensure product samples (if any) are couriered/shipped on time.</li>
                     </ul>
                   </div>
 
@@ -570,6 +570,18 @@ Biztribe Trading & Consultancy India Private Limited
           </div>
 
           <p>Please find attached the official, executed copy of your <strong>Service Agreement PDF</strong> for your records.</p>
+
+          <!-- Recommended Next Steps -->
+          <div style="background-color: #f8fafc; border-left: 4px solid #701010; padding: 18px; border-radius: 0 8px 8px 0; margin: 20px 0;">
+            <h3 style="margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase; color: #701010; letter-spacing: 0.5px; font-weight: 700;">
+              Recommended Next Steps
+            </h3>
+            <ul style="margin: 0; padding: 0 0 0 18px; font-size: 13px; color: #374151; line-height: 1.6;">
+              <li style="margin-bottom: 8px;"><strong>Kickoff Call:</strong> Schedule a Kickoff call to align the Sales Partner with your goals.</li>
+              <li style="margin-bottom: 8px;"><strong>Banner &amp; Pamphlets:</strong> Ensure the standee banner image and pamphlet soft copies are shared with the Sales Partner on time.</li>
+              <li style="margin-bottom: 8px;"><strong>Product Samples:</strong> Ensure product samples (if any) are couriered/shipped on time.</li>
+            </ul>
+          </div>
 
           <div style="text-align: center; margin: 25px 0;">
             <a href="https://fractionalsales.com/api/agreements/download?ref=${agreementRef}" style="background-color: #701010; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">
