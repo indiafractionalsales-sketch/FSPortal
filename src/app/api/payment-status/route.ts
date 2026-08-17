@@ -250,22 +250,6 @@ export async function POST(req: Request) {
             budgetRangeText = `${dealPayload.currency} ${dealPayload.amount.toLocaleString()}`;
           }
 
-          console.log(`>>> [API PAYMENT-STATUS] Sending deal finalization email. OBO: ${oboEmail}, SP: ${spEmail}`);
-
-          await sendDealFinalizationEmail({
-            oboBrandName,
-            oboEmail,
-            postTitle,
-            budgetRange: budgetRangeText,
-            spName,
-            spEmail,
-            offerAmount: dealPayload.amount,
-            offerCurrency: dealPayload.currency,
-            spMessage: offerData?.message || (offerId ? "Offer Accepted" : "Package Purchase"),
-            postId: postDoc.id,
-            offerId: offerId || `pkg_${packageId}`,
-          });
-
           // Generate & Send Service Agreement PDF Email
           try {
             const agreementRef = `FSP-SA-${receipt.slice(-8).toUpperCase()}`;
@@ -315,16 +299,22 @@ export async function POST(req: Request) {
               paymentTimestamp: new Date().toISOString(),
             });
 
-            // 3. Dispatch Email with PDF attachment & download link
-            await sendServiceAgreementEmail({
-              clientName: oboBrandName,
-              clientEmail: oboEmail,
-              spEmail: spEmail,
-              packageName: postTitle,
-              totalAmount: dealPayload.amount,
-              currency: dealPayload.currency,
-              agreementRef,
+            // 3. Send Single Unified Email to OBO & SP with PDF Attachment & Download Link
+            console.log(`>>> [API PAYMENT-STATUS] Sending deal finalization & agreement email. OBO: ${oboEmail}, SP: ${spEmail}`);
+            await sendDealFinalizationEmail({
+              oboBrandName,
+              oboEmail,
+              postTitle,
+              budgetRange: budgetRangeText,
+              spName,
+              spEmail,
+              offerAmount: dealPayload.amount,
+              offerCurrency: dealPayload.currency,
+              spMessage: offerData?.message || (offerId ? "Offer Accepted" : "Package Purchase"),
+              postId: postDoc.id,
+              offerId: offerId || `pkg_${packageId}`,
               pdfBuffer,
+              agreementRef,
             });
           } catch (pdfErr) {
             console.error("❌ Failed to generate/send Service Agreement PDF:", pdfErr);
