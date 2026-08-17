@@ -166,51 +166,55 @@ export function getServiceAgreementDetails(data: ServiceAgreementData) {
         content: `While the Sales Partner captures visitor inquiries in good faith using GDPR-compliant systems, the Company makes no representation regarding the accuracy, completeness, or responsiveness of visitor contact details. Any post-event data access or deletion requests under GDPR/DPDP Act shall be governed in accordance with platform privacy policies.`,
       },
       {
-        heading: "18. PAYMENTS, BOOTH BOOKINGS & REFUND POLICY",
+        heading: "18. LEAD EXCLUSIVITY, COMPANY MARKETING & AFFILIATE USAGE RIGHTS",
+        content: `All lead data, contact details, and visitor inquiries captured at the event booth shall be shared exclusively with the Business Owner and shall not be resold or transferred by the Platform to competing third-party businesses. However, the Business Owner acknowledges and agrees that the Platform (Biztribe Trading & Consultancy India Private Limited) retains a perpetual, worldwide, royalty-free, non-exclusive right and license to utilize captured lead data for generic marketing campaigns, promotional advertisements, newsletters, and digital outreach relating to products, services, and commercial offerings provided directly by Biztribe Trading & Consultancy India Private Limited or its corporate affiliates, group companies, portfolio ventures (wherein the Company holds equity investment), and formal strategic partner entities.`,
+      },
+      {
+        heading: "19. PAYMENTS, BOOTH BOOKINGS & REFUND POLICY",
         content: `Payment must be made in full and in advance before booth/stall booking. Booking is non-cancellable by the Business Owner. Payments made are non-refundable, unless the Sales Partner fails to present themselves at the venue on the event day. If booth allocations become fully booked prior to receiving payment, a 100% full refund will be issued.`,
       },
       {
-        heading: "19. ORGANISER EVENT CANCELLATION & SAMPLES",
+        heading: "20. ORGANISER EVENT CANCELLATION & SAMPLES",
         content: `If the event is cancelled directly by the Event Organiser, the Company will issue a full refund minus non-recoverable incurred expenses (such as standee printing, pamphlet production, etc.). In such event cancellation scenarios, shipped samples will not be sent back by default, but can be dispatched upon request and payment of return courier fees.`,
       },
       {
-        heading: "20. FORCE MAJEURE & VENUE MISHAPS",
+        heading: "21. FORCE MAJEURE & VENUE MISHAPS",
         content: `Biztribe Trading & Consultancy India Private Limited and its overseas appointed team shall not be responsible for loss of value or goods due to mishaps such as fire, flood, theft, or natural disasters at the venue. Payments remain non-refundable in such mishap or force majeure situations.`,
       },
       {
-        heading: "21. EMERGENCY SALES PARTNER RE-ASSIGNMENT",
+        heading: "22. EMERGENCY SALES PARTNER RE-ASSIGNMENT",
         content: `In cases of emergency or unforeseen unavailability, Biztribe Trading & Consultancy India Private Limited reserves the right to assign an alternative qualified Sales Partner, and the Business Owner hereby grants explicit permission to fractionalsalespartner.com for such substitution.`,
       },
       {
-        heading: "22. BRIEFING MEETING & COLLATERAL SUBMISSION OBLIGATIONS",
+        heading: "23. BRIEFING MEETING & COLLATERAL SUBMISSION OBLIGATIONS",
         content: `The Business Owner must conduct an alignment meeting with the Sales Partner prior to the event date. It is the Business Owner's responsibility to connect, convey marketing schemes, share product details, and submit standee images, flyers, and promotional artwork to the Sales Partner on time.`,
       },
       {
-        heading: "23. GENUINE BRAND & PRICING REPRESENTATION OBLIGATION & MISREPRESENTATION PENALTY",
+        heading: "24. GENUINE BRAND & PRICING REPRESENTATION OBLIGATION & MISREPRESENTATION PENALTY",
         content: `The Sales Partner is strictly expected and required to represent the Business Owner's brand, product specifications, commercial pricing points, promotional schemes, and terms genuinely, accurately, and strictly as communicated by the Business Owner during pre-event briefings. In the event that the Sales Partner misrepresents the brand, quotes unauthorized pricing, promises unauthorized discounts/schemes, or provides false product information to prospective clients or event visitors, the Sales Partner shall bear sole professional liability for such misrepresentation. Furthermore, upon verification of material misrepresentation by the Platform or Board, the Sales Partner shall be subject to a financial penalty of up to fifty percent (50%) of their specified payout consideration for the engagement, which amount may be withheld, set off, or refunded to the Business Owner at the sole discretion of the Company.`,
       },
       {
-        heading: "24. PLATFORM ETHOS, MUTUAL GROWTH, ANTI-POACHING & SP RIGHT TO REJECT UNETHICAL / ILLEGAL INSTRUCTIONS",
+        heading: "25. PLATFORM ETHOS, MUTUAL GROWTH, ANTI-POACHING & SP RIGHT TO REJECT UNETHICAL / ILLEGAL INSTRUCTIONS",
         content: `The Platform is established on the foundational principles of mutual professional growth, trust, and ethical business collaboration. All Users agree to utilize the Platform strictly for legitimate business development and collaborative representation, rather than predatory, anti-competitive, or poaching activities. Furthermore, the Sales Partner maintains the absolute and unconditional right to refuse, decline, or reject any request, instruction, marketing claim, or task specified by the Business Owner if such request violates the statutory legal boundaries, local health/safety regulations, venue policies, or ethical standards of the target country. The Company shall not penalize or sanction any Sales Partner for refusing to execute instructions or claims that are unlawful, fraudulent, or unethical under the laws of the land.`,
       },
       {
-        heading: "25. CONFIDENTIALITY & NON-DISCLOSURE",
+        heading: "26. CONFIDENTIALITY & NON-DISCLOSURE",
         content: `Both parties agree to hold all non-public commercial data, proprietary pricing structures, supplier lists, and business strategies disclosed during the engagement in strict confidence for a period of two (2) years following the event date.`,
       },
       {
-        heading: "26. LIMITATION OF FINANCIAL LIABILITY (LIABILITY CAP)",
+        heading: "27. LIMITATION OF FINANCIAL LIABILITY (LIABILITY CAP)",
         content: `To the maximum extent permitted under applicable law, the total aggregate financial liability of Biztribe Trading & Consultancy India Private Limited, its directors, and officers for any and all claims arising out of or related to this Agreement shall be strictly capped at the total amount actually paid by the Business Owner for the relevant Service Package.`,
       },
       {
-        heading: "27. INTER-PARTY DISPUTE RESOLUTION, BOARD ARBITRATION & TRUSTEE PAYMENT DETERMINATION",
+        heading: "28. INTER-PARTY DISPUTE RESOLUTION, BOARD ARBITRATION & TRUSTEE PAYMENT DETERMINATION",
         content: `In the event of any commercial disagreement, service delivery dispute, or payout controversy arising between the Business Owner and the Sales Partner regarding event performance, lead delivery, or fee release, the Platform (Biztribe Trading & Consultancy India Private Limited / fractionalsalespartner.com) shall act in the capacity of a neutral Trustee holding escrow/payment funds. The Board of Directors of Biztribe Trading & Consultancy India Private Limited (or its designated internal dispute resolution panel) shall review the submitted evidence and render an administrative determination regarding the release, withholding, refund, or distribution of contested payment funds. Both the Business Owner and the Sales Partner irrevocably agree to abide by and be bound by the Board's payment determination as final and binding between the parties, unless and until the dispute escalates into formal judicial proceedings before a competent court of law.`,
       },
       {
-        heading: "28. GOVERNING LAW & JURISDICTION",
+        heading: "29. GOVERNING LAW & JURISDICTION",
         content: `This Agreement shall be governed by and construed in accordance with the laws of the Republic of India. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the competent courts in Pune, Maharashtra, India.`,
       },
       {
-        heading: "29. ELECTRONIC ACCEPTANCE & VERIFICATION STAMP",
+        heading: "30. ELECTRONIC ACCEPTANCE & VERIFICATION STAMP",
         content: `This document is electronically executed pursuant to Section 10A of the Information Technology Act, 2000. By checking the acceptance box and clicking "Pay to Confirm" on the Fractional Sales Partner platform, the Client irrevocably accepts and binds itself to this Service Agreement.`,
       }
     ]
