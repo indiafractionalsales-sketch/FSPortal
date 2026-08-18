@@ -84,33 +84,69 @@ export async function generateServiceAgreementPDF(data: ServiceAgreementData): P
       let currentY = 115;
 
       // --- Company & Client Box ---
-      doc.rect(40, currentY, 515, 75).fillAndStroke(lightBg, '#e5e7eb');
-      
+      const boxY = currentY;
+
+      // Define Left Column strings
+      const compName = `${agreement.company.name} (${agreement.company.brand})`;
+      const compAddr = `Reg. Address: ${agreement.company.address}`;
+      const compEmail = `Email: ${agreement.company.email} | Web: ${agreement.company.website}`;
+
+      // Define Right Column strings
+      const clientNameStr = `Name: ${agreement.client.name}`;
+      const clientEmailStr = `Email: ${agreement.client.email}`;
+      const spNameStr = `Sales Partner: ${agreement.salesPartner.name}`;
+
+      // Calculate total Left Column height dynamically
+      doc.font('Helvetica').fontSize(7.5);
+      const leftH = 22 + doc.heightOfString(compName, { width: 230 }) 
+                       + doc.heightOfString(compAddr, { width: 230 }) 
+                       + doc.heightOfString(compEmail, { width: 230 }) + 16;
+
+      // Calculate total Right Column height dynamically
+      const rightH = 22 + doc.heightOfString(clientNameStr, { width: 245 }) 
+                        + doc.heightOfString(clientEmailStr, { width: 245 }) 
+                        + doc.heightOfString(spNameStr, { width: 245 }) + 16;
+
+      const boxHeight = Math.max(leftH, rightH, 80);
+
+      // Draw background rectangle
+      doc.rect(40, boxY, 515, boxHeight).fillAndStroke(lightBg, '#e5e7eb');
+
+      // --- Draw Left Column ---
       doc.fillColor(primaryColor)
          .fontSize(9)
          .font('Helvetica-Bold')
-         .text('ISSUING COMPANY (FACILITATOR):', 50, currentY + 10);
+         .text('ISSUING COMPANY (FACILITATOR):', 50, boxY + 8, { width: 230 });
 
-      doc.fillColor(textColor)
-         .fontSize(8)
-         .font('Helvetica')
-         .text(`${agreement.company.name} (${agreement.company.brand})`, 50, currentY + 23)
-         .text(`Reg. Address: ${agreement.company.address}`, 50, currentY + 35)
-         .text(`Email: ${agreement.company.email} | Web: ${agreement.company.website}`, 50, currentY + 47);
+      doc.fillColor(textColor).fontSize(7.5).font('Helvetica');
+      let leftY = boxY + 22;
 
+      doc.text(compName, 50, leftY, { width: 230 });
+      leftY += doc.heightOfString(compName, { width: 230 }) + 3;
+
+      doc.text(compAddr, 50, leftY, { width: 230 });
+      leftY += doc.heightOfString(compAddr, { width: 230 }) + 3;
+
+      doc.text(compEmail, 50, leftY, { width: 230 });
+
+      // --- Draw Right Column ---
       doc.fillColor(primaryColor)
          .fontSize(9)
          .font('Helvetica-Bold')
-         .text('CLIENT / PAYEE:', 320, currentY + 10);
+         .text('CLIENT / PAYEE:', 295, boxY + 8, { width: 245 });
 
-      doc.fillColor(textColor)
-         .fontSize(8)
-         .font('Helvetica')
-         .text(`Name: ${agreement.client.name}`, 320, currentY + 23)
-         .text(`Email: ${agreement.client.email}`, 320, currentY + 35)
-         .text(`Sales Partner: ${agreement.salesPartner.name}`, 320, currentY + 47);
+      doc.fillColor(textColor).fontSize(7.5).font('Helvetica');
+      let rightY = boxY + 22;
 
-      currentY += 90;
+      doc.text(clientNameStr, 295, rightY, { width: 245 });
+      rightY += doc.heightOfString(clientNameStr, { width: 245 }) + 3;
+
+      doc.text(clientEmailStr, 295, rightY, { width: 245 });
+      rightY += doc.heightOfString(clientEmailStr, { width: 245 }) + 3;
+
+      doc.text(spNameStr, 295, rightY, { width: 245 });
+
+      currentY += boxHeight + 15;
 
       // --- Package & Commercials Table ---
       doc.fillColor(primaryColor)
@@ -210,28 +246,7 @@ export async function generateServiceAgreementPDF(data: ServiceAgreementData): P
         currentY = 50;
       }
 
-      currentY += 10;
-      doc.rect(40, currentY, 515, 105).fillAndStroke('#f0fdf4', '#bbf7d0');
-
-      doc.fillColor('#166534')
-         .fontSize(9)
-         .font('Helvetica-Bold')
-         .text('DIGITAL EXECUTION & AUDIT TRAIL VERIFICATION STAMP', 50, currentY + 10);
-
-      doc.fillColor(textColor)
-         .fontSize(7.5)
-         .font('Helvetica')
-         .text(`Issued By: ${agreement.company.name}`, 50, currentY + 28)
-         .text(`Brand Platform: ${agreement.company.brand} (${agreement.company.website})`, 50, currentY + 40)
-         .text(`Authorized Signatory: Digital System Seal (Biztribe Trading & Consultancy)`, 50, currentY + 52)
-         .text(`Jurisdiction: Competent Courts in Pune, Maharashtra, India`, 50, currentY + 64);
-
-      doc.fillColor(textColor)
-         .fontSize(7.5)
-         .font('Helvetica')
-         .text(`Accepted By: ${agreement.client.name}`, 320, currentY + 28)
-         .text(`Client Email: ${agreement.client.email}`, 320, currentY + 40)
-         .text(`Payment Txn ID: ${agreement.auditTrail.txnId || 'N/A'}`, 320, currentY + 52);
+      const stampY = currentY + 10;
 
       let formattedAuditTimestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
       try {
@@ -241,14 +256,36 @@ export async function generateServiceAgreementPDF(data: ServiceAgreementData): P
         }
       } catch (e) {}
 
-      doc.text(`Timestamp: ${formattedAuditTimestamp}`, 320, currentY + 64)
-         .text(`Electronic Signature: Verified Click-Wrap Acceptance (Sec 10A IT Act)`, 320, currentY + 76);
+      const issuedText = `Issued By: ${agreement.company.name}\nBrand Platform: ${agreement.company.brand} (${agreement.company.website})\nAuthorized Signatory: Digital System Seal (Biztribe Trading & Consultancy)\nJurisdiction: Competent Courts in Pune, Maharashtra, India`;
+      const acceptedText = `Accepted By: ${agreement.client.name}\nClient Email: ${agreement.client.email}\nPayment Txn ID: ${agreement.auditTrail.txnId || 'N/A'}\nTimestamp: ${formattedAuditTimestamp}\nElectronic Signature: Verified Click-Wrap Acceptance (Sec 10A IT Act)`;
+
+      doc.font('Helvetica').fontSize(7.5);
+      const sLeftH = doc.heightOfString(issuedText, { width: 235, lineGap: 2.5 }) + 38;
+      const sRightH = doc.heightOfString(acceptedText, { width: 245, lineGap: 2.5 }) + 38;
+      const stampBoxHeight = Math.max(sLeftH, sRightH, 105);
+
+      doc.rect(40, stampY, 515, stampBoxHeight).fillAndStroke('#f0fdf4', '#bbf7d0');
+
+      doc.fillColor('#166534')
+         .fontSize(9)
+         .font('Helvetica-Bold')
+         .text('DIGITAL EXECUTION & AUDIT TRAIL VERIFICATION STAMP', 50, stampY + 8);
+
+      doc.fillColor(textColor)
+         .fontSize(7.5)
+         .font('Helvetica')
+         .text(issuedText, 50, stampY + 24, { width: 235, lineGap: 2.5 });
+
+      doc.fillColor(textColor)
+         .fontSize(7.5)
+         .font('Helvetica')
+         .text(acceptedText, 295, stampY + 24, { width: 245, lineGap: 2.5 });
 
       // Add Checksum Footer Box
       doc.fillColor('#15803d')
          .fontSize(6.5)
          .font('Helvetica-Bold')
-         .text(`SHA-256 Checksum: ${sha256Checksum}`, 50, currentY + 88, { width: 495 });
+         .text(`SHA-256 Checksum: ${sha256Checksum}`, 50, stampY + stampBoxHeight - 14, { width: 495 });
 
       // Render page footers on all pages
       const range = doc.bufferedPageRange();
