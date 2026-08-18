@@ -49,6 +49,7 @@ interface DealEmailDetails {
   offerId: string;
   pdfBuffer?: Buffer;
   agreementRef?: string;
+  orderId?: string;
 }
 
 export async function sendDealFinalizationEmail(details: DealEmailDetails): Promise<boolean> {
@@ -66,10 +67,14 @@ export async function sendDealFinalizationEmail(details: DealEmailDetails): Prom
     offerId,
     pdfBuffer,
     agreementRef,
+    orderId,
   } = details;
 
   const token = process.env.MAILTRAP_API_TOKEN;
   const refCode = agreementRef || `FSP-SA-${postId.slice(-8).toUpperCase()}`;
+  const targetOrderId = orderId || refCode;
+  const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://fractionalsalespartner.com';
+  const downloadUrl = `${appBaseUrl}/api/agreements/download?order_id=${targetOrderId}&ref=${refCode}`;
   const subject = `🤝 Deal Finalized & Service Agreement Executed — ${postTitle}`;
 
   const textBody = `
@@ -88,7 +93,7 @@ Accepted Offer
   Message: "${spMessage || "No message provided."}"
 
 Agreement Reference: ${refCode}
-Download Link: https://fractionalsales.com/api/agreements/download?ref=${refCode}
+Download Link: ${downloadUrl}
 
 Timeline
   Accepted: ${new Date().toUTCString()}
@@ -174,7 +179,7 @@ Please follow up with both parties to arrange kickoff.
                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                     <tr>
                       <td align="center" style="padding: 5px 0 25px 0;">
-                        <a href="https://fractionalsales.com/api/agreements/download?ref=${refCode}" target="_blank" style="background-color: #701010; color: #ffffff; display: inline-block; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 28px; border-radius: 8px; box-shadow: 0 4px 6px rgba(112, 16, 16, 0.2); transition: background-color 0.2s ease;">
+                        <a href="${downloadUrl}" target="_blank" style="background-color: #701010; color: #ffffff; display: inline-block; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 28px; border-radius: 8px; box-shadow: 0 4px 6px rgba(112, 16, 16, 0.2); transition: background-color 0.2s ease;">
                           📄 View / Download Executed Service Agreement (PDF)
                         </a>
                       </td>
@@ -602,14 +607,14 @@ Biztribe Trading & Consultancy India Private Limited
           </div>
 
           <div style="text-align: center; margin: 25px 0;">
-            <a href="https://fractionalsales.com/api/agreements/download?ref=${agreementRef}" style="background-color: #701010; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">
+            <a href="https://fractionalsalespartner.com/api/agreements/download?order_id=${agreementRef}&ref=${agreementRef}" style="background-color: #701010; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">
               📄 View / Download Executed Agreement PDF
             </a>
           </div>
           
           <div class="footer">
             <p>© 2026 Biztribe Trading &amp; Consultancy India Private Limited. All rights reserved.</p>
-            <p>Platform: fractionalsales.com | Support: sales@fractionalsalespartner.com</p>
+            <p>Platform: fractionalsalespartner.com | Support: sales@fractionalsalespartner.com</p>
           </div>
         </div>
       </body>
