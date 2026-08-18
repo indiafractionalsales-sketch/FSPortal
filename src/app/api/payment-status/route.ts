@@ -328,6 +328,7 @@ export async function POST(req: Request) {
               offerId: offerId || `pkg_${packageId}`,
               pdfBuffer,
               agreementRef,
+              orderId: receipt,
             });
             console.log("✅ Successfully delivered deal finalization & agreement email!");
           } catch (emailErr) {
