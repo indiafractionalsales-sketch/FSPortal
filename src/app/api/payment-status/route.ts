@@ -251,11 +251,14 @@ export async function POST(req: Request) {
           }
 
           // Generate & Send Service Agreement PDF Email
-          try {
-            const agreementRef = `FSP-SA-${receipt.slice(-8).toUpperCase()}`;
-            const lineItems = postData.packages?.find((p: any) => p.id === packageId)?.items || [{ description: postTitle, cost: dealPayload.amount }];
+          const agreementRef = `FSP-SA-${receipt.slice(-8).toUpperCase()}`;
+          const rawItems = postData.packages?.find((p: any) => p.id === packageId)?.items;
+          const lineItems = Array.isArray(rawItems) && rawItems.length > 0 
+            ? rawItems.map((item: any) => typeof item === 'string' ? { description: item, cost: 0 } : item)
+            : [{ description: postTitle, cost: dealPayload.amount }];
 
-            // 1. Save Immutable Agreement Audit Trail Record in Firestore
+          // 1. Save Immutable Agreement Audit Trail Record in Firestore
+          try {
             const agreementPayload = {
               agreementRef,
               version: '1.0',
@@ -280,9 +283,14 @@ export async function POST(req: Request) {
 
             await adminDb.collection('Agreements').doc(`SA_${receipt}`).set(agreementPayload);
             console.log(`Saved immutable Service Agreement record in Firestore: SA_${receipt}`);
+          } catch (agErr) {
+            console.error("❌ Failed to save Agreement record in Firestore:", agErr);
+          }
 
-            // 2. Generate PDF Buffer
-            const pdfBuffer = await generateServiceAgreementPDF({
+          // 2. Generate PDF Buffer (Guarded)
+          let pdfBuffer: Buffer | undefined;
+          try {
+            pdfBuffer = await generateServiceAgreementPDF({
               agreementRef,
               date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
               companyName: oboCompanyName,
@@ -298,8 +306,13 @@ export async function POST(req: Request) {
               paymentTxnId: razorpay_payment_id,
               paymentTimestamp: new Date().toISOString(),
             });
+            console.log(`✅ Successfully generated Service Agreement PDF (${pdfBuffer.length} bytes)`);
+          } catch (pdfErr) {
+            console.error("❌ Failed to generate Service Agreement PDF:", pdfErr);
+          }
 
-            // 3. Send Single Unified Email to OBO & SP with PDF Attachment & Download Link
+          // 3. Send Single Unified Email to OBO & SP (ALWAYS EXECUTED)
+          try {
             console.log(`>>> [API PAYMENT-STATUS] Sending deal finalization & agreement email. OBO: ${oboEmail}, SP: ${spEmail}`);
             await sendDealFinalizationEmail({
               oboBrandName,
@@ -316,11 +329,12 @@ export async function POST(req: Request) {
               pdfBuffer,
               agreementRef,
             });
-          } catch (pdfErr) {
-            console.error("❌ Failed to generate/send Service Agreement PDF:", pdfErr);
+            console.log("✅ Successfully delivered deal finalization & agreement email!");
+          } catch (emailErr) {
+            console.error("❌ Failed to send deal finalization email after payment:", emailErr);
           }
-        } catch (emailErr) {
-          console.error("Failed to send deal finalization email after payment:", emailErr);
+        } catch (outerErr) {
+          console.error("❌ Error during post-payment email/agreement processing:", outerErr);
         }
       }
     }
