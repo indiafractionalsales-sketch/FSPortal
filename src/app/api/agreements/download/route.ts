@@ -60,7 +60,7 @@ export async function GET(req: Request) {
               // 3. Query Posts by doc ID or paymentOrderId
               const postSnap = await adminDb.collection('Posts').doc(orderId).get();
               if (postSnap.exists) {
-                agreementRecord = postSnap.docs[0].data();
+                agreementRecord = postSnap.data();
               } else {
                 const postByOrderSnap = await adminDb.collection('Posts').where('paymentOrderId', '==', orderId).limit(1).get();
                 if (!postByOrderSnap.empty) {
