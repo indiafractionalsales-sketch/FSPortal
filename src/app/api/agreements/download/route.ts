@@ -27,22 +27,48 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    // 1. Try finding in Agreements collection first
-    const agreementSnap = await adminDb.collection('Agreements').doc(`SA_${orderId}`).get();
+    // 1. Try finding in Agreements collection first by SA_ prefix, raw orderId, or queries
     let agreementRecord: any = null;
+
+    let agreementSnap = await adminDb.collection('Agreements').doc(`SA_${orderId}`).get();
+    if (!agreementSnap.exists && orderId.startsWith('SA_')) {
+      agreementSnap = await adminDb.collection('Agreements').doc(orderId).get();
+    }
 
     if (agreementSnap.exists) {
       agreementRecord = agreementSnap.data();
     } else {
-      // 2. Query Deals by orderId
-      const dealSnap = await adminDb.collection('Deals').doc(`deal_${orderId}`).get();
-      if (dealSnap.exists) {
-        agreementRecord = dealSnap.data();
+      // Query Agreements by agreementRef, rzpPaymentId, or rzpOrderId
+      const agByRefSnap = await adminDb.collection('Agreements').where('agreementRef', '==', orderId).limit(1).get();
+      if (!agByRefSnap.empty) {
+        agreementRecord = agByRefSnap.docs[0].data();
       } else {
-        // Query Posts by paymentOrderId
-        const postSnap = await adminDb.collection('Posts').where('paymentOrderId', '==', orderId).limit(1).get();
-        if (!postSnap.empty) {
-          agreementRecord = postSnap.docs[0].data();
+        const agByPostSnap = await adminDb.collection('Agreements').where('postId', '==', orderId).limit(1).get();
+        if (!agByPostSnap.empty) {
+          agreementRecord = agByPostSnap.docs[0].data();
+        } else {
+          // 2. Query Deals by doc ID or postId
+          const cleanDealId = orderId.startsWith('deal_') ? orderId : `deal_${orderId}`;
+          const dealSnap = await adminDb.collection('Deals').doc(cleanDealId).get();
+          if (dealSnap.exists) {
+            agreementRecord = dealSnap.data();
+          } else {
+            const rawDealSnap = await adminDb.collection('Deals').doc(orderId).get();
+            if (rawDealSnap.exists) {
+              agreementRecord = rawDealSnap.data();
+            } else {
+              // 3. Query Posts by doc ID or paymentOrderId
+              const postSnap = await adminDb.collection('Posts').doc(orderId).get();
+              if (postSnap.exists) {
+                agreementRecord = postSnap.docs[0].data();
+              } else {
+                const postByOrderSnap = await adminDb.collection('Posts').where('paymentOrderId', '==', orderId).limit(1).get();
+                if (!postByOrderSnap.empty) {
+                  agreementRecord = postByOrderSnap.docs[0].data();
+                }
+              }
+            }
+          }
         }
       }
     }

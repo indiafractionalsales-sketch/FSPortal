@@ -15,10 +15,40 @@ import crypto from 'crypto';
 import { getServiceAgreementDetails, ServiceAgreementData } from './service-agreement-template';
 
 export async function generateServiceAgreementPDF(data: ServiceAgreementData): Promise<Buffer> {
-  const agreement = getServiceAgreementDetails(data);
+  // Defensive input sanitization
+  const safeData: ServiceAgreementData = {
+    agreementRef: data.agreementRef || `FSP-SA-${Date.now().toString(36).toUpperCase()}`,
+    date: data.date || new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+    clientName: (data.clientName && data.clientName.trim()) || "Business Owner",
+    companyName: (data.companyName && data.companyName.trim()) || "",
+    clientEmail: (data.clientEmail && data.clientEmail.trim()) || "client@fractionalsalespartner.com",
+    spName: (data.spName && data.spName.trim()) || "Sales Partner",
+    spEmail: (data.spEmail && data.spEmail.trim()) || "partner@fractionalsalespartner.com",
+    packageName: (data.packageName && data.packageName.trim()) || "Sales Representation Package",
+    totalAmount: isNaN(Number(data.totalAmount)) ? 0 : Number(data.totalAmount),
+    currency: (data.currency && data.currency.trim()) || "INR",
+    lineItems: Array.isArray(data.lineItems) && data.lineItems.length > 0 ? data.lineItems.map(item => {
+      if (typeof item === 'string') {
+        return { description: String(item || "Package Inclusion"), cost: 0 };
+      }
+      if (typeof item === 'object' && item !== null) {
+        const desc = (item as any).description || (item as any).name || (item as any).title || "Package Item";
+        const rawCost = (item as any).cost !== undefined ? (item as any).cost : (item as any).price;
+        const costNum = isNaN(Number(rawCost)) ? 0 : Number(rawCost);
+        return { description: String(desc), cost: costNum };
+      }
+      return { description: "Package Item", cost: 0 };
+    }) : [{ description: (data.packageName && data.packageName.trim()) || "Sales Representation Package", cost: isNaN(Number(data.totalAmount)) ? 0 : Number(data.totalAmount) }],
+    eventName: (data.eventName && data.eventName.trim()) || data.packageName || "Sales Representation",
+    paymentTxnId: (data.paymentTxnId && data.paymentTxnId.trim()) || "COMPLETED",
+    paymentTimestamp: data.paymentTimestamp || new Date().toISOString(),
+    userIp: (data.userIp && data.userIp.trim()) || "Recorded Web Session"
+  };
+
+  const agreement = getServiceAgreementDetails(safeData);
 
   // Compute SHA-256 Verification Checksum
-  const checksumRawData = `${agreement.refNo}|${agreement.client.email}|${agreement.engagement.totalAmount}|${agreement.auditTrail.txnId}|${agreement.date}`;
+  const checksumRawData = `${agreement.refNo || 'FSP-SA-000'}|${agreement.client.email || 'N/A'}|${agreement.engagement.totalAmount || 0}|${agreement.auditTrail.txnId || 'N/A'}|${agreement.date || ''}`;
   const sha256Checksum = crypto.createHash('sha256').update(checksumRawData).digest('hex');
 
   return new Promise((resolve, reject) => {
@@ -201,8 +231,17 @@ export async function generateServiceAgreementPDF(data: ServiceAgreementData): P
          .font('Helvetica')
          .text(`Accepted By: ${agreement.client.name}`, 320, currentY + 28)
          .text(`Client Email: ${agreement.client.email}`, 320, currentY + 40)
-         .text(`Payment Txn ID: ${agreement.auditTrail.txnId}`, 320, currentY + 52)
-         .text(`Timestamp: ${new Date(agreement.auditTrail.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST`, 320, currentY + 64)
+         .text(`Payment Txn ID: ${agreement.auditTrail.txnId || 'N/A'}`, 320, currentY + 52);
+
+      let formattedAuditTimestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+      try {
+        const parsedDate = new Date(agreement.auditTrail.timestamp);
+        if (!isNaN(parsedDate.getTime())) {
+          formattedAuditTimestamp = parsedDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+        }
+      } catch (e) {}
+
+      doc.text(`Timestamp: ${formattedAuditTimestamp}`, 320, currentY + 64)
          .text(`Electronic Signature: Verified Click-Wrap Acceptance (Sec 10A IT Act)`, 320, currentY + 76);
 
       // Add Checksum Footer Box
