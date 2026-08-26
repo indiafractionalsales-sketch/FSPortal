@@ -26,20 +26,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const post = await getPostByIdServer(id);
 
-  const headerList = await headers();
-  const host = headerList.get("host") || "fractionalsalespartner.com";
-  const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
-
   const title = post?.eventName
     ? `${post.eventName} | Fractional Sales Partner`
     : "Sales Partnership Opportunity | Fractional Sales Partner";
 
-  const description = "Come and visit fractionalsalespartner.com for more collaborations!";
+  const description = "Come and visit our Fractional Sales Partner for more collaborations!";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
   const pageUrl = `${baseUrl}/post/${id}`;
   const ogImageUrl = `${baseUrl}/post/${id}/opengraph-image`;
 
   return {
+    metadataBase: new URL(baseUrl),
     title,
     description,
     openGraph: {
@@ -51,9 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: [
         {
           url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: post?.eventName || "Fractional Sales Partner Event",
+          type: "image/png",
+          alt: title,
         },
       ],
     },
