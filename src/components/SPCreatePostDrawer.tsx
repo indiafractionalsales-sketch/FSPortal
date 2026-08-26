@@ -461,8 +461,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                       className="text-[#701010] font-bold underline hover:text-[#5a0c0c] inline"
                     >
                       Sales Partner Representation &amp; Listing Service Agreement
-                    </button>{" "}
-                    (including 25% fee, 2-hr livestream, 2-hr social clips, lead ownership, non-compete &amp; conduct rules).
+                    </button>
+                    .
                   </span>
                 </label>
               </div>
