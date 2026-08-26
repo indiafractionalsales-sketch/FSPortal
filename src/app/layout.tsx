@@ -15,6 +15,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com"),
   title: 'Fractional Sales Partner | AI-Powered Platform',
   description: 'Scale your revenue with high-performance fractional sales partners. Intelligent matching, real-time activity feeds, and infinite scale backend.',
 };
