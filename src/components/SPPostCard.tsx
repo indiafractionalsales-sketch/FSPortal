@@ -291,22 +291,24 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   };
 
   const handleShare = async () => {
+    const targetUrl = `${window.location.origin}/post/${post.__id}`;
     const shareData = {
-      title: post.eventName || 'Fractional Sales Post',
-      text: post.description || 'Check out this post on Fractional Sales!',
-      url: window.location.href, // Or a specific post route if you have one e.g. `${window.location.origin}/post/${post.__id}`
+      title: post.eventName || "Sales Opportunity | Fractional Sales Partner",
+      text: "Come and visit fractionalsalespartner.com for more collaborations!",
+      url: targetUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // Fallback for browsers that don't support Web Share API (like some desktop browsers)
-        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-        alert("Link copied to clipboard!");
+        await navigator.clipboard.writeText(targetUrl);
+        alert("Link copied to clipboard! Share it anywhere to show the preview card.");
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      if ((err as Error).name !== "AbortError") {
+        console.error("Error sharing:", err);
+      }
     }
   };
 
