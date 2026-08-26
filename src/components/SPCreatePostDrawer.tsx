@@ -76,6 +76,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -115,6 +116,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       });
       setImagePreview(editPostData.mediaUrl || null);
       setPackages(editPostData.packages || []);
+      setAgreedToTerms(editPostData.spAgreementAccepted || false);
       setStep(1);
       setShowAgreementModal(false);
     } else if (isOpen) {
@@ -125,6 +127,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       setImageFile(null);
       setImagePreview(null);
       setPackages([]);
+      setAgreedToTerms(false);
       setStep(1);
       setShowAgreementModal(false);
     }
@@ -205,6 +208,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     if (!formData.date.trim()) return setError("Event Date is required");
     if (!formData.country.trim()) return setError("Country is required");
     if (!formData.city.trim()) return setError("City is required");
+    if (!agreedToTerms) return setError("Please accept the Sales Partner Representation & Listing Agreement to proceed.");
     
     if (packages.length === 0) {
       addPackage();
@@ -212,8 +216,12 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
     setStep(2);
   };
 
-  const handleOpenAgreementModal = () => {
+  const handleSave = async () => {
     setError("");
+    if (!agreedToTerms) {
+      setStep(1);
+      return setError("Please accept the Sales Partner Representation & Listing Agreement to proceed.");
+    }
     if (packages.length === 0) {
       return setError("Please add at least one package option.");
     }
@@ -227,8 +235,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
         }
       }
     }
-
-    setShowAgreementModal(true);
+    await executeSavePost();
   };
 
   const executeSavePost = async () => {
@@ -436,6 +443,30 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                   </div>
                 </div>
               </div>
+
+              {/* Sales Partner Agreement Checkbox Box */}
+              <div className="mt-4 p-3.5 bg-amber-50/80 border border-amber-200 rounded-xl space-y-1.5 shadow-sm">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs font-medium text-amber-950 select-none">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-[#701010] rounded border-amber-300 focus:ring-[#701010] cursor-pointer shrink-0"
+                  />
+                  <span className="leading-relaxed">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowAgreementModal(true)}
+                      className="text-[#701010] font-bold underline hover:text-[#5a0c0c] inline"
+                    >
+                      Sales Partner Representation &amp; Listing Service Agreement
+                    </button>{" "}
+                    (including 25% fee, 2-hr livestream, 2-hr social clips, lead ownership, non-compete &amp; conduct rules).
+                  </span>
+                </label>
+              </div>
+
               <div className="h-2" />
             </div>
           ) : (
@@ -590,7 +621,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
             </button>
           ) : (
             <button 
-              onClick={handleOpenAgreementModal}
+              onClick={handleSave}
               disabled={saving}
               className="px-6 py-2.5 text-sm font-bold text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-lg transition-colors shadow-sm font-headline uppercase tracking-wider flex items-center gap-2 disabled:opacity-50"
             >
@@ -599,7 +630,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...
                 </span>
               ) : (
-                <span className="flex items-center gap-2">{editPostData ? "Review & Save Changes" : "Review & Create Post"}</span>
+                <span className="flex items-center gap-2">{editPostData ? "Save Changes" : "Create Post"}</span>
               )}
             </button>
           )}
@@ -611,7 +642,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       <SPServiceAgreementModal
         isOpen={showAgreementModal}
         onClose={() => setShowAgreementModal(false)}
-        onAccept={executeSavePost}
+        onAccept={() => setAgreedToTerms(true)}
         isSaving={saving}
         agreementData={{
           spName: authorName || "Sales Partner",

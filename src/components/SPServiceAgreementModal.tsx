@@ -150,21 +150,14 @@ export function SPServiceAgreementModal({
               Back
             </button>
             <button
-              onClick={onAccept}
-              disabled={!isChecked || isSaving}
-              className="px-5 py-2 text-xs font-bold text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-lg transition-colors shadow-sm font-headline uppercase tracking-wider flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => {
+                onAccept();
+                onClose();
+              }}
+              className="px-5 py-2 text-xs font-bold text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-lg transition-colors shadow-sm font-headline uppercase tracking-wider flex items-center gap-2"
             >
-              {isSaving ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Publishing Post...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-200" />
-                  Accept &amp; Publish Post
-                </span>
-              )}
+              <CheckCircle2 className="w-4 h-4 text-amber-200" />
+              I Understand &amp; Agree
             </button>
           </div>
         </div>
