@@ -291,18 +291,19 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   };
 
   const handleShare = async () => {
-    const targetUrl = `${window.location.origin}/post/${post.__id}`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
+    const targetUrl = `${baseUrl}/post/${post.__id}`;
+    const shareText = `Come and visit our Fractional Sales Partner for more collaborations!\n\n${targetUrl}`;
     const shareData = {
       title: post.eventName || "Sales Opportunity | Fractional Sales Partner",
-      text: "Come and visit fractionalsalespartner.com for more collaborations!",
-      url: targetUrl,
+      text: shareText,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(targetUrl);
+        await navigator.clipboard.writeText(shareText);
         alert("Link copied to clipboard! Share it anywhere to show the preview card.");
       }
     } catch (err) {

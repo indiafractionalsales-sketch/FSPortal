@@ -35,6 +35,26 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const mediaUrl = post?.mediaUrl;
   const tagType = post?.postType === "obo" ? "BUSINESS REQUIREMENT" : "EVENT";
 
+  // Safely fetch mediaUrl to Base64 for Satori to prevent 500 error on external image load
+  let mediaBase64: string | null = null;
+  if (mediaUrl) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch(mediaUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const buffer = await res.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString("base64");
+        const mimeType = res.headers.get("content-type") || "image/jpeg";
+        mediaBase64 = `data:${mimeType};base64,${base64}`;
+      }
+    } catch (e) {
+      console.warn("Failed to fetch mediaUrl for OG image, falling back to brand logo:", e);
+      mediaBase64 = null;
+    }
+  }
+
   return new ImageResponse(
     (
       <div
@@ -77,10 +97,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
               position: "relative",
             }}
           >
-            {mediaUrl ? (
+            {mediaBase64 ? (
               // eslint-disable-next-next/no-img-element
               <img
-                src={mediaUrl}
+                src={mediaBase64}
                 alt={title}
                 style={{
                   width: "100%",

@@ -31,22 +31,20 @@ export default function PostClientView({ post, postId }: PostClientViewProps) {
     ? new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
 
-  const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/post/${postId}`
-    : `https://fractionalsalespartner.com/post/${postId}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
+  const shareUrl = `${baseUrl}/post/${postId}`;
+  const shareText = `Come and visit our Fractional Sales Partner for more collaborations!\n\n${shareUrl}`;
 
   const handleUniversalShare = async () => {
     const shareData = {
       title: post.eventName || "Sales Opportunity",
-      text: "Come and visit fractionalsalespartner.com for more collaborations!",
-      url: shareUrl,
+      text: shareText,
     };
 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // Share cancelled or failed, fallback to copy link
         if ((err as Error).name !== "AbortError") {
           copyToClipboard();
         }
@@ -57,7 +55,7 @@ export default function PostClientView({ post, postId }: PostClientViewProps) {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
