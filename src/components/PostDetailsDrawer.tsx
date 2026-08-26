@@ -13,12 +13,14 @@
  * Indian and international intellectual property laws.
  */
 
-import { X, MapPin, Briefcase, Globe, Target, CheckSquare, DollarSign, Package, Info, Calendar, Clock, ExternalLink, FileText } from "lucide-react";
+import { useState } from "react";
+import { X, MapPin, Briefcase, Globe, Target, CheckSquare, DollarSign, Package, Info, Calendar, Clock, ExternalLink, FileText, Share2, Check } from "lucide-react";
 
 interface PostDetailsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   post: any;
+  postId?: string;
 }
 
 const DetailItem = ({ icon: Icon, label, value }: { icon: any; label: string; value: any }) => {
@@ -45,8 +47,35 @@ const SectionHeading = ({ icon: Icon, title }: { icon: any; title: string }) => 
   </div>
 );
 
-export default function PostDetailsDrawer({ isOpen, onClose, post }: PostDetailsDrawerProps) {
+export default function PostDetailsDrawer({ isOpen, onClose, post, postId }: PostDetailsDrawerProps) {
+  const [copied, setCopied] = useState(false);
   if (!isOpen || !post) return null;
+
+  const resolvedId = postId || post.__id || post.id || "";
+  const shareUrl = `https://fractionalsalespartner.com/post/${resolvedId}`;
+  const shareText = `Come & Meet our Fractional Sales Partner for more collaborations!\n\n${shareUrl}`;
+
+  const handleShare = async () => {
+    const shareData = {
+      title: post.eventName || "Sales Opportunity | Fractional Sales Partner",
+      text: shareText,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") copyLink();
+      }
+    } else {
+      copyLink();
+    }
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(shareText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -176,6 +205,17 @@ export default function PostDetailsDrawer({ isOpen, onClose, post }: PostDetails
               )}
             </div>
           )}
+        </div>
+
+        {/* Drawer Footer — Share Button */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-center gap-3">
+          <button
+            onClick={handleShare}
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#701010] bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+          >
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
+            {copied ? "Link Copied!" : "Share Post"}
+          </button>
         </div>
       </div>
     </div>
