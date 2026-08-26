@@ -280,6 +280,9 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     ),
     {
       ...size,
+      headers: {
+        "Cache-Control": "public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400",
+      },
     }
   );
 }

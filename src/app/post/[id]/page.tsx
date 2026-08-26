@@ -32,7 +32,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = "Come & Meet our Fractional Sales Partner for more collaborations!";
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
   const pageUrl = `${baseUrl}/post/${id}`;
-  const ogImageUrl = `${baseUrl}/post/${id}/opengraph-image`;
+  const versionTag = post?.updatedAt || post?.createdAt || id;
+  const ogImageUrl = `${baseUrl}/post/${id}/opengraph-image?v=${versionTag}`;
 
   return {
     metadataBase: new URL(baseUrl),

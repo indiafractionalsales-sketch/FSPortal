@@ -38,6 +38,8 @@ export interface ServerPost {
   currency?: string;
   budgetMin?: number;
   budgetMax?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const PROJECT_ID = "fractional-sales-4436e";
