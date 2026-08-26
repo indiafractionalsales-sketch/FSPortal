@@ -446,19 +446,19 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
 
               {/* Sales Partner Agreement Checkbox */}
               <div className="mt-4 pt-3 border-t border-gray-100">
-                <label className="flex items-center gap-2.5 cursor-pointer text-xs text-gray-700 select-none">
+                <label className="flex items-center gap-2 cursor-pointer text-[11px] text-gray-500 select-none">
                   <input
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer shrink-0"
+                    className="w-3.5 h-3.5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer shrink-0"
                   />
                   <span>
                     I agree to the{" "}
                     <button
                       type="button"
                       onClick={() => setShowAgreementModal(true)}
-                      className="text-indigo-600 font-semibold underline hover:text-indigo-800 inline"
+                      className="text-indigo-600 font-medium underline hover:text-indigo-800 inline"
                     >
                       Sales Partner Representation &amp; Listing Service Agreement
                     </button>
