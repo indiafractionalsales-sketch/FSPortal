@@ -293,7 +293,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const handleShare = async () => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
     const targetUrl = `${baseUrl}/post/${post.__id}`;
-    const shareText = `Come and visit our Fractional Sales Partner for more collaborations!\n\n${targetUrl}`;
+    const shareText = `Come & Meet our Fractional Sales Partner for more collaborations!\n\n${targetUrl}`;
     const shareData = {
       title: post.eventName || "Sales Opportunity | Fractional Sales Partner",
       text: shareText,

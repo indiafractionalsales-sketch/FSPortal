@@ -33,7 +33,7 @@ export default function PostClientView({ post, postId }: PostClientViewProps) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
   const shareUrl = `${baseUrl}/post/${postId}`;
-  const shareText = `Come and visit our Fractional Sales Partner for more collaborations!\n\n${shareUrl}`;
+  const shareText = `Come & Meet our Fractional Sales Partner for more collaborations!\n\n${shareUrl}`;
 
   const handleUniversalShare = async () => {
     const shareData = {

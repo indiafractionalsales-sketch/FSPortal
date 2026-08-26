@@ -11,7 +11,6 @@
  */
 
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { getPostByIdServer } from "@/lib/server-posts";
 import Navbar from "@/components/Navbar";
@@ -30,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${post.eventName} | Fractional Sales Partner`
     : "Sales Partnership Opportunity | Fractional Sales Partner";
 
-  const description = "Come and visit our Fractional Sales Partner for more collaborations!";
+  const description = "Come & Meet our Fractional Sales Partner for more collaborations!";
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fractionalsalespartner.com";
   const pageUrl = `${baseUrl}/post/${id}`;
   const ogImageUrl = `${baseUrl}/post/${id}/opengraph-image`;
