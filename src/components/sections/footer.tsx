@@ -13,7 +13,7 @@
 "use client";
 
 import React from "react";
-import { Twitter, Linkedin, Instagram, Facebook, ShieldCheck } from "lucide-react";
+import { Facebook, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export function Footer() {
@@ -36,17 +36,8 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Social Icons (Twitter, LinkedIn, Instagram, Facebook) */}
+          {/* Social Icons (Facebook) */}
           <div className="flex items-center gap-3">
-            <a href="#" aria-label="Twitter" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Twitter className="w-4 h-4" />
-            </a>
-            <a href="#" aria-label="LinkedIn" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a href="#" aria-label="Instagram" className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-[#0369a1] border border-white/20 rounded-full transition-all duration-300 shadow-sm">
-              <Instagram className="w-4 h-4" />
-            </a>
             <a 
               href="https://www.facebook.com/profile.php?id=61588738602286" 
               target="_blank" 
