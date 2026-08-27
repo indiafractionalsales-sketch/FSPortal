@@ -51,13 +51,121 @@ export default function PostRequirementPage() {
             <span>The MSME Global Expansion Playbook</span>
           </div>
 
-          <h1 className="text-xl md:text-3xl lg:text-4xl font-serif font-bold text-gray-900 tracking-tight leading-snug max-w-3xl mx-auto mb-4">
-            Why Sinking Your Budget into One Country Fails—And How <span className="text-[#701010] bg-rose-50 px-2.5 py-0.5 rounded-lg border border-rose-200/80 inline-block font-bold">Fractional Sales</span> Unlocks Global Reach
-          </h1>
+          {/* 2 Parallel Verticals Hero Split */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left mb-12 max-w-6xl mx-auto">
+            
+            {/* Vertical 1: The Problem (Capital Trap) */}
+            <div className="bg-[#fff5f5]/80 border border-rose-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200/30 rounded-bl-full pointer-events-none" />
+              
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-rose-200 text-rose-800 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Vertical 01 — The Problem</span>
+                </div>
 
-          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Selling in France 🇫🇷 is not selling in Italy 🇮🇹, which is not selling in Germany 🇩🇪. Discover how smart Business Owners distribute a single market budget across 5+ countries using on-ground Fractional Sales Partners.
-          </p>
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-gray-900 leading-snug mb-3">
+                  Why Sinking Your Budget into One Country Fails
+                </h2>
+
+                <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                  Pouring your entire MSME expansion budget into a single full-time hire in one country burns $120,000+ in fixed overhead, locks you into one market, and leaves zero budget for other global regions.
+                </p>
+
+                {/* Doodle Graphic: Thinking Founder at Desk with Pen */}
+                <div className="bg-white border border-rose-200/80 rounded-2xl p-5 shadow-2xs mb-4 text-center">
+                  <div className="flex items-center justify-center gap-4 py-2">
+                    {/* SVG Doodle Illustration */}
+                    <svg className="w-24 h-24 text-rose-600 shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 80 L90 80" />
+                      <path d="M20 80 L20 95" />
+                      <path d="M80 80 L80 95" />
+                      <circle cx="50" cy="35" r="12" />
+                      <path d="M50 47 L50 70" />
+                      <path d="M50 55 L35 45" />
+                      <path d="M35 45 L32 38" />
+                      <path d="M50 55 L68 65" />
+                      <path d="M30 36 L24 30" stroke="#701010" strokeWidth="3" />
+                      <path d="M68 28 C75 25, 82 25, 85 30 C88 35, 85 40, 80 42 C85 45, 82 50, 75 48 C72 48, 70 45, 68 42 Z" fill="#fff5f5" stroke="#f43f5e" strokeDasharray="3 3" />
+                      <text x="76" y="38" fontSize="8" fontWeight="bold" fill="#be123c" textAnchor="middle" stroke="none">$120K</text>
+                      <text x="76" y="44" fontSize="6" fill="#be123c" textAnchor="middle" stroke="none">Sunk!</text>
+                    </svg>
+                    
+                    <div className="text-left max-w-xs">
+                      <p className="text-xs font-bold text-gray-900 mb-1">Founder's Capital Dilemma</p>
+                      <p className="text-[11px] text-gray-500 leading-snug">
+                        Sitting at the desk with pen in hand... realizing 100% of capital is trapped in 1 market with high fixed risk.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-rose-100/60 border border-rose-200 rounded-xl text-xs text-rose-900 font-medium flex items-center justify-between">
+                <span>⚠️ High Fixed Risk</span>
+                <span className="font-bold text-rose-700">0 Multi-Country Reach</span>
+              </div>
+            </div>
+
+            {/* Vertical 2: The Solution (Fractional Reach) */}
+            <div className="bg-[#f0fdf4]/80 border border-emerald-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/30 rounded-bl-full pointer-events-none" />
+
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-emerald-200 text-emerald-800 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Vertical 02 — The Solution</span>
+                </div>
+
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-gray-900 leading-snug mb-3">
+                  How Fractional Sales Unlocks Global Reach
+                </h2>
+
+                <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                  Distribute the exact same budget across 6+ countries. Hire verified native Sales Partners for specific expos, buyer verifications, and market entries under 7-day escrow protection.
+                </p>
+
+                {/* Doodle Graphic: Global Expansion Tree */}
+                <div className="bg-white border border-emerald-200/80 rounded-2xl p-5 shadow-2xs mb-4 text-center">
+                  <div className="flex items-center justify-center gap-4 py-2">
+                    {/* SVG Solution Graphic */}
+                    <svg className="w-24 h-24 text-emerald-600 shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="50" cy="50" r="14" fill="#f0fdf4" stroke="#059669" />
+                      <text x="50" y="52" fontSize="7" fontWeight="bold" fill="#047857" textAnchor="middle" stroke="none">BUDGET</text>
+                      <path d="M50 36 L50 18" stroke="#10b981" />
+                      <path d="M62 42 L80 30" stroke="#10b981" />
+                      <path d="M62 58 L80 70" stroke="#10b981" />
+                      <path d="M38 58 L20 70" stroke="#10b981" />
+                      <path d="M38 42 L20 30" stroke="#10b981" />
+                      <circle cx="50" cy="14" r="8" fill="#fff" stroke="#10b981" />
+                      <text x="50" y="17" fontSize="7" textAnchor="middle" stroke="none">🇫🇷</text>
+                      <circle cx="84" cy="27" r="8" fill="#fff" stroke="#10b981" />
+                      <text x="84" y="30" fontSize="7" textAnchor="middle" stroke="none">🇩🇪</text>
+                      <circle cx="84" cy="73" r="8" fill="#fff" stroke="#10b981" />
+                      <text x="84" y="76" fontSize="7" textAnchor="middle" stroke="none">🇮🇹</text>
+                      <circle cx="16" cy="73" r="8" fill="#fff" stroke="#10b981" />
+                      <text x="16" y="76" fontSize="7" textAnchor="middle" stroke="none">🇦🇪</text>
+                      <circle cx="16" cy="27" r="8" fill="#fff" stroke="#10b981" />
+                      <text x="16" y="30" fontSize="7" textAnchor="middle" stroke="none">🇺🇸</text>
+                    </svg>
+
+                    <div className="text-left max-w-xs">
+                      <p className="text-xs font-bold text-gray-900 mb-1">Optimized Global Distribution</p>
+                      <p className="text-[11px] text-gray-500 leading-snug">
+                        1 Budget → Native Local Experts in France, Germany, Italy, UAE &amp; US. Pay only per event.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-emerald-100/60 border border-emerald-200 rounded-xl text-xs text-emerald-950 font-medium flex items-center justify-between">
+                <span>✨ 0 Fixed Payroll Risk</span>
+                <span className="font-bold text-emerald-700">6+ Markets Covered</span>
+              </div>
+            </div>
+
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
