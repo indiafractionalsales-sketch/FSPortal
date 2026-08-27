@@ -150,7 +150,7 @@ export function Navbar() {
 
                   <ul className="space-y-3">
                     <li>
-                      <Link href="/login?role=obo" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
+                      <Link href="/post-requirement" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
                         <span className="text-rose-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Post Business Requirements</p>
