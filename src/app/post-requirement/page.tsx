@@ -29,7 +29,6 @@ import { Footer } from "@/components/sections/footer";
 export default function PostRequirementPage() {
   const router = useRouter();
   const [activeStoryTab, setActiveStoryTab] = useState<"problem" | "nuances" | "solution" | "post">("problem");
-  const [budgetSlider, setBudgetSlider] = useState<number>(30000);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Animated counter state
@@ -110,13 +109,7 @@ export default function PostRequirementPage() {
     return () => observer.disconnect();
   }, [counterStarted]);
 
-  // Budget simulator calculations
-  const traditionalMarketsCovered = Math.max(1, Math.floor(budgetSlider / 60000));
-  const fractionalExposCovered = Math.floor(budgetSlider / 2500);
-  const fractionalCountriesCovered = Math.min(12, Math.max(2, Math.floor(fractionalExposCovered / 1.5)));
-  const estimatedSavings = Math.round(budgetSlider * 0.65);
-  const additionalMarketsUnlocked = Math.max(0, fractionalCountriesCovered - traditionalMarketsCovered);
-  const globalCoveragePercent = Math.round((fractionalCountriesCovered / 12) * 100);
+
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-gray-900 font-sans flex flex-col selection:bg-rose-100 selection:text-rose-900 relative">
@@ -1005,40 +998,24 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* ── Budget Simulator (with Savings Callout + Coverage Progress) ── */}
+      {/* ── Strategic Model Comparison Matrix ── */}
       <section className="py-16 md:py-24 bg-[#f8fafc] border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-xs font-headline font-bold uppercase tracking-widest text-emerald-800 bg-emerald-100 border border-emerald-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
-              Interactive ROI Calculator
+              Strategic Comparison
             </span>
             <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
-              Compare Your Global Reach: Traditional vs. Fractional
+              Traditional Overseas Hire vs. Fractional Sales Partner
             </h2>
             <p className="text-xs md:text-sm text-gray-600 mt-2">
-              Slide your annual international sales budget to see how many global expos and countries you can cover.
+              Why modern exporters are switching from single-country fixed hires to multi-market fractional distribution.
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-[#fffbeb] via-rose-50/50 to-[#ecfdf5] border-2 border-amber-200 rounded-3xl p-8 shadow-sm">
-            {/* Slider */}
-            <div className="mb-10 max-w-2xl mx-auto bg-white p-6 rounded-2xl border-2 border-amber-200 shadow-2xs">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold text-gray-700 uppercase">Your Annual Sales Budget</span>
-                <span className="text-2xl font-serif font-bold text-[#701010]">${budgetSlider.toLocaleString("en-US")} USD</span>
-              </div>
-              <input
-                type="range" min="10000" max="150000" step="5000"
-                value={budgetSlider} onChange={(e) => setBudgetSlider(Number(e.target.value))}
-                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#701010]"
-              />
-              <div className="flex justify-between text-[10px] text-gray-500 font-bold mt-2">
-                <span>$10,000</span><span>$75,000</span><span>$150,000</span>
-              </div>
-            </div>
-
             {/* Comparison Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-[#fff1f2] border-2 border-rose-300 rounded-2xl p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-serif font-bold text-base text-rose-950">Traditional Fixed Overseas Hire</h4>
@@ -1046,7 +1023,7 @@ export default function PostRequirementPage() {
                 </div>
                 <div className="space-y-3 text-xs text-gray-800">
                   <div className="flex justify-between py-1.5 border-b border-rose-200 font-medium">
-                    <span>Countries Covered</span><span className="font-bold text-rose-700">{traditionalMarketsCovered} Market Only</span>
+                    <span>Countries Covered</span><span className="font-bold text-rose-700">1 Market Only</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-rose-200 font-medium">
                     <span>Expos Attended</span><span className="font-bold text-rose-700">1 - 2 Fairs max</span>
@@ -1067,10 +1044,10 @@ export default function PostRequirementPage() {
                 </div>
                 <div className="space-y-3 text-xs text-gray-800">
                   <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
-                    <span>Countries Covered</span><span className="font-bold text-emerald-700">{fractionalCountriesCovered} Global Markets 🌍</span>
+                    <span>Countries Covered</span><span className="font-bold text-emerald-700">6+ Global Markets 🌍</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
-                    <span>Expos Attended</span><span className="font-bold text-emerald-700">{fractionalExposCovered} Trade Fairs ✨</span>
+                    <span>Expos Attended</span><span className="font-bold text-emerald-700">Multiple Trade Fairs ✨</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
                     <span>Milestone &amp; Audit Protection</span><span className="font-bold text-emerald-700">100% Money-Back Milestone Guarantee</span>
@@ -1079,35 +1056,6 @@ export default function PostRequirementPage() {
                     <span>Overall Flexibility</span><span className="text-emerald-700">Maximum (On-Demand Execution)</span>
                   </div>
                 </div>
-                {/* Global coverage progress bar */}
-                <div className="mt-4 pt-3 border-t border-emerald-200">
-                  <div className="flex justify-between text-[10px] font-bold text-emerald-800 mb-1.5">
-                    <span>Global Key Market Coverage</span>
-                    <span>{globalCoveragePercent}% of 12 Markets</span>
-                  </div>
-                  <div className="w-full h-2 bg-emerald-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500" style={{ width: `${globalCoveragePercent}%` }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Savings Unlocked Callout ── */}
-            <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-300 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center shadow-md shrink-0">
-                  <Award className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Your Projected Savings with Fractional Model</p>
-                  <p className="text-2xl font-serif font-bold text-amber-950">~${estimatedSavings.toLocaleString("en-US")} saved</p>
-                  <p className="text-[10px] text-amber-800">vs. traditional fixed overseas hire approach</p>
-                </div>
-              </div>
-              <div className="text-center sm:text-right shrink-0">
-                <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Additional Markets Unlocked</p>
-                <p className="text-4xl font-serif font-bold text-amber-950">+{additionalMarketsUnlocked}</p>
-                <p className="text-[10px] text-amber-800">countries vs. traditional model</p>
               </div>
             </div>
           </div>
