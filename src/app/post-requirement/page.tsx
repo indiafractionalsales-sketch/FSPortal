@@ -88,14 +88,14 @@ export default function PostRequirementPage() {
       {/* Global Top Navbar */}
       <Navbar />
 
-      {/* Floating Live Activity Toast Notification (Visual Hook 3.2) */}
+      {/* Floating Activity Toast Notification */}
       <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-white/95 backdrop-blur-md border-2 border-emerald-300 rounded-2xl p-4 shadow-xl transition-all animate-in slide-in-from-bottom-5 duration-300">
         <div className="flex items-start gap-3">
           <span className="text-2xl shrink-0">{toasts[toastIndex].flag}</span>
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] font-headline font-bold text-emerald-700 uppercase tracking-wider mb-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Platform Match
+            <div className="flex items-center gap-1.5 text-[10px] font-headline font-bold text-emerald-800 uppercase tracking-wider mb-0.5">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+              Platform Match Example
             </div>
             <p className="text-xs font-semibold text-gray-900 leading-snug">
               {toasts[toastIndex].text}
@@ -110,10 +110,10 @@ export default function PostRequirementPage() {
 
         <div className="container mx-auto px-6 max-w-6xl text-center">
           
-          {/* World Clock Live Realtime Widget Bar (Visual Hook 1.3) */}
+          {/* World Clock Realtime Widget Bar */}
           <div className="mb-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-white/90 border-2 border-rose-200/80 shadow-2xs text-xs text-gray-800 font-medium">
             <span className="flex items-center gap-1.5 text-rose-700 font-headline font-bold text-[10px] uppercase tracking-wider pr-2 border-r border-rose-200">
-              <Clock className="w-3.5 h-3.5 text-rose-600 animate-spin" style={{ animationDuration: '12s' }} /> Live Rep Status
+              <Clock className="w-3.5 h-3.5 text-rose-600" /> Active Market Hours
             </span>
             <span className="flex items-center gap-1">🇫🇷 Paris <strong className="text-rose-950 font-bold">{times.paris || "12:30"}</strong></span>
             <span className="text-gray-300">•</span>
