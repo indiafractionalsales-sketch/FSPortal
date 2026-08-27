@@ -216,7 +216,7 @@ export function Navbar() {
 
                   <ul className="space-y-3">
                     <li>
-                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
+                      <Link href="/sales-partner#post-trade-show-package" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
                         <span className="text-emerald-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">Post Trade Show Package</p>
@@ -225,7 +225,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
+                      <Link href="/sales-partner#on-ground-verification" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
                         <span className="text-emerald-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">On-Ground Verification &amp; Audits</p>
@@ -234,7 +234,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
+                      <Link href="/sales-partner#browse-brand-requirements" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
                         <span className="text-emerald-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">Browse Brand Requirements</p>
@@ -243,7 +243,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
+                      <Link href="/sales-partner#7-day-payout-schedule" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
                         <span className="text-emerald-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">7-Day Payout Schedule</p>
@@ -252,7 +252,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
+                      <Link href="/sales-partner#partner-code-nda" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-emerald-700 transition-colors">
                         <span className="text-emerald-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">Partner Code &amp; NDA Terms</p>
