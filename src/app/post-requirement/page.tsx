@@ -181,7 +181,7 @@ export default function PostRequirementPage() {
                   Sinking Your Entire Budget into 1 Market Leaves You Trapped
                 </h2>
                 <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
-                  Setting up an overseas office or hiring 1 full-time rep burns $40,000+ in fixed overhead. If that single market slows down, 100% of your capital is trapped — with zero presence anywhere else.
+                  Hiring full-time overseas sales &amp; marketing teams burns $40,000+ in fixed payroll and retainers. If that single market slows down, 100% of your capital is trapped — with zero presence anywhere else.
                 </p>
 
                 {/* Animated Budget-Burn Visualization */}
@@ -610,26 +610,26 @@ export default function PostRequirementPage() {
                     Slide 01 — The MSME Expansion Dilemma
                   </span>
                   <h3 className="text-2xl md:text-3xl font-serif font-bold text-rose-950 mb-4">
-                    The Capital Trap of Traditional Overseas Offices
+                    The Capital Trap of Overseas Sales &amp; Marketing Teams
                   </h3>
                   <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
-                    When a Business Owner, Manufacturer, or Trader wants to expand globally, traditional advice says: <em className="text-rose-950 font-bold">&ldquo;Set up a local entity, lease an office, and hire a full-time sales executive in the target country.&rdquo;</em>
+                    When a Business Owner, Manufacturer, or Trader wants to expand globally, traditional advice says: <em className="text-rose-950 font-bold">&ldquo;Hire a full-time sales &amp; marketing team or pay heavy monthly retainers in each target country.&rdquo;</em>
                   </p>
                   <div className="space-y-3 bg-white p-5 rounded-2xl border-2 border-rose-200 text-xs shadow-2xs">
                     <div className="flex items-center justify-between text-gray-900 font-bold border-b border-rose-100 pb-2">
-                      <span>Full-Time Overseas Hire (1 Country)</span>
+                      <span>Full-Time Overseas Sales &amp; Marketing Rep</span>
                       <span className="text-rose-600 font-extrabold">$25,000 - $30,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between text-gray-700">
-                      <span>Local Office Lease &amp; Compliance</span>
+                      <span>Monthly Agency Retainers &amp; Local Setup</span>
                       <span>$10,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between text-gray-700">
-                      <span>Travel &amp; Administrative Overhead</span>
+                      <span>Travel, Lodging &amp; Event Allowances</span>
                       <span>$5,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between font-bold text-rose-800 pt-2 border-t border-rose-100">
-                      <span>Total Fixed Budget Consumed</span>
+                      <span>Total Fixed Payroll &amp; Retainers Consumed</span>
                       <span className="text-rose-700 font-extrabold">$40,000+ (Sunk in 1 Market)</span>
                     </div>
                   </div>
@@ -1018,7 +1018,7 @@ export default function PostRequirementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-[#fff1f2] border-2 border-rose-300 rounded-2xl p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-serif font-bold text-base text-rose-950">Traditional Fixed Overseas Hire</h4>
+                  <h4 className="font-serif font-bold text-base text-rose-950">Traditional Fixed Overseas Sales Team</h4>
                   <XIcon className="w-5 h-5 text-rose-600" />
                 </div>
                 <div className="space-y-3 text-xs text-gray-800">
