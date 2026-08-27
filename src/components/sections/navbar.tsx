@@ -204,14 +204,14 @@ export function Navbar() {
                       <UserCheck className="w-4 h-4" />
                     </span>
                     <span className="text-[9px] font-headline font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                      Event Reps &amp; Hosts
+                      Expo Reps &amp; On-Ground Agents
                     </span>
                   </div>
                   <h3 className="font-serif font-bold text-base text-white tracking-wide mb-1">
                     For Sales Partners
                   </h3>
                   <p className="text-[11px] text-white/50 mb-5">
-                    Represent global brands at expos and earn representation fees.
+                    Represent offshore brands at expos, execute buyer verifications, quality checks &amp; local field tasks.
                   </p>
 
                   <ul className="space-y-3">
@@ -220,7 +220,16 @@ export function Navbar() {
                         <span className="text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-white group-hover:text-emerald-400 transition-colors">Post Trade Show Package</p>
-                          <p className="text-[10px] text-white/40">List Bronze, Silver &amp; Gold offerings</p>
+                          <p className="text-[10px] text-white/40">List Bronze, Silver &amp; Gold expo offerings</p>
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/login?role=sp" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-white/80 hover:text-emerald-400 transition-colors">
+                        <span className="text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity">›</span>
+                        <div>
+                          <p className="font-semibold text-white group-hover:text-emerald-400 transition-colors">On-Ground Verification &amp; Audits</p>
+                          <p className="text-[10px] text-white/40">Buyer verification, quality checks &amp; sample handovers</p>
                         </div>
                       </Link>
                     </li>
@@ -229,7 +238,7 @@ export function Navbar() {
                         <span className="text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-white group-hover:text-emerald-400 transition-colors">Browse Brand Requirements</p>
-                          <p className="text-[10px] text-white/40">Find MSMEs looking for sales reps</p>
+                          <p className="text-[10px] text-white/40">Find offshore manufacturers hiring local reps</p>
                         </div>
                       </Link>
                     </li>
