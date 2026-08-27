@@ -188,7 +188,7 @@ export default function PostRequirementPage() {
                   Sinking Your Entire Budget into 1 Market Leaves You Trapped
                 </h2>
                 <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
-                  Setting up an overseas office or hiring 1 full-time rep burns $120,000+ in fixed overhead. If that single market slows down, 100% of your capital is trapped — with zero presence anywhere else.
+                  Setting up an overseas office or hiring 1 full-time rep burns $40,000+ in fixed overhead. If that single market slows down, 100% of your capital is trapped — with zero presence anywhere else.
                 </p>
 
                 {/* Animated Budget-Burn Visualization */}
@@ -198,7 +198,7 @@ export default function PostRequirementPage() {
                     <div>
                       <div className="flex justify-between text-[10px] font-bold mb-1">
                         <span className="text-gray-800">🇫🇷 France Only (Fixed Hire)</span>
-                        <span className="text-rose-700">$120,000 — 100%</span>
+                        <span className="text-rose-700">$40,000 — 100%</span>
                       </div>
                       <div className="w-full h-4 bg-rose-100 rounded-full overflow-hidden">
                         <div className="h-full w-full bg-gradient-to-r from-rose-400 to-rose-600 rounded-full" />
@@ -625,19 +625,19 @@ export default function PostRequirementPage() {
                   <div className="space-y-3 bg-white p-5 rounded-2xl border-2 border-rose-200 text-xs shadow-2xs">
                     <div className="flex items-center justify-between text-gray-900 font-bold border-b border-rose-100 pb-2">
                       <span>Full-Time Overseas Hire (1 Country)</span>
-                      <span className="text-rose-600 font-extrabold">$80,000 - $120,000 / yr</span>
+                      <span className="text-rose-600 font-extrabold">$25,000 - $30,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between text-gray-700">
                       <span>Local Office Lease &amp; Compliance</span>
-                      <span>$25,000 / yr</span>
+                      <span>$10,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between text-gray-700">
                       <span>Travel &amp; Administrative Overhead</span>
-                      <span>$15,000 / yr</span>
+                      <span>$5,000 / yr</span>
                     </div>
                     <div className="flex items-center justify-between font-bold text-rose-800 pt-2 border-t border-rose-100">
                       <span>Total Fixed Budget Consumed</span>
-                      <span className="text-rose-700 font-extrabold">$120,000+ (Sunk in 1 Market)</span>
+                      <span className="text-rose-700 font-extrabold">$40,000+ (Sunk in 1 Market)</span>
                     </div>
                   </div>
                 </div>
@@ -817,7 +817,7 @@ export default function PostRequirementPage() {
                     Redistribute One Budget Across 6+ Countries Effortlessly
                   </h3>
                   <p className="text-xs md:text-sm text-emerald-900/80 leading-relaxed mb-6">
-                    Instead of spending $100,000 on 1 country, allocate $10,000–$15,000 per market to hire top Fractional Sales Partners for specific expos, B2B meetings, and buyer verifications.
+                    Instead of spending $40,000 on 1 country, allocate $5,000–$10,000 per market to hire top Fractional Sales Partners for specific expos, B2B meetings, and buyer verifications.
                   </p>
                   <div className="space-y-2.5 text-xs font-bold text-gray-900">
                     <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
