@@ -132,24 +132,24 @@ export default function PostRequirementPage() {
           </div>
 
           {/* 2 Parallel Cheerful Verticals Hero Split */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left mb-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left mb-12 max-w-6xl mx-auto items-stretch">
             
-            {/* Vertical 1: The Problem (Rich Warm Rose Panel) */}
+            {/* Vertical 1: The Problem (The Capital Trap) */}
             <div className="bg-[#fff1f2] border-2 border-rose-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200/40 rounded-bl-full pointer-events-none" />
               
               <div>
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-rose-100 border border-rose-300 text-rose-900 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
                   <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Vertical 01 — The Problem</span>
+                  <span>The Capital Trap (The Old Way)</span>
                 </div>
 
                 <h2 className="text-xl md:text-2xl font-serif font-bold text-rose-950 leading-snug mb-3">
-                  Why Sinking Your Budget into One Country Fails
+                  Sinking Your Entire Budget into 1 Market Leaves You Trapped
                 </h2>
 
                 <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
-                  Pouring your entire MSME expansion budget into a single full-time hire in one country burns $120,000+ in fixed overhead, locks you into one market, and leaves zero budget for other global regions.
+                  Setting up an overseas office or hiring 1 full-time rep burns $120,000+ in fixed overhead. If that single market slows down, 100% of your capital is trapped with zero presence anywhere else.
                 </p>
 
                 {/* Doodle Graphic: Thinking Founder at Desk with Pen */}
@@ -171,9 +171,9 @@ export default function PostRequirementPage() {
                     </svg>
                     
                     <div className="text-left max-w-xs">
-                      <p className="text-xs font-bold text-rose-950 mb-1">Founder's Capital Dilemma</p>
+                      <p className="text-xs font-bold text-rose-950 mb-1">Single-Country Risk Lock</p>
                       <p className="text-[11px] text-gray-600 leading-snug">
-                        Sitting at the desk with pen in hand... realizing 100% of capital is trapped in 1 market with high fixed risk.
+                        100% of expansion budget tied up in 1 country... zero budget left for UK, France, Germany, or UAE.
                       </p>
                     </div>
                   </div>
@@ -181,31 +181,36 @@ export default function PostRequirementPage() {
               </div>
 
               <div className="p-3 bg-rose-200/70 border border-rose-300 rounded-xl text-xs text-rose-950 font-bold flex items-center justify-between shadow-2xs">
-                <span>⚠️ High Fixed Risk</span>
+                <span>⚠️ High Fixed Overhead</span>
                 <span className="text-rose-800">0 Multi-Country Reach</span>
               </div>
             </div>
 
-            {/* Vertical 2: The Solution (Rich Cheerful Emerald Panel) */}
-            <div className="bg-[#ecfdf5] border-2 border-emerald-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-bl-full pointer-events-none" />
+            {/* Vertical 2: The Solution (PROMINENTLY HIGHLIGHTED SOLUTION CARD!) */}
+            <div className="bg-gradient-to-b from-[#ecfdf5] via-[#d1fae5]/70 to-[#ecfdf5] border-2 border-emerald-500 rounded-3xl p-8 shadow-xl ring-4 ring-emerald-200/60 transition-all flex flex-col justify-between relative overflow-hidden group scale-[1.02] transform">
+              
+              {/* Floating Recommended Highlight Ribbon */}
+              <div className="absolute top-0 right-0 bg-emerald-600 text-white font-headline font-bold text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl shadow-md flex items-center gap-1.5 z-10">
+                <Sparkles className="w-3 h-3 text-amber-300 fill-amber-300" />
+                <span>Recommended Playbook — 10x ROI</span>
+              </div>
 
               <div>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-900 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Vertical 02 — The Solution</span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>The Smart Fractional Way (The Breakthrough)</span>
                 </div>
 
                 <h2 className="text-xl md:text-2xl font-serif font-bold text-emerald-950 leading-snug mb-3">
-                  How Fractional Sales Unlocks Global Reach
+                  Multiply Your Global Reach Across 6+ Key Markets On-Demand
                 </h2>
 
-                <p className="text-xs md:text-sm text-emerald-900/80 leading-relaxed mb-6">
-                  Distribute the exact same budget across 6+ countries. Hire verified native Sales Partners for specific expos, buyer verifications, and market entries under 7-day escrow protection.
+                <p className="text-xs md:text-sm text-emerald-950/90 leading-relaxed mb-6 font-medium">
+                  Distribute that exact same budget to hire top on-ground Sales Partners in the UK 🇬🇧, France 🇫🇷, Germany 🇩🇪, Sweden 🇸🇪, UAE 🇦🇪, and Spain 🇪🇸. Zero fixed payroll, zero overseas office leases.
                 </p>
 
                 {/* Doodle Graphic: Global Expansion Tree */}
-                <div className="bg-white border-2 border-emerald-200/90 rounded-2xl p-5 shadow-xs mb-4 text-center">
+                <div className="bg-white border-2 border-emerald-300 rounded-2xl p-5 shadow-sm mb-5 text-center">
                   <div className="flex items-center justify-center gap-4 py-2">
                     <svg className="w-24 h-24 text-emerald-600 shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="50" cy="50" r="14" fill="#ecfdf5" stroke="#059669" />
@@ -216,30 +221,41 @@ export default function PostRequirementPage() {
                       <path d="M38 58 L20 70" stroke="#10b981" />
                       <path d="M38 42 L20 30" stroke="#10b981" />
                       <circle cx="50" cy="14" r="8" fill="#fff" stroke="#10b981" />
-                      <text x="50" y="17" fontSize="7" textAnchor="middle" stroke="none">🇫🇷</text>
+                      <text x="50" y="17" fontSize="7" textAnchor="middle" stroke="none">🇬🇧</text>
                       <circle cx="84" cy="27" r="8" fill="#fff" stroke="#10b981" />
-                      <text x="84" y="30" fontSize="7" textAnchor="middle" stroke="none">🇩🇪</text>
+                      <text x="84" y="30" fontSize="7" textAnchor="middle" stroke="none">🇫🇷</text>
                       <circle cx="84" cy="73" r="8" fill="#fff" stroke="#10b981" />
-                      <text x="84" y="76" fontSize="7" textAnchor="middle" stroke="none">🇮🇹</text>
+                      <text x="84" y="76" fontSize="7" textAnchor="middle" stroke="none">🇩🇪</text>
                       <circle cx="16" cy="73" r="8" fill="#fff" stroke="#10b981" />
                       <text x="16" y="76" fontSize="7" textAnchor="middle" stroke="none">🇦🇪</text>
                       <circle cx="16" cy="27" r="8" fill="#fff" stroke="#10b981" />
-                      <text x="16" y="30" fontSize="7" textAnchor="middle" stroke="none">🇺🇸</text>
+                      <text x="16" y="30" fontSize="7" textAnchor="middle" stroke="none">🇸🇪</text>
                     </svg>
 
                     <div className="text-left max-w-xs">
-                      <p className="text-xs font-bold text-emerald-950 mb-1">Optimized Global Distribution</p>
-                      <p className="text-[11px] text-gray-600 leading-snug">
-                        1 Budget → Native Local Experts in France, Germany, Italy, UAE &amp; US. Pay only per event.
+                      <p className="text-xs font-bold text-emerald-950 mb-1">Optimized Multi-Country Multiplier</p>
+                      <p className="text-[11px] text-gray-700 leading-snug font-medium">
+                        1 Budget → Verified Local Sales Reps in UK, France, Germany, Sweden &amp; UAE. Pay per event with 7-day escrow.
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-3 bg-emerald-200/70 border border-emerald-300 rounded-xl text-xs text-emerald-950 font-bold flex items-center justify-between shadow-2xs">
-                <span>✨ 0 Fixed Payroll Risk</span>
-                <span className="text-emerald-800">6+ Markets Covered</span>
+              <div>
+                <div className="p-3 bg-emerald-200/90 border border-emerald-300 rounded-xl text-xs text-emerald-950 font-bold flex items-center justify-between shadow-2xs mb-4">
+                  <span>✨ 6+ Global Markets</span>
+                  <span className="text-emerald-900">100% Escrow Protected</span>
+                </div>
+
+                {/* Embedded High-Conversion Action Button inside Solution Card */}
+                <button
+                  onClick={() => router.push("/login?role=obo&redirect=create-post")}
+                  className="w-full py-3.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                >
+                  <span>Post Your Requirement Now</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
+                </button>
               </div>
             </div>
 
