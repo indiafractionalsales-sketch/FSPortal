@@ -28,7 +28,7 @@ import { Footer } from "@/components/sections/footer";
 
 export default function SalesPartnerPage() {
   const router = useRouter();
-  const [eventsPerMonth, setEventsPerMonth] = useState<number>(3);
+  const [eventsPerMonth, setEventsPerMonth] = useState<number>(4);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Animated counter state
@@ -50,9 +50,9 @@ export default function SalesPartnerPage() {
   const [toastIndex, setToastIndex] = useState(0);
 
   const toasts = [
-    { text: "Sales Partner in Dubai earned $2,400 representing Surat Textile Brand at Gitex", flag: "🇦🇪", initials: "AK", time: "3 min ago" },
-    { text: "Sales Partner in Frankfurt earned €1,800 for Hannover Messe Technical Audit", flag: "🇩🇪", initials: "MS", time: "7 min ago" },
-    { text: "Sales Partner in Paris received $1,200 payout after 7-day milestone clearance", flag: "🇫🇷", initials: "PL", time: "12 min ago" },
+    { text: "Sales Partner in Dubai earned $249 representing Surat Textile Brand at Gitex", flag: "🇦🇪", initials: "AK", time: "3 min ago" },
+    { text: "Sales Partner in Frankfurt earned €199 for Hannover Messe Technical Audit", flag: "🇩🇪", initials: "MS", time: "7 min ago" },
+    { text: "Sales Partner in Paris received $149 payout after 7-day milestone clearance", flag: "🇫🇷", initials: "PL", time: "12 min ago" },
     { text: "Sales Partner in London booked for 3 upcoming trade shows in June 2026", flag: "🇬🇧", initials: "JR", time: "16 min ago" }
   ];
 
@@ -109,8 +109,8 @@ export default function SalesPartnerPage() {
     return () => observer.disconnect();
   }, [counterStarted]);
 
-  // Income estimator calculations
-  const avgPackagePrice = 1200;
+  // Income estimator calculations (Benchmark: up to $249 / expo for 5-8 yrs experienced reps)
+  const avgPackagePrice = 249;
   const estimatedMonthlyIncome = eventsPerMonth * avgPackagePrice;
   const estimatedAnnualIncome = estimatedMonthlyIncome * 12;
 
@@ -318,7 +318,7 @@ export default function SalesPartnerPage() {
               </div>
               <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
                 <span className="text-xs text-gray-500 font-bold">Standard Tier</span>
-                <span className="text-xs font-bold text-gray-900">$300 - $600 / day</span>
+                <span className="text-xs font-bold text-gray-900">$75 - $120 / event</span>
               </div>
             </div>
 
@@ -341,14 +341,14 @@ export default function SalesPartnerPage() {
               </div>
               <div className="mt-6 pt-4 border-t border-rose-200 flex items-center justify-between">
                 <span className="text-xs text-rose-800 font-bold">Popular Choice</span>
-                <span className="text-xs font-bold text-[#701010]">$800 - $1,500 / event</span>
+                <span className="text-xs font-bold text-[#701010]">$149 - $199 / event</span>
               </div>
             </div>
 
             {/* Gold Tier */}
             <div className="bg-emerald-50/80 border-2 border-emerald-300 rounded-2xl p-6 shadow-2xs flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-headline font-bold text-emerald-800 uppercase bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md inline-block mb-3">Gold Package</span>
+                <span className="text-[10px] font-headline font-bold text-emerald-800 uppercase bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md inline-block mb-3">Gold Package (5-8 Yrs Exp)</span>
                 <h3 className="text-lg font-serif font-bold text-emerald-950 mb-2">Full Multi-Day Management &amp; B2B Meetings</h3>
                 <p className="text-xs text-gray-700 leading-relaxed mb-4">
                   Full multi-day booth leadership, direct buyer appointment scheduling, and technical presentation.
@@ -361,7 +361,7 @@ export default function SalesPartnerPage() {
               </div>
               <div className="mt-6 pt-4 border-t border-emerald-200 flex items-center justify-between">
                 <span className="text-xs text-emerald-800 font-bold">Premium Tier</span>
-                <span className="text-xs font-bold text-emerald-900">$2,000+ / event</span>
+                <span className="text-xs font-bold text-emerald-900">Up to $249 / event</span>
               </div>
             </div>
           </div>
@@ -571,6 +571,10 @@ export default function SalesPartnerPage() {
                 <p className="text-3xl font-serif font-bold text-emerald-800 mt-1">${estimatedAnnualIncome.toLocaleString()} USD</p>
               </div>
             </div>
+
+            <p className="text-[11px] text-emerald-900/70 text-center mt-5 font-medium">
+              💡 Based on average representation fees of <strong>up to $249 USD per expo</strong> for experienced Sales Partners (5–8 years B2B representation experience).
+            </p>
           </div>
         </div>
       </section>
