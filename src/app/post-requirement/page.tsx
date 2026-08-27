@@ -12,7 +12,7 @@
  * Indian and international intellectual property laws.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,8 @@ import {
   Briefcase, ShieldCheck, CheckCircle2, ArrowRight, Building2, 
   MapPin, Calendar, Lock, Video, Camera, Sparkles, ChevronDown, 
   Users, Layers, Award, FileText, Globe2, Scan, HelpCircle, ArrowUpRight,
-  TrendingUp, AlertCircle, RefreshCw, DollarSign, Compass, PieChart, Check, XIcon
+  TrendingUp, AlertCircle, RefreshCw, DollarSign, Compass, PieChart, Check, XIcon,
+  Clock, Zap
 } from "lucide-react";
 import { Navbar } from "@/components/sections/navbar";
 import { Footer } from "@/components/sections/footer";
@@ -30,6 +31,52 @@ export default function PostRequirementPage() {
   const [activeStoryTab, setActiveStoryTab] = useState<"problem" | "nuances" | "solution" | "post">("problem");
   const [budgetSlider, setBudgetSlider] = useState<number>(30000);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  
+  // Realtime World Clocks
+  const [times, setTimes] = useState({
+    paris: "",
+    dubai: "",
+    frankfurt: "",
+    singapore: "",
+    london: "",
+    newyork: ""
+  });
+
+  // Toast Notification Cycle State
+  const [toastIndex, setToastIndex] = useState(0);
+
+  const toasts = [
+    { text: "Textile Exporter from Surat just booked SP for Dubai Gitex 2026", flag: "🇦🇪" },
+    { text: "Engineering Components Brand from Pune posted requirement for Frankfurt Messe", flag: "🇩🇪" },
+    { text: "Ayurvedic Brand from Ahmedabad hired SP for Paris Expo 2026", flag: "🇫🇷" },
+    { text: "Leather Goods Trader from Kanpur booked SP for Milan Design Week", flag: "🇮🇹" }
+  ];
+
+  useEffect(() => {
+    const updateTimes = () => {
+      const now = new Date();
+      setTimes({
+        paris: now.toLocaleTimeString("en-US", { timeZone: "Europe/Paris", hour: '2-digit', minute: '2-digit' }),
+        dubai: now.toLocaleTimeString("en-US", { timeZone: "Asia/Dubai", hour: '2-digit', minute: '2-digit' }),
+        frankfurt: now.toLocaleTimeString("en-US", { timeZone: "Europe/Berlin", hour: '2-digit', minute: '2-digit' }),
+        singapore: now.toLocaleTimeString("en-US", { timeZone: "Asia/Singapore", hour: '2-digit', minute: '2-digit' }),
+        london: now.toLocaleTimeString("en-US", { timeZone: "Europe/London", hour: '2-digit', minute: '2-digit' }),
+        newyork: now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: '2-digit', minute: '2-digit' })
+      });
+    };
+
+    updateTimes();
+    const interval = setInterval(updateTimes, 10000);
+
+    const toastInterval = setInterval(() => {
+      setToastIndex((prev) => (prev + 1) % toasts.length);
+    }, 4500);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(toastInterval);
+    };
+  }, []);
 
   // Calculations for interactive budget simulator
   const traditionalMarketsCovered = Math.max(1, Math.floor(budgetSlider / 60000));
@@ -37,16 +84,49 @@ export default function PostRequirementPage() {
   const fractionalCountriesCovered = Math.min(12, Math.max(2, Math.floor(fractionalExposCovered / 1.5)));
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] text-gray-900 font-sans flex flex-col selection:bg-rose-100 selection:text-rose-900">
+    <div className="min-h-screen bg-[#fcfcfc] text-gray-900 font-sans flex flex-col selection:bg-rose-100 selection:text-rose-900 relative">
       {/* Global Top Navbar */}
       <Navbar />
+
+      {/* Floating Live Activity Toast Notification (Visual Hook 3.2) */}
+      <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-white/95 backdrop-blur-md border-2 border-emerald-300 rounded-2xl p-4 shadow-xl transition-all animate-in slide-in-from-bottom-5 duration-300">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl shrink-0">{toasts[toastIndex].flag}</span>
+          <div>
+            <div className="flex items-center gap-1.5 text-[10px] font-headline font-bold text-emerald-700 uppercase tracking-wider mb-0.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Platform Match
+            </div>
+            <p className="text-xs font-semibold text-gray-900 leading-snug">
+              {toasts[toastIndex].text}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Hero Section: Presentation Header */}
       <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-gradient-to-b from-white via-rose-50/50 to-[#fcfcfc] border-b border-rose-100 relative overflow-hidden">
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-rose-200/30 via-amber-200/30 to-sky-200/30 rounded-full blur-3xl -z-10 pointer-events-none" />
 
         <div className="container mx-auto px-6 max-w-6xl text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-100/80 border border-rose-300 text-rose-900 text-xs font-bold font-headline uppercase tracking-wider mb-6 shadow-xs">
+          
+          {/* World Clock Live Realtime Widget Bar (Visual Hook 1.3) */}
+          <div className="mb-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-white/90 border-2 border-rose-200/80 shadow-2xs text-xs text-gray-800 font-medium">
+            <span className="flex items-center gap-1.5 text-rose-700 font-headline font-bold text-[10px] uppercase tracking-wider pr-2 border-r border-rose-200">
+              <Clock className="w-3.5 h-3.5 text-rose-600 animate-spin" style={{ animationDuration: '12s' }} /> Live Rep Status
+            </span>
+            <span className="flex items-center gap-1">🇫🇷 Paris <strong className="text-rose-950 font-bold">{times.paris || "12:30"}</strong></span>
+            <span className="text-gray-300">•</span>
+            <span className="flex items-center gap-1">🇩🇪 Frankfurt <strong className="text-rose-950 font-bold">{times.frankfurt || "12:30"}</strong></span>
+            <span className="text-gray-300">•</span>
+            <span className="flex items-center gap-1">🇦🇪 Dubai <strong className="text-rose-950 font-bold">{times.dubai || "14:30"}</strong></span>
+            <span className="text-gray-300">•</span>
+            <span className="flex items-center gap-1">🇸🇬 Singapore <strong className="text-rose-950 font-bold">{times.singapore || "18:30"}</strong></span>
+            <span className="text-gray-300">•</span>
+            <span className="flex items-center gap-1">🇬🇧 London <strong className="text-rose-950 font-bold">{times.london || "11:30"}</strong></span>
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-100/80 border border-rose-300 text-rose-900 text-xs font-bold font-headline uppercase tracking-wider mb-6 shadow-xs block w-fit mx-auto">
             <Sparkles className="w-3.5 h-3.5 text-rose-600" />
             <span>The MSME Global Expansion Playbook</span>
           </div>
@@ -205,6 +285,37 @@ export default function PostRequirementPage() {
               <p className="text-[11px] font-bold text-sky-950">7-Day Escrow Payout</p>
               <p className="text-[10px] text-sky-900/70">Section 10A IT Act Contract</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Global Market Coverage Staggered Flag Grid (Visual Hook 6.2) */}
+      <section className="py-12 bg-gradient-to-r from-rose-50/40 via-amber-50/40 to-emerald-50/40 border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <p className="text-center text-xs font-headline font-bold uppercase tracking-widest text-gray-500 mb-6">
+            Active Verified Sales Partner Coverage Across 12 Key Global Markets
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-center">
+            {[
+              { flag: "🇫🇷", name: "France", count: "34 Reps Active" },
+              { flag: "🇩🇪", name: "Germany", count: "48 Reps Active" },
+              { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps Active" },
+              { flag: "🇮🇹", name: "Italy", count: "29 Reps Active" },
+              { flag: "🇬🇧", name: "United Kingdom", count: "41 Reps Active" },
+              { flag: "🇺🇸", name: "United States", count: "65 Reps Active" },
+              { flag: "🇸🇬", name: "Singapore", count: "22 Reps Active" },
+              { flag: "🇯🇵", name: "Japan", count: "18 Reps Active" },
+              { flag: "🇪🇸", name: "Spain", count: "26 Reps Active" },
+              { flag: "🇳🇱", name: "Netherlands", count: "31 Reps Active" },
+              { flag: "🇸🇦", name: "Saudi Arabia", count: "38 Reps Active" },
+              { flag: "🇮🇳", name: "India", count: "110 Reps Active" }
+            ].map((market, idx) => (
+              <div key={idx} className="bg-white/80 backdrop-blur-xs border border-gray-200 rounded-xl p-3 shadow-2xs hover:shadow-xs hover:scale-105 transition-all">
+                <span className="text-2xl block mb-1">{market.flag}</span>
+                <p className="text-xs font-bold text-gray-900 leading-tight">{market.name}</p>
+                <p className="text-[10px] font-medium text-emerald-700 mt-0.5">{market.count}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
