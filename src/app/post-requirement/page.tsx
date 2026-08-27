@@ -111,19 +111,19 @@ export default function PostRequirementPage() {
         <div className="container mx-auto px-6 max-w-6xl text-center">
           
           {/* World Clock Realtime Widget Bar */}
-          <div className="mb-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-white/90 border-2 border-rose-200/80 shadow-2xs text-xs text-gray-800 font-medium">
-            <span className="flex items-center gap-1.5 text-rose-700 font-headline font-bold text-[10px] uppercase tracking-wider pr-2 border-r border-rose-200">
-              <Clock className="w-3.5 h-3.5 text-rose-600" /> Active Market Hours
+          <div className="mb-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-[#f8fafc] border-2 border-slate-200 shadow-2xs text-xs text-slate-800 font-medium">
+            <span className="flex items-center gap-1.5 text-slate-800 font-headline font-bold text-[10px] uppercase tracking-wider pr-2 border-r border-slate-200">
+              <Clock className="w-3.5 h-3.5 text-sky-600" /> Active Market Hours
             </span>
-            <span className="flex items-center gap-1">🇫🇷 Paris <strong className="text-rose-950 font-bold">{times.paris || "12:30"}</strong></span>
-            <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-1">🇩🇪 Frankfurt <strong className="text-rose-950 font-bold">{times.frankfurt || "12:30"}</strong></span>
-            <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-1">🇦🇪 Dubai <strong className="text-rose-950 font-bold">{times.dubai || "14:30"}</strong></span>
-            <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-1">🇸🇬 Singapore <strong className="text-rose-950 font-bold">{times.singapore || "18:30"}</strong></span>
-            <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-1">🇬🇧 London <strong className="text-rose-950 font-bold">{times.london || "11:30"}</strong></span>
+            <span className="flex items-center gap-1">🇫🇷 Paris <strong className="text-slate-950 font-bold">{times.paris || "12:30"}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1">🇩🇪 Frankfurt <strong className="text-slate-950 font-bold">{times.frankfurt || "12:30"}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1">🇦🇪 Dubai <strong className="text-slate-950 font-bold">{times.dubai || "14:30"}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1">🇸🇬 Singapore <strong className="text-slate-950 font-bold">{times.singapore || "18:30"}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1">🇬🇧 London <strong className="text-slate-950 font-bold">{times.london || "11:30"}</strong></span>
           </div>
 
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-100/80 border border-rose-300 text-rose-900 text-xs font-bold font-headline uppercase tracking-wider mb-6 shadow-xs block w-fit mx-auto">
