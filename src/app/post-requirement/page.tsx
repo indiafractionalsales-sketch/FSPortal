@@ -522,19 +522,19 @@ export default function PostRequirementPage() {
                   <div className="space-y-2.5 text-xs font-bold text-gray-900">
                     <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>🇫🇷 Paris Expo: Hire local French Sales Rep (€1,200 package)</span>
+                      <span>🇫🇷 Paris Expo: Hire local French Sales Rep (Silver Expo Package)</span>
                     </div>
                     <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>🇩🇪 Frankfurt Messe: Hire technical German Sales Rep (€1,500 package)</span>
+                      <span>🇩🇪 Frankfurt Messe: Hire technical German Sales Rep (Technical Delegate Coverage)</span>
                     </div>
                     <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>🇦🇪 Dubai Gitex: Hire bilingual Arabic/English Sales Rep ($1,800 package)</span>
+                      <span>🇦🇪 Dubai Gitex: Hire bilingual Arabic/English Sales Rep (Bilingual Pitch Coverage)</span>
                     </div>
                     <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>🇺🇸 Las Vegas CES: Hire US B2B Booth Delegate ($2,000 package)</span>
+                      <span>🇺🇸 Las Vegas CES: Hire US B2B Booth Delegate (Full Booth Management)</span>
                     </div>
                   </div>
                 </div>
@@ -601,26 +601,22 @@ export default function PostRequirementPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Package Rates From</p>
-                      <p className="text-lg font-bold text-emerald-600">€1,200 EUR</p>
+                      <p className="text-[10px] text-[#701010] uppercase font-bold bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">Flexible Custom Packages</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                     <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase">Bronze Package</p>
-                      <p className="text-sm font-bold text-gray-900">€500</p>
-                      <p className="text-[10px] text-gray-500 mt-1">Visiting Card Scan &amp; Booth Pitch</p>
+                      <p className="text-[10px] font-bold text-gray-700 uppercase">Bronze Package</p>
+                      <p className="text-xs font-semibold text-gray-600 mt-1">Visiting Card Scan &amp; Booth Pitch</p>
                     </div>
                     <div className="p-3 bg-rose-50 border-2 border-rose-200 rounded-xl">
                       <p className="text-[10px] font-bold text-rose-800 uppercase">Silver Package (Popular)</p>
-                      <p className="text-sm font-bold text-rose-950">€1,200</p>
-                      <p className="text-[10px] text-rose-900/70 mt-1">+ 2-hr Live Stream &amp; Sample Check</p>
+                      <p className="text-xs font-semibold text-rose-950 mt-1">Visiting Card Scan + 2-hr Live Stream &amp; Sample Check</p>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase">Gold Package</p>
-                      <p className="text-sm font-bold text-gray-900">€2,500</p>
-                      <p className="text-[10px] text-gray-500 mt-1">Full 5-Day Booth Management &amp; B2B Meetings</p>
+                      <p className="text-[10px] font-bold text-gray-700 uppercase">Gold Package</p>
+                      <p className="text-xs font-semibold text-gray-600 mt-1">Full 5-Day Booth Management &amp; B2B Meetings</p>
                     </div>
                   </div>
 
