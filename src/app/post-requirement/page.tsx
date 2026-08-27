@@ -290,11 +290,11 @@ export default function PostRequirementPage() {
               <div>
                 <div className="p-3 bg-emerald-200/90 border border-emerald-300 rounded-xl text-xs text-emerald-950 font-bold flex items-center justify-between shadow-2xs mb-4">
                   <span>✨ 6+ Global Markets</span>
-                  <span className="text-emerald-900">100% Escrow Protected</span>
+                  <span className="text-emerald-900">100% Milestone Lock Protected</span>
                 </div>
                 <button
                   onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.3)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.3)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_10px_22px_rgba(112,16,16,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <span>Post Your Requirement Now</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
@@ -340,14 +340,99 @@ export default function PostRequirementPage() {
             </div>
             <div className="bg-[#f0f9ff] border-2 border-sky-200 p-4 rounded-2xl shadow-2xs">
               <p className="text-[10px] font-bold uppercase tracking-widest text-sky-700">Security</p>
-              <p className="text-[11px] font-bold text-sky-950">7-Day Escrow Payout</p>
+              <p className="text-[11px] font-bold text-sky-950">7-Day Milestone Settlement</p>
               <p className="text-[10px] text-sky-900/70">Section 10A IT Act Contract</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Country Coverage Grid (Upgraded: header + pulsing dots + intensity bars) ── */}
+      {/* ── SECTION 2: How It Works — 3 Step Process Flow (MOVED BEFORE GLOBAL PRESENCE!) ── */}
+      <section className="py-16 md:py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-sky-800 bg-sky-100 border border-sky-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
+              Simple 3-Step Process
+            </span>
+            <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
+              From Requirement to Verified On-Ground Rep in 48 Hours
+            </h2>
+            <p className="text-xs md:text-sm text-gray-500 mt-3">
+              No overseas hiring, no fixed contracts. Post, review, and book — entirely on platform with full payment protection.
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Dashed connector (desktop only) */}
+            <div className="hidden md:block absolute top-[46px] left-[23%] right-[23%] h-0 border-t-2 border-dashed border-gray-200 z-0 pointer-events-none" />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 relative z-10">
+              {/* Step 1 */}
+              <div className="flex flex-col items-center text-center group">
+                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(112,16,16,0.35)] border-t border-rose-400/30 group-hover:scale-105 transition-transform relative">
+                  <FileText className="w-9 h-9 text-rose-100" />
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-rose-300 text-rose-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
+                    1
+                  </span>
+                </div>
+                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Post Your Requirement</h3>
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  Describe the event, target country, dates, and exactly what you need the Sales Partner to handle — booth management, buyer verification, or sample handover.
+                </p>
+                <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-rose-800 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-rose-600" /> Takes under 2 minutes
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex flex-col items-center text-center group">
+                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(217,119,6,0.3)] border-t border-amber-300/40 group-hover:scale-105 transition-transform relative">
+                  <Users className="w-9 h-9 text-amber-100" />
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-amber-300 text-amber-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
+                    2
+                  </span>
+                </div>
+                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Verified Partners Apply</h3>
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  Pre-vetted local Sales Partners in your target country review your post and submit tailored proposals with their credentials and event track record.
+                </p>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-amber-800 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-600" /> Proposals within 24 hours
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex flex-col items-center text-center group">
+                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-emerald-400 via-emerald-600 to-emerald-800 text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(5,150,105,0.3)] border-t border-emerald-300/40 group-hover:scale-105 transition-transform relative">
+                  <ShieldCheck className="w-9 h-9 text-emerald-100" />
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-emerald-300 text-emerald-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
+                    3
+                  </span>
+                </div>
+                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Review, Hire &amp; Go Live</h3>
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  Compare proposals, secure your budget in milestone lock, and your verified local rep is on the ground at the event — GPS-tracked and reporting in real-time.
+                </p>
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Budget protected until delivery
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-12">
+              <button
+                onClick={() => router.push("/login?role=obo&redirect=create-post")}
+                className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-sm uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_8px_20px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer group"
+              >
+                <span>Start Step 1 — Post Your Requirement</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: Country Coverage Grid (NOW FOLLOWS HOW IT WORKS!) ── */}
       <section className="py-12 bg-gradient-to-r from-rose-50/40 via-amber-50/40 to-emerald-50/40 border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-8">
@@ -403,91 +488,6 @@ export default function PostRequirementPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── NEW: How It Works — 3 Step Process Flow ── */}
-      <section className="py-16 md:py-24 bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-headline font-bold uppercase tracking-widest text-sky-800 bg-sky-100 border border-sky-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
-              Simple 3-Step Process
-            </span>
-            <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
-              From Requirement to Verified On-Ground Rep in 48 Hours
-            </h2>
-            <p className="text-xs md:text-sm text-gray-500 mt-3">
-              No overseas hiring, no fixed contracts. Post, review, and book — entirely on platform with full escrow protection.
-            </p>
-          </div>
-
-          <div className="relative">
-            {/* Dashed connector (desktop only) */}
-            <div className="hidden md:block absolute top-[46px] left-[23%] right-[23%] h-0 border-t-2 border-dashed border-gray-200 z-0 pointer-events-none" />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 relative z-10">
-              {/* Step 1 */}
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(112,16,16,0.35)] border-t border-rose-400/30 group-hover:scale-105 transition-transform relative">
-                  <FileText className="w-9 h-9 text-rose-100" />
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-rose-300 text-rose-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
-                    1
-                  </span>
-                </div>
-                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Post Your Requirement</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Describe the event, target country, dates, and exactly what you need the Sales Partner to handle — booth management, buyer verification, or sample handover.
-                </p>
-                <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-rose-800 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-rose-600" /> Takes under 2 minutes
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-700 text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(217,119,6,0.3)] border-t border-amber-300/40 group-hover:scale-105 transition-transform relative">
-                  <Users className="w-9 h-9 text-amber-100" />
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-amber-300 text-amber-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
-                    2
-                  </span>
-                </div>
-                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Verified Partners Apply</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Pre-vetted local Sales Partners in your target country review your post and submit tailored proposals with their credentials and event track record.
-                </p>
-                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-amber-800 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-amber-600" /> Proposals within 24 hours
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="flex flex-col items-center text-center group">
-                <div className="w-[92px] h-[92px] rounded-3xl bg-gradient-to-b from-emerald-400 via-emerald-600 to-emerald-800 text-white flex items-center justify-center mb-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_24px_rgba(5,150,105,0.3)] border-t border-emerald-300/40 group-hover:scale-105 transition-transform relative">
-                  <ShieldCheck className="w-9 h-9 text-emerald-100" />
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white border-2 border-emerald-300 text-emerald-800 text-xs font-bold font-headline flex items-center justify-center shadow-sm">
-                    3
-                  </span>
-                </div>
-                <h3 className="text-base font-serif font-bold text-gray-900 mb-2 mt-1">Review, Hire &amp; Go Live</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Compare proposals, lock your budget in escrow, and your verified local rep is on the ground at the event — GPS-tracked and reporting in real-time.
-                </p>
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Budget protected until delivery
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center mt-12">
-              <button
-                onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-sm uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_8px_20px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer group"
-              >
-                <span>Start Step 1 — Post Your Requirement</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
-              </button>
-            </div>
           </div>
         </div>
       </section>
@@ -760,7 +760,7 @@ export default function PostRequirementPage() {
                   </div>
                   <h4 className="font-serif font-bold text-lg text-emerald-950 mb-2">10x Multi-Country ROI</h4>
                   <p className="text-xs text-gray-600 mb-6 leading-relaxed">
-                    Zero fixed payroll. Zero office leases. Pay only for verified event packages with <strong>7-day escrow protection</strong> and real-time scanned leads CRM.
+                    Zero fixed payroll. Zero office leases. Pay only for verified event packages with <strong>7-day payment protection guarantee</strong> and real-time scanned leads CRM.
                   </p>
                   <button
                     onClick={() => router.push("/login?role=obo&redirect=create-post")}
@@ -826,7 +826,7 @@ export default function PostRequirementPage() {
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2 text-xs text-gray-700 font-medium">
                       <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Protected by 7-Day Escrow &amp; GPS Check-In Audit</span>
+                      <span>Protected by 7-Day Milestone Lock &amp; GPS Check-In Audit</span>
                     </div>
                     <button
                       onClick={() => router.push("/login?role=obo&redirect=create-post")}
@@ -989,7 +989,7 @@ export default function PostRequirementPage() {
                     <span>Expos Attended</span><span className="font-bold text-emerald-700">{fractionalExposCovered} Trade Fairs ✨</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
-                    <span>Escrow &amp; Audit Protection</span><span className="font-bold text-emerald-700">100% Money-Back Escrow</span>
+                    <span>Milestone &amp; Audit Protection</span><span className="font-bold text-emerald-700">100% Money-Back Milestone Guarantee</span>
                   </div>
                   <div className="flex justify-between py-1.5 font-bold text-emerald-950">
                     <span>Overall Flexibility</span><span className="text-emerald-700">Maximum (On-Demand Execution)</span>
@@ -1016,7 +1016,7 @@ export default function PostRequirementPage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Your Projected Savings with Fractional Model</p>
-                  <p className="text-2xl font-serif font-bold text-amber-950">~${estimatedSavings.toLocaleString("en-US")} saved</p>
+                  <p className="text-2xl font-serif font-bold text-amber-950">~$${estimatedSavings.toLocaleString("en-US")} saved</p>
                   <p className="text-[10px] text-amber-800">vs. traditional fixed overseas hire approach</p>
                 </div>
               </div>
@@ -1030,19 +1030,19 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* ── Escrow Guarantee (with 5-Step Timeline + Trust Badges) ── */}
+      {/* ── Payment Protection Guarantee (with 5-Step Timeline + Trust Badges) ── */}
       <section className="py-16 md:py-24 bg-white border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="bg-gradient-to-r from-rose-100 via-amber-100 to-emerald-100 border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
 
             {/* 5-Step Accountability Timeline */}
             <div className="mb-10">
-              <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-5 text-center">How Biztribe Escrow Protection Works — Step by Step</p>
+              <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-5 text-center">How Biztribe Payment Protection Works — Step by Step</p>
               <div className="flex items-start justify-between overflow-x-auto pb-2 gap-0">
                 {[
                   { num: "①", label: "You Post", sub: "Requirement + Budget", bg: "bg-rose-500" },
                   { num: "②", label: "SP Applies", sub: "Proposal Submitted", bg: "bg-rose-400", dash: "border-rose-200" },
-                  { num: "③", label: "Budget Locked", sub: "Escrow Activated", bg: "bg-amber-500", dash: "border-amber-200" },
+                  { num: "③", label: "Budget Locked", sub: "Milestone Locked", bg: "bg-amber-500", dash: "border-amber-200" },
                   { num: "④", label: "Event Executed", sub: "GPS + Live Stream", bg: "bg-emerald-500", dash: "border-emerald-200" },
                   { num: "⑤", label: "Leads + Payout", sub: "CRM + Settled", bg: "bg-emerald-600", dash: "border-emerald-300" },
                 ].map((step, i, arr) => (
@@ -1066,13 +1066,13 @@ export default function PostRequirementPage() {
               <div className="lg:col-span-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-300 text-rose-900 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Biztribe Escrow &amp; Audit Guarantee</span>
+                  <span>Biztribe Payment Protection &amp; Audit Guarantee</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
                   Zero Financial Risk for Business Owners
                 </h3>
                 <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-6">
-                  Your funds are protected in escrow. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
+                  Your funds are securely held in milestone lock. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-900 font-bold">
                   <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
@@ -1145,8 +1145,8 @@ export default function PostRequirementPage() {
               },
               {
                 q: "How are commuting and travel charges handled?",
-                summary: "Travel is included in the total representation package — subject to standard escrow audit and 7-day settlement rules.",
-                a: "Commuting and travel charges are classified under total representation charges quoted in the package. They are subject to platform escrow rules, audit verification, and the standard 7-day post-event settlement schedule."
+                summary: "Travel is included in the total representation package — subject to standard milestone audit and 7-day settlement rules.",
+                a: "Commuting and travel charges are classified under total representation charges quoted in the package. They are subject to platform milestone protection rules, audit verification, and the standard 7-day post-event settlement schedule."
               },
               {
                 q: "Do I need a physical registered office in the country where the expo takes place?",
