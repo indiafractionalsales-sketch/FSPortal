@@ -383,10 +383,10 @@ export default function PostRequirementPage() {
               <div className="lg:col-span-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-300 text-rose-900 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Biztribe Payment Protection &amp; Audit Guarantee</span>
+                  <span>Payment Protection &amp; Audit Guarantee</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
-                  Zero Financial Risk for Business Owners
+                  Lesser Financial Risk for Business Owners
                 </h3>
                 <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-6">
                   Your funds are securely held in milestone lock. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
@@ -439,7 +439,7 @@ export default function PostRequirementPage() {
               Simple 3-Step Process
             </span>
             <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
-              From Requirement to Verified On-Ground Rep in 48 Hours
+              From Requirement to Verified On-Ground Rep
             </h2>
             <p className="text-xs md:text-sm text-gray-500 mt-3">
               No overseas hiring, no fixed contracts. Post, review, and book — entirely on platform with full payment protection.
