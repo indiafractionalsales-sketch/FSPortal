@@ -251,7 +251,7 @@ export default function PostRequirementPage() {
                 {/* Embedded High-Conversion Action Button inside Solution Card */}
                 <button
                   onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                  className="w-full py-3.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.3)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_10px_22px_rgba(112,16,16,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <span>Post Your Requirement Now</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
@@ -265,17 +265,17 @@ export default function PostRequirementPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <button
               onClick={() => router.push("/login?role=obo&redirect=create-post")}
-              className="w-full sm:w-auto px-8 py-4 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-sm uppercase tracking-wider rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2.5 group cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-sm uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_8px_20px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_12px_25px_rgba(112,16,16,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 group cursor-pointer"
             >
               <span>Post Requirement Now</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-rose-200" />
             </button>
             <a
               href="#interactive-presentation"
-              className="w-full sm:w-auto px-7 py-4 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 font-headline font-bold text-sm uppercase tracking-wider rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-7 py-4 bg-white/80 hover:bg-white/95 text-gray-900 border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_15px_rgba(0,0,0,0.06)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_8px_20px_rgba(0,0,0,0.1)] backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer font-headline font-bold text-sm uppercase tracking-wider rounded-xl"
             >
               <span>View Executive Presentation</span>
-              <PieChart className="w-4 h-4 text-gray-500" />
+              <PieChart className="w-4 h-4 text-gray-600" />
             </a>
           </div>
 
@@ -357,14 +357,14 @@ export default function PostRequirementPage() {
             </h2>
           </div>
 
-          {/* Presentation Nav Switcher Tabs */}
-          <div className="flex flex-wrap justify-center gap-2.5 mb-12 p-2 bg-gray-100/90 rounded-2xl max-w-3xl mx-auto border border-gray-200/80 shadow-2xs">
+          {/* Presentation Nav Switcher Tabs (Glassy Touch) */}
+          <div className="flex flex-wrap justify-center gap-2.5 mb-12 p-2 bg-gray-100/80 backdrop-blur-md rounded-2xl max-w-3xl mx-auto border border-gray-200/80 shadow-2xs">
             <button
               onClick={() => setActiveStoryTab("problem")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "problem"
-                  ? "bg-[#701010] text-white shadow-md"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
+                  ? "bg-gradient-to-b from-[#8b1515] to-[#590a0a] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(112,16,16,0.35)] border-t border-rose-300/40"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
               }`}
             >
               1. The Capital Trap
@@ -373,8 +373,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("nuances")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "nuances"
-                  ? "bg-[#701010] text-white shadow-md"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
+                  ? "bg-gradient-to-b from-[#8b1515] to-[#590a0a] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(112,16,16,0.35)] border-t border-rose-300/40"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
               }`}
             >
               2. Cultural Nuances
@@ -383,8 +383,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("solution")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "solution"
-                  ? "bg-[#701010] text-white shadow-md"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
+                  ? "bg-gradient-to-b from-[#8b1515] to-[#590a0a] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(112,16,16,0.35)] border-t border-rose-300/40"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
               }`}
             >
               3. Fractional Solution
@@ -393,8 +393,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("post")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "post"
-                  ? "bg-[#701010] text-white shadow-md"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
+                  ? "bg-gradient-to-b from-[#8b1515] to-[#590a0a] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(112,16,16,0.35)] border-t border-rose-300/40"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
               }`}
             >
               4. Live Post Demo
@@ -574,7 +574,7 @@ export default function PostRequirementPage() {
                   </p>
                   <button
                     onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors cursor-pointer"
+                    className="w-full py-3.5 bg-gradient-to-b from-[#059669] via-[#047857] to-[#065f46] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(5,150,105,0.3)] border-t border-emerald-300/40 border-b border-emerald-950/40 hover:from-[#10b981] hover:to-[#047857] hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
                   >
                     Post Requirement &amp; Allocate Budget
                   </button>
@@ -652,7 +652,7 @@ export default function PostRequirementPage() {
                     </div>
                     <button
                       onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                      className="px-5 py-2.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm"
+                      className="px-5 py-2.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(112,16,16,0.3)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                     >
                       Book Representation
                     </button>
@@ -910,7 +910,7 @@ export default function PostRequirementPage() {
                 <p className="text-xs text-gray-500 mb-6">Create your business account and post your requirement in under 2 minutes.</p>
                 <button
                   onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                  className="w-full py-3.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors cursor-pointer"
+                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                 >
                   Create Business Post
                 </button>
