@@ -347,8 +347,92 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: How It Works — 3 Step Process Flow (MOVED BEFORE GLOBAL PRESENCE!) ── */}
+      {/* ── SECTION 2: How It Works — Step by Step (MOVED TO 2ND POSITION IMMEDIATELY AFTER HERO!) ── */}
       <section className="py-16 md:py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="bg-gradient-to-r from-rose-100 via-amber-100 to-emerald-100 border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
+
+            {/* 5-Step Accountability Timeline */}
+            <div className="mb-10">
+              <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-5 text-center">How It Works — Step by Step</p>
+              <div className="flex items-start justify-between overflow-x-auto pb-2 gap-0">
+                {[
+                  { num: "①", label: "You Post", sub: "Requirement + Budget", bg: "bg-rose-500" },
+                  { num: "②", label: "SP Applies", sub: "Proposal Submitted", bg: "bg-rose-400", dash: "border-rose-200" },
+                  { num: "③", label: "Budget Locked", sub: "Milestone Locked", bg: "bg-amber-500", dash: "border-amber-200" },
+                  { num: "④", label: "Event Executed", sub: "GPS + Live Stream", bg: "bg-emerald-500", dash: "border-emerald-200" },
+                  { num: "⑤", label: "Leads + Payout", sub: "CRM + Settled", bg: "bg-emerald-600", dash: "border-emerald-300" },
+                ].map((step, i, arr) => (
+                  <div key={i} className="flex items-center flex-1 min-w-0">
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className={`w-10 h-10 rounded-full ${step.bg} text-white flex items-center justify-center text-sm font-bold shadow-md mb-2`}>
+                        {step.num}
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-800 text-center whitespace-nowrap">{step.label}</p>
+                      <p className="text-[9px] text-gray-500 text-center whitespace-nowrap">{step.sub}</p>
+                    </div>
+                    {i < arr.length - 1 && (
+                      <div className={`flex-1 border-t-2 border-dashed ${step.dash || "border-gray-200"} mx-1 mb-7 min-w-3`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+              <div className="lg:col-span-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-300 text-rose-900 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Biztribe Payment Protection &amp; Audit Guarantee</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+                  Zero Financial Risk for Business Owners
+                </h3>
+                <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-6">
+                  Your funds are securely held in milestone lock. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-900 font-bold">
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Mandatory GPS Check-In Audit
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 100% Confidentiality &amp; NDA
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 12-Month Non-Compete Guarantee
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Transparent 25% Platform Fee
+                  </div>
+                </div>
+                {/* Legal trust badge pills */}
+                <div className="flex flex-wrap gap-2 mt-5">
+                  {["Section 10A IT Act", "NDA Enforced", "GPS Verified", "7-Day Refund Window"].map((badge) => (
+                    <span key={badge} className="text-[10px] font-bold text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                      <Lock className="w-2.5 h-2.5 text-gray-500" /> {badge}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white border-2 border-amber-300 rounded-2xl p-6 shadow-sm text-center">
+                <Award className="w-10 h-10 text-[#701010] mx-auto mb-3" />
+                <h4 className="text-base font-serif font-bold text-gray-900 mb-1">Ready to Hire a Rep?</h4>
+                <p className="text-xs text-gray-500 mb-6">Create your business account and post your requirement in under 2 minutes.</p>
+                <button
+                  onClick={() => router.push("/login?role=obo&redirect=create-post")}
+                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  Create Business Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: Simple 3-Step Process ── */}
+      <section className="py-16 md:py-24 bg-[#f8fafc] border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs font-headline font-bold uppercase tracking-widest text-sky-800 bg-sky-100 border border-sky-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
@@ -432,7 +516,7 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* ── SECTION 3: Country Coverage Grid (NOW FOLLOWS HOW IT WORKS!) ── */}
+      {/* ── SECTION 4: Country Coverage Grid ── */}
       <section className="py-12 bg-gradient-to-r from-rose-50/40 via-amber-50/40 to-emerald-50/40 border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-8">
@@ -1016,7 +1100,7 @@ export default function PostRequirementPage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Your Projected Savings with Fractional Model</p>
-                  <p className="text-2xl font-serif font-bold text-amber-950">~$${estimatedSavings.toLocaleString("en-US")} saved</p>
+                  <p className="text-2xl font-serif font-bold text-amber-950">~${estimatedSavings.toLocaleString("en-US")} saved</p>
                   <p className="text-[10px] text-amber-800">vs. traditional fixed overseas hire approach</p>
                 </div>
               </div>
@@ -1024,90 +1108,6 @@ export default function PostRequirementPage() {
                 <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Additional Markets Unlocked</p>
                 <p className="text-4xl font-serif font-bold text-amber-950">+{additionalMarketsUnlocked}</p>
                 <p className="text-[10px] text-amber-800">countries vs. traditional model</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Payment Protection Guarantee (with 5-Step Timeline + Trust Badges) ── */}
-      <section className="py-16 md:py-24 bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 max-w-5xl">
-          <div className="bg-gradient-to-r from-rose-100 via-amber-100 to-emerald-100 border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
-
-            {/* 5-Step Accountability Timeline */}
-            <div className="mb-10">
-              <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-5 text-center">How Biztribe Payment Protection Works — Step by Step</p>
-              <div className="flex items-start justify-between overflow-x-auto pb-2 gap-0">
-                {[
-                  { num: "①", label: "You Post", sub: "Requirement + Budget", bg: "bg-rose-500" },
-                  { num: "②", label: "SP Applies", sub: "Proposal Submitted", bg: "bg-rose-400", dash: "border-rose-200" },
-                  { num: "③", label: "Budget Locked", sub: "Milestone Locked", bg: "bg-amber-500", dash: "border-amber-200" },
-                  { num: "④", label: "Event Executed", sub: "GPS + Live Stream", bg: "bg-emerald-500", dash: "border-emerald-200" },
-                  { num: "⑤", label: "Leads + Payout", sub: "CRM + Settled", bg: "bg-emerald-600", dash: "border-emerald-300" },
-                ].map((step, i, arr) => (
-                  <div key={i} className="flex items-center flex-1 min-w-0">
-                    <div className="flex flex-col items-center shrink-0">
-                      <div className={`w-10 h-10 rounded-full ${step.bg} text-white flex items-center justify-center text-sm font-bold shadow-md mb-2`}>
-                        {step.num}
-                      </div>
-                      <p className="text-[10px] font-bold text-gray-800 text-center whitespace-nowrap">{step.label}</p>
-                      <p className="text-[9px] text-gray-500 text-center whitespace-nowrap">{step.sub}</p>
-                    </div>
-                    {i < arr.length - 1 && (
-                      <div className={`flex-1 border-t-2 border-dashed ${step.dash || "border-gray-200"} mx-1 mb-7 min-w-3`} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-              <div className="lg:col-span-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-300 text-rose-900 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                  <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Biztribe Payment Protection &amp; Audit Guarantee</span>
-                </div>
-                <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
-                  Zero Financial Risk for Business Owners
-                </h3>
-                <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-6">
-                  Your funds are securely held in milestone lock. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-900 font-bold">
-                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Mandatory GPS Check-In Audit
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 100% Confidentiality &amp; NDA
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 12-Month Non-Compete Guarantee
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Transparent 25% Platform Fee
-                  </div>
-                </div>
-                {/* Legal trust badge pills */}
-                <div className="flex flex-wrap gap-2 mt-5">
-                  {["Section 10A IT Act", "NDA Enforced", "GPS Verified", "7-Day Refund Window"].map((badge) => (
-                    <span key={badge} className="text-[10px] font-bold text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                      <Lock className="w-2.5 h-2.5 text-gray-500" /> {badge}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white border-2 border-amber-300 rounded-2xl p-6 shadow-sm text-center">
-                <Award className="w-10 h-10 text-[#701010] mx-auto mb-3" />
-                <h4 className="text-base font-serif font-bold text-gray-900 mb-1">Ready to Hire a Rep?</h4>
-                <p className="text-xs text-gray-500 mb-6">Create your business account and post your requirement in under 2 minutes.</p>
-                <button
-                  onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                  className="w-full py-3.5 bg-gradient-to-b from-[#8b1515] via-[#701010] to-[#590a0a] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_18px_rgba(112,16,16,0.35)] border-t border-rose-300/40 border-b border-black/30 backdrop-blur-md hover:from-[#9c1818] hover:via-[#801212] hover:to-[#630b0b] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-                >
-                  Create Business Post
-                </button>
               </div>
             </div>
           </div>
