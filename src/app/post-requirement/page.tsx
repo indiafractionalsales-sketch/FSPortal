@@ -289,25 +289,20 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* Global Market Coverage Staggered Flag Grid (Visual Hook 6.2) */}
+      {/* Global Market Coverage Staggered Flag Grid */}
       <section className="py-12 bg-gradient-to-r from-rose-50/40 via-amber-50/40 to-emerald-50/40 border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <p className="text-center text-xs font-headline font-bold uppercase tracking-widest text-gray-500 mb-6">
-            Active Verified Sales Partner Coverage Across 12 Key Global Markets
+            Active Verified Sales Partner Coverage Across Key Global Markets
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center">
             {[
               { flag: "🇫🇷", name: "France", count: "34 Reps Active" },
               { flag: "🇩🇪", name: "Germany", count: "48 Reps Active" },
               { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps Active" },
-              { flag: "🇮🇹", name: "Italy", count: "29 Reps Active" },
               { flag: "🇬🇧", name: "United Kingdom", count: "41 Reps Active" },
-              { flag: "🇺🇸", name: "United States", count: "65 Reps Active" },
-              { flag: "🇸🇬", name: "Singapore", count: "22 Reps Active" },
-              { flag: "🇯🇵", name: "Japan", count: "18 Reps Active" },
               { flag: "🇪🇸", name: "Spain", count: "26 Reps Active" },
-              { flag: "🇳🇱", name: "Netherlands", count: "31 Reps Active" },
-              { flag: "🇸🇦", name: "Saudi Arabia", count: "38 Reps Active" },
+              { flag: "🇸🇪", name: "Sweden", count: "19 Reps Active" },
               { flag: "🇮🇳", name: "India", count: "110 Reps Active" }
             ].map((market, idx) => (
               <div key={idx} className="bg-white/80 backdrop-blur-xs border border-gray-200 rounded-xl p-3 shadow-2xs hover:shadow-xs hover:scale-105 transition-all">
