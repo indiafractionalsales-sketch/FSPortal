@@ -51,11 +51,11 @@ export default function PostRequirementPage() {
             <span>The MSME Global Expansion Playbook</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-900 tracking-tight leading-tight max-w-4xl mx-auto mb-6">
-            Why Sinking Your Budget into One Country Fails—And How <span className="text-[#701010] underline decoration-rose-300 decoration-wavy decoration-2">Fractional Sales</span> Unlocks Global Reach
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-serif font-bold text-gray-900 tracking-tight leading-snug max-w-3xl mx-auto mb-4">
+            Why Sinking Your Budget into One Country Fails—And How <span className="text-[#701010] bg-rose-50 px-2.5 py-0.5 rounded-lg border border-rose-200/80 inline-block font-bold">Fractional Sales</span> Unlocks Global Reach
           </h1>
 
-          <p className="text-base md:text-lg text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
             Selling in France 🇫🇷 is not selling in Italy 🇮🇹, which is not selling in Germany 🇩🇪. Discover how smart Business Owners distribute a single market budget across 5+ countries using on-ground Fractional Sales Partners.
           </p>
 
