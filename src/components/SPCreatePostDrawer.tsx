@@ -19,6 +19,8 @@ import { auth } from "@/lib/firebase";
 import { saveDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
 import { getVisitorId } from "@/lib/fingerprint";
+import { SPServiceAgreementModal } from "@/components/SPServiceAgreementModal";
+import { getSPServiceAgreementDetails } from "@/lib/sp-service-agreement-template";
 
 interface SPCreatePostDrawerProps {
   isOpen: boolean;
@@ -74,6 +76,8 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   const [formData, setFormData] = useState({
     eventName: "",
@@ -112,7 +116,9 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       });
       setImagePreview(editPostData.mediaUrl || null);
       setPackages(editPostData.packages || []);
+      setAgreedToTerms(editPostData.spAgreementAccepted || false);
       setStep(1);
+      setShowAgreementModal(false);
     } else if (isOpen) {
       setFormData({
         eventName: "", eventUrl: "", date: "", time: "", country: "", city: "", 
@@ -121,7 +127,9 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       setImageFile(null);
       setImagePreview(null);
       setPackages([]);
+      setAgreedToTerms(false);
       setStep(1);
+      setShowAgreementModal(false);
     }
   }, [editPostData, isOpen]);
 
@@ -139,12 +147,13 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
 
   const addPackage = () => {
     if (packages.length >= 3) return;
-    setPackages([...packages, { 
-      id: Date.now().toString(), 
-      name: `Package ${packages.length + 1}`, 
-      items: [{ id: Date.now().toString() + "_1", description: "", cost: "" }],
-      outwardCurrency: preferredCurrency || "USD", // SP's home currency — for reference only
-    }]);
+    const newPkg: Package = {
+      id: `pkg_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      name: `Package ${packages.length + 1}`,
+      items: [{ id: `item_${Date.now()}`, description: "General Representation & Stall Management", cost: "5000" }],
+      outwardCurrency: preferredCurrency,
+    };
+    setPackages([...packages, newPkg]);
   };
 
   const removePackage = (pkgId: string) => {
@@ -154,7 +163,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
   const addLineItem = (pkgId: string) => {
     setPackages(packages.map(p => {
       if (p.id === pkgId) {
-        return { ...p, items: [...p.items, { id: Date.now().toString(), description: "", cost: "" }] };
+        return { ...p, items: [...p.items, { id: `item_${Date.now()}`, description: "", cost: "" }] };
       }
       return p;
     }));
@@ -194,39 +203,50 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
   };
 
   const handleNext = () => {
-    const missingFields: string[] = [];
-    if (!formData.eventName) missingFields.push("Event Name");
-    if (!formData.date) missingFields.push("Date");
-    if (!formData.venue) missingFields.push("Venue");
-    if (!formData.city) missingFields.push("City");
-    if (!formData.country) missingFields.push("Country");
-    if (!formData.pincode) missingFields.push("Pincode/ZIP");
-    if (!formData.googleMapLink) missingFields.push("Google Map Link");
-    if (!formData.description) missingFields.push("Description");
-    if (!imagePreview) missingFields.push("Cover Image");
-
-    if (missingFields.length > 0) {
-      setError(`Please fill in all mandatory fields. Missing: ${missingFields.join(", ")}`);
-      return;
-    }
     setError("");
+    if (!formData.eventName.trim()) return setError("Event Name is required");
+    if (!formData.date.trim()) return setError("Event Date is required");
+    if (!formData.country.trim()) return setError("Country is required");
+    if (!formData.city.trim()) return setError("City is required");
+    if (!agreedToTerms) return setError("Please accept the Sales Partner Representation & Listing Agreement to proceed.");
+    
+    if (packages.length === 0) {
+      addPackage();
+    }
     setStep(2);
   };
 
   const handleSave = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      setError("You must be logged in to post.");
-      return;
+    setError("");
+    if (!agreedToTerms) {
+      setStep(1);
+      return setError("Please accept the Sales Partner Representation & Listing Agreement to proceed.");
     }
+    if (packages.length === 0) {
+      return setError("Please add at least one package option.");
+    }
+    for (const pkg of packages) {
+      if (!pkg.name.trim()) return setError("All packages must have a title.");
+      if (pkg.items.length === 0) return setError(`Package "${pkg.name}" must have at least one line item.`);
+      for (const item of pkg.items) {
+        if (!item.description.trim()) return setError(`Line item in "${pkg.name}" is missing a description.`);
+        if (!item.cost.trim() || isNaN(Number(item.cost)) || Number(item.cost) <= 0) {
+          return setError(`Line item "${item.description || 'unnamed'}" in "${pkg.name}" must have a valid positive cost amount.`);
+        }
+      }
+    }
+    await executeSavePost();
+  };
 
+  const executeSavePost = async () => {
     setSaving(true);
     setError("");
 
     try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not authenticated");
       const idToken = await user.getIdToken();
 
-      // Trigger background telemetry log
       try {
         const visitorId = await getVisitorId();
         fetch("/api/security/telemetry", {
@@ -250,6 +270,17 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
         uploadedImageUrl = imagePreview;
       }
 
+      const spAgreementDetails = getSPServiceAgreementDetails({
+        spName: authorName || user.displayName || user.email || "Sales Partner",
+        spEmail: user.email || "",
+        eventName: formData.eventName,
+        venue: formData.venue,
+        city: formData.city,
+        country: formData.country,
+        date: formData.date,
+        currency: preferredCurrency,
+      });
+
       const postPayload = {
         ...formData,
         packages,
@@ -260,6 +291,10 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
         authorAvatar: authorAvatar || user.photoURL || "",
         mediaUrl: uploadedImageUrl,
         createdAt: editPostData?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        spAgreementAccepted: true,
+        spAgreementAcceptedAt: new Date().toISOString(),
+        spAgreementRefNo: spAgreementDetails.refNo,
       };
 
       const postId = editPostData?.__id || `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -273,6 +308,7 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
       setImagePreview(null);
       setPackages([]);
       setStep(1);
+      setShowAgreementModal(false);
       setSaving(false);
       onSuccess();
 
@@ -407,6 +443,30 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
                   </div>
                 </div>
               </div>
+
+              {/* Sales Partner Agreement Checkbox */}
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer text-[11px] text-gray-500 select-none">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="w-3.5 h-3.5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer shrink-0"
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowAgreementModal(true)}
+                      className="text-indigo-600 font-medium underline hover:text-indigo-800 inline"
+                    >
+                      Sales Partner Representation &amp; Listing Service Agreement
+                    </button>
+                    .
+                  </span>
+                </label>
+              </div>
+
               <div className="h-2" />
             </div>
           ) : (
@@ -577,6 +637,24 @@ export default function SPCreatePostDrawer({ isOpen, onClose, onSuccess, editPos
         </div>
 
       </div>
+
+      {/* Sales Partner Service Agreement Modal */}
+      <SPServiceAgreementModal
+        isOpen={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+        onAccept={() => setAgreedToTerms(true)}
+        isSaving={saving}
+        agreementData={{
+          spName: authorName || "Sales Partner",
+          eventName: formData.eventName,
+          venue: formData.venue,
+          city: formData.city,
+          country: formData.country,
+          date: formData.date,
+          currency: preferredCurrency,
+        }}
+      />
     </div>
   );
 }
+
