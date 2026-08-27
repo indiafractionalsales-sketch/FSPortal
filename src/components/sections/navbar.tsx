@@ -159,16 +159,16 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=obo" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
+                      <Link href="/post-requirement#opportunities-wall" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
                         <span className="text-rose-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
-                          <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Browse Sales Partners</p>
+                          <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Browse Opportunities Wall</p>
                           <p className="text-[10px] text-rose-900/50">Filter by country, industry &amp; footfall</p>
                         </div>
                       </Link>
                     </li>
                     <li>
-                      <Link href="/login?role=obo" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
+                      <Link href="/post-requirement#3-step-process" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
                         <span className="text-rose-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Hire Booth Representatives</p>
@@ -177,10 +177,10 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/legal/privacy" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
+                      <Link href="/post-requirement#how-it-works" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-rose-700 transition-colors">
                         <span className="text-rose-500 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
-                          <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Escrow &amp; Payment Safety</p>
+                          <p className="font-semibold text-gray-900 group-hover:text-rose-700 transition-colors">Payment Safety</p>
                           <p className="text-[10px] text-rose-900/50">7-day post-event audit payout protection</p>
                         </div>
                       </Link>

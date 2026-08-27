@@ -341,7 +341,7 @@ export default function PostRequirementPage() {
       </section>
 
       {/* ── SECTION 2: How It Works — Step by Step (MOVED TO 2ND POSITION IMMEDIATELY AFTER HERO!) ── */}
-      <section className="py-16 md:py-24 bg-white border-b border-gray-200">
+      <section id="how-it-works" className="py-16 md:py-24 bg-white border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="bg-gradient-to-r from-rose-100 via-amber-100 to-emerald-100 border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
 
@@ -424,8 +424,196 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
+      {/* ── SECTION: Opportunities Wall Demonstration & Concept Showcase ── */}
+      <section id="opportunities-wall" className="py-16 md:py-24 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
+        {/* Glowing background ambient lights */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-gradient-to-r from-rose-500/20 via-amber-500/20 to-emerald-500/20 rounded-full blur-3xl -z-10 pointer-events-none" />
+
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-4 py-1.5 rounded-full inline-flex items-center gap-2 mb-4 shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Live Marketplace Concept</span>
+            </span>
+            <h2 className="text-2xl md:text-4xl font-serif font-bold text-white tracking-tight leading-tight">
+              The Opportunities Wall: Your Window to Global Sales Execution
+            </h2>
+            <p className="text-xs md:text-sm text-slate-300 mt-3 leading-relaxed">
+              Experience our live marketplace wall. Exporters browse verified trade show offerings posted by native on-ground Sales Partners, while partners discover business requirements looking for local execution.
+            </p>
+          </div>
+
+          {/* Wall Concept Highlights (3 Pills) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 backdrop-blur-md flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-rose-950/80 border border-rose-800/80 text-rose-400 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-serif font-bold text-white mb-1">Live Event &amp; Task Feed</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Real-time expo packages (Bronze, Silver, Gold), booth management tasks, and physical buyer audit listings.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 backdrop-blur-md flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-800/80 text-amber-400 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-serif font-bold text-white mb-1">Pre-Vetted Local Reps</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Review partner track records, language capabilities, past expo experience, and geotagged event check-ins.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 backdrop-blur-md flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-serif font-bold text-white mb-1">Milestone Protected</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Book with total peace of mind. Payouts are held in milestone lock until 2-hour live streams &amp; lead CRMs are delivered.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Wall Demonstration Box */}
+          <div className="bg-slate-900/90 border-2 border-slate-700/80 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-xl">
+            
+            {/* Wall Header & Search Bar Mockup */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                </span>
+                <div>
+                  <h3 className="text-base font-serif font-bold text-white flex items-center gap-2">
+                    Opportunities Wall — Active Postings
+                  </h3>
+                  <p className="text-[11px] text-slate-400">14 active trade shows &amp; buyer audit packages available today</p>
+                </div>
+              </div>
+              
+              {/* Fake Filter Tags */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-rose-900/80 text-rose-200 border border-rose-700 cursor-pointer">All Markets</span>
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 cursor-pointer">🇦🇪 UAE &amp; Gulf</span>
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 cursor-pointer">🇬🇧 UK</span>
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 cursor-pointer">🇩🇪 Germany</span>
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 cursor-pointer">🇫🇷 France</span>
+              </div>
+            </div>
+
+            {/* Opportunities Wall Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              
+              {/* Opportunity Card 1 */}
+              <div className="bg-slate-950 border border-slate-800 hover:border-emerald-500/60 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-lg">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-xs font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Verified Partner
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">🇦🇪 Dubai</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug mb-2">
+                    Dubai Gitex Global 2026 Representation
+                  </h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed mb-4">
+                    Full booth management, bilingual Arabic/English pitch, visiting card AI OCR scan &amp; mandatory 2-hr live stream.
+                  </p>
+                  <div className="space-y-1.5 text-[10px] text-slate-300 font-medium mb-4">
+                    <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-slate-500" /> Oct 14 - Oct 18, 2026</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-slate-500" /> Dubai World Trade Centre</div>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-400">Silver Package</span>
+                  <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">Book on Wall <ArrowUpRight className="w-3 h-3" /></span>
+                </div>
+              </div>
+
+              {/* Opportunity Card 2 */}
+              <div className="bg-slate-950 border border-slate-800 hover:border-rose-500/60 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-lg">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-xs font-bold text-rose-400 bg-rose-950 border border-rose-800 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                      <Zap className="w-3 h-3 text-rose-400" /> High Demand
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">🇩🇪 Germany</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-white group-hover:text-rose-300 transition-colors leading-snug mb-2">
+                    Hannover Messe Industrial Expo Delegate
+                  </h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed mb-4">
+                    Technical sales representation for engineering components. ISO audit compliance &amp; German-fluent pitch.
+                  </p>
+                  <div className="space-y-1.5 text-[10px] text-slate-300 font-medium mb-4">
+                    <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-slate-500" /> Apr 20 - Apr 24, 2026</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-slate-500" /> Hannover Exhibition Grounds</div>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-xs font-bold text-rose-400">Technical Package</span>
+                  <span className="text-[10px] font-bold text-rose-400 flex items-center gap-1">Book on Wall <ArrowUpRight className="w-3 h-3" /></span>
+                </div>
+              </div>
+
+              {/* Opportunity Card 3 */}
+              <div className="bg-slate-950 border border-slate-800 hover:border-sky-500/60 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-lg">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-xs font-bold text-sky-400 bg-sky-950 border border-sky-800 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                      <ShieldCheck className="w-3 h-3 text-sky-400" /> On-Ground Audit
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">🇬🇧 London</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-white group-hover:text-sky-300 transition-colors leading-snug mb-2">
+                    London Tech Week B2B Buyer Audit &amp; Meetings
+                  </h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed mb-4">
+                    Physical factory &amp; office verification visits, geotagged evidence, plus direct UK buyer lead introductions.
+                  </p>
+                  <div className="space-y-1.5 text-[10px] text-slate-300 font-medium mb-4">
+                    <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-slate-500" /> Jun 08 - Jun 12, 2026</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-slate-500" /> ExCeL London, United Kingdom</div>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-xs font-bold text-sky-400">Gold Audit Package</span>
+                  <span className="text-[10px] font-bold text-sky-400 flex items-center gap-1">Book on Wall <ArrowUpRight className="w-3 h-3" /></span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Wall Action Footer */}
+            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+              <div>
+                <h4 className="text-sm font-serif font-bold text-white">Ready to Browse the Complete Opportunities Wall?</h4>
+                <p className="text-xs text-slate-400 mt-0.5">Log in to view all 14+ active expo listings, filter by your target country, and hire reps directly.</p>
+              </div>
+              <button
+                onClick={() => router.push("/login?role=obo")}
+                className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-700 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:from-emerald-400 hover:to-teal-600 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2"
+              >
+                <span>Browse Opportunities Wall</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ── SECTION 3: Simple 3-Step Process ── */}
-      <section className="py-16 md:py-24 bg-[#f8fafc] border-b border-gray-200">
+      <section id="3-step-process" className="py-16 md:py-24 bg-[#f8fafc] border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs font-headline font-bold uppercase tracking-widest text-sky-800 bg-sky-100 border border-sky-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
