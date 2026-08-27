@@ -297,18 +297,32 @@ export default function PostRequirementPage() {
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center">
             {[
+              { flag: "🇬🇧", name: "United Kingdom", count: "140+ Reps Active", highlight: true, badge: "Strongest Footprint" },
               { flag: "🇫🇷", name: "France", count: "34 Reps Active" },
               { flag: "🇩🇪", name: "Germany", count: "48 Reps Active" },
               { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps Active" },
-              { flag: "🇬🇧", name: "United Kingdom", count: "41 Reps Active" },
               { flag: "🇪🇸", name: "Spain", count: "26 Reps Active" },
               { flag: "🇸🇪", name: "Sweden", count: "19 Reps Active" },
               { flag: "🇮🇳", name: "India", count: "110 Reps Active" }
             ].map((market, idx) => (
-              <div key={idx} className="bg-white/80 backdrop-blur-xs border border-gray-200 rounded-xl p-3 shadow-2xs hover:shadow-xs hover:scale-105 transition-all">
+              <div 
+                key={idx} 
+                className={`rounded-xl p-3 transition-all flex flex-col justify-between items-center ${
+                  market.highlight 
+                    ? "bg-rose-50/90 border-2 border-[#701010] shadow-md ring-2 ring-rose-200 relative -translate-y-1" 
+                    : "bg-white/80 backdrop-blur-xs border border-gray-200 shadow-2xs hover:shadow-xs hover:scale-105"
+                }`}
+              >
+                {market.badge && (
+                  <span className="text-[8px] font-headline font-bold text-white bg-[#701010] px-1.5 py-0.5 rounded-full mb-1 uppercase tracking-wider shadow-2xs">
+                    ★ {market.badge}
+                  </span>
+                )}
                 <span className="text-2xl block mb-1">{market.flag}</span>
                 <p className="text-xs font-bold text-gray-900 leading-tight">{market.name}</p>
-                <p className="text-[10px] font-medium text-emerald-700 mt-0.5">{market.count}</p>
+                <p className={`text-[10px] font-bold mt-0.5 ${market.highlight ? "text-[#701010]" : "text-emerald-700"}`}>
+                  {market.count}
+                </p>
               </div>
             ))}
           </div>
