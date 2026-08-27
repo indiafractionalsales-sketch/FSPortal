@@ -313,13 +313,13 @@ export default function PostRequirementPage() {
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center">
             {[
-              { flag: "🇬🇧", name: "United Kingdom", count: "140+ Reps Active", highlight: true, badge: "Strongest Footprint" },
               { flag: "🇫🇷", name: "France", count: "34 Reps Active" },
               { flag: "🇩🇪", name: "Germany", count: "48 Reps Active" },
-              { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps Active" },
+              { flag: "🇮🇳", name: "India", count: "110 Reps Active" },
               { flag: "🇪🇸", name: "Spain", count: "26 Reps Active" },
               { flag: "🇸🇪", name: "Sweden", count: "19 Reps Active" },
-              { flag: "🇮🇳", name: "India", count: "110 Reps Active" }
+              { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps Active" },
+              { flag: "🇬🇧", name: "United Kingdom", count: "140+ Reps Active", highlight: true, badge: "Strongest Footprint" }
             ].map((market, idx) => (
               <div 
                 key={idx} 
