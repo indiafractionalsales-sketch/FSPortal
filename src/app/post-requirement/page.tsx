@@ -530,13 +530,13 @@ export default function PostRequirementPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center">
             {[
-              { flag: "🇫🇷", name: "France", count: "34 Reps", intensity: 24, highlight: false, badge: "" },
-              { flag: "🇩🇪", name: "Germany", count: "48 Reps", intensity: 34, highlight: false, badge: "" },
-              { flag: "🇮🇳", name: "India", count: "110 Reps", intensity: 79, highlight: false, badge: "" },
-              { flag: "🇪🇸", name: "Spain", count: "26 Reps", intensity: 19, highlight: false, badge: "" },
-              { flag: "🇸🇪", name: "Sweden", count: "19 Reps", intensity: 14, highlight: false, badge: "" },
-              { flag: "🇦🇪", name: "UAE & Gulf", count: "52 Reps", intensity: 37, highlight: false, badge: "" },
-              { flag: "🇬🇧", name: "United Kingdom", count: "140+ Reps", intensity: 100, highlight: true, badge: "Strongest Footprint" }
+              { flag: "🇫🇷", name: "France", status: "Active Coverage", intensity: 24, highlight: false, badge: "" },
+              { flag: "🇩🇪", name: "Germany", status: "Active Coverage", intensity: 34, highlight: false, badge: "" },
+              { flag: "🇮🇳", name: "India", status: "Active Coverage", intensity: 79, highlight: false, badge: "" },
+              { flag: "🇪🇸", name: "Spain", status: "Active Coverage", intensity: 19, highlight: false, badge: "" },
+              { flag: "🇸🇪", name: "Sweden", status: "Active Coverage", intensity: 14, highlight: false, badge: "" },
+              { flag: "🇦🇪", name: "UAE & Gulf", status: "Active Coverage", intensity: 37, highlight: false, badge: "" },
+              { flag: "🇬🇧", name: "United Kingdom", status: "Active Coverage", intensity: 100, highlight: true, badge: "Strongest Footprint" }
             ].map((market, idx) => (
               <div
                 key={idx}
@@ -560,7 +560,7 @@ export default function PostRequirementPage() {
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
                   </span>
                   <p className={`text-[10px] font-bold ${market.highlight ? "text-[#701010]" : "text-emerald-700"}`}>
-                    {market.count}
+                    {market.status}
                   </p>
                 </div>
                 {/* Coverage intensity bar */}
