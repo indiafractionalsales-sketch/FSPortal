@@ -37,45 +37,44 @@ export default function PostRequirementPage() {
   const fractionalCountriesCovered = Math.min(12, Math.max(2, Math.floor(fractionalExposCovered / 1.5)));
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-gray-900 font-sans flex flex-col selection:bg-rose-100 selection:text-rose-900">
+    <div className="min-h-screen bg-[#fcfcfc] text-gray-900 font-sans flex flex-col selection:bg-rose-100 selection:text-rose-900">
       {/* Global Top Navbar */}
       <Navbar />
 
       {/* Hero Section: Presentation Header */}
-      <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-gradient-to-b from-white via-rose-50/40 to-[#fafafa] border-b border-rose-100/60 relative overflow-hidden">
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-rose-200/20 via-amber-200/20 to-sky-200/20 rounded-full blur-3xl -z-10 pointer-events-none" />
+      <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-gradient-to-b from-white via-rose-50/50 to-[#fcfcfc] border-b border-rose-100 relative overflow-hidden">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-rose-200/30 via-amber-200/30 to-sky-200/30 rounded-full blur-3xl -z-10 pointer-events-none" />
 
         <div className="container mx-auto px-6 max-w-6xl text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold font-headline uppercase tracking-wider mb-6 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-100/80 border border-rose-300 text-rose-900 text-xs font-bold font-headline uppercase tracking-wider mb-6 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-rose-600" />
             <span>The MSME Global Expansion Playbook</span>
           </div>
 
-          {/* 2 Parallel Verticals Hero Split */}
+          {/* 2 Parallel Cheerful Verticals Hero Split */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left mb-12 max-w-6xl mx-auto">
             
-            {/* Vertical 1: The Problem (Capital Trap) */}
-            <div className="bg-[#fff5f5]/80 border border-rose-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200/30 rounded-bl-full pointer-events-none" />
+            {/* Vertical 1: The Problem (Rich Warm Rose Panel) */}
+            <div className="bg-[#fff1f2] border-2 border-rose-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200/40 rounded-bl-full pointer-events-none" />
               
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-rose-200 text-rose-800 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-rose-100 border border-rose-300 text-rose-900 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
                   <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
                   <span>Vertical 01 — The Problem</span>
                 </div>
 
-                <h2 className="text-xl md:text-2xl font-serif font-bold text-gray-900 leading-snug mb-3">
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-rose-950 leading-snug mb-3">
                   Why Sinking Your Budget into One Country Fails
                 </h2>
 
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
                   Pouring your entire MSME expansion budget into a single full-time hire in one country burns $120,000+ in fixed overhead, locks you into one market, and leaves zero budget for other global regions.
                 </p>
 
                 {/* Doodle Graphic: Thinking Founder at Desk with Pen */}
-                <div className="bg-white border border-rose-200/80 rounded-2xl p-5 shadow-2xs mb-4 text-center">
+                <div className="bg-white border-2 border-rose-200/90 rounded-2xl p-5 shadow-xs mb-4 text-center">
                   <div className="flex items-center justify-center gap-4 py-2">
-                    {/* SVG Doodle Illustration */}
                     <svg className="w-24 h-24 text-rose-600 shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M10 80 L90 80" />
                       <path d="M20 80 L20 95" />
@@ -86,14 +85,14 @@ export default function PostRequirementPage() {
                       <path d="M35 45 L32 38" />
                       <path d="M50 55 L68 65" />
                       <path d="M30 36 L24 30" stroke="#701010" strokeWidth="3" />
-                      <path d="M68 28 C75 25, 82 25, 85 30 C88 35, 85 40, 80 42 C85 45, 82 50, 75 48 C72 48, 70 45, 68 42 Z" fill="#fff5f5" stroke="#f43f5e" strokeDasharray="3 3" />
+                      <path d="M68 28 C75 25, 82 25, 85 30 C88 35, 85 40, 80 42 C85 45, 82 50, 75 48 C72 48, 70 45, 68 42 Z" fill="#fff1f2" stroke="#f43f5e" strokeDasharray="3 3" />
                       <text x="76" y="38" fontSize="8" fontWeight="bold" fill="#be123c" textAnchor="middle" stroke="none">$120K</text>
                       <text x="76" y="44" fontSize="6" fill="#be123c" textAnchor="middle" stroke="none">Sunk!</text>
                     </svg>
                     
                     <div className="text-left max-w-xs">
-                      <p className="text-xs font-bold text-gray-900 mb-1">Founder's Capital Dilemma</p>
-                      <p className="text-[11px] text-gray-500 leading-snug">
+                      <p className="text-xs font-bold text-rose-950 mb-1">Founder's Capital Dilemma</p>
+                      <p className="text-[11px] text-gray-600 leading-snug">
                         Sitting at the desk with pen in hand... realizing 100% of capital is trapped in 1 market with high fixed risk.
                       </p>
                     </div>
@@ -101,36 +100,35 @@ export default function PostRequirementPage() {
                 </div>
               </div>
 
-              <div className="p-3 bg-rose-100/60 border border-rose-200 rounded-xl text-xs text-rose-900 font-medium flex items-center justify-between">
+              <div className="p-3 bg-rose-200/70 border border-rose-300 rounded-xl text-xs text-rose-950 font-bold flex items-center justify-between shadow-2xs">
                 <span>⚠️ High Fixed Risk</span>
-                <span className="font-bold text-rose-700">0 Multi-Country Reach</span>
+                <span className="text-rose-800">0 Multi-Country Reach</span>
               </div>
             </div>
 
-            {/* Vertical 2: The Solution (Fractional Reach) */}
-            <div className="bg-[#f0fdf4]/80 border border-emerald-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/30 rounded-bl-full pointer-events-none" />
+            {/* Vertical 2: The Solution (Rich Cheerful Emerald Panel) */}
+            <div className="bg-[#ecfdf5] border-2 border-emerald-200/90 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-bl-full pointer-events-none" />
 
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-emerald-200 text-emerald-800 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-900 text-[10px] font-bold font-headline uppercase tracking-wider mb-4 shadow-2xs">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Vertical 02 — The Solution</span>
                 </div>
 
-                <h2 className="text-xl md:text-2xl font-serif font-bold text-gray-900 leading-snug mb-3">
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-emerald-950 leading-snug mb-3">
                   How Fractional Sales Unlocks Global Reach
                 </h2>
 
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                <p className="text-xs md:text-sm text-emerald-900/80 leading-relaxed mb-6">
                   Distribute the exact same budget across 6+ countries. Hire verified native Sales Partners for specific expos, buyer verifications, and market entries under 7-day escrow protection.
                 </p>
 
                 {/* Doodle Graphic: Global Expansion Tree */}
-                <div className="bg-white border border-emerald-200/80 rounded-2xl p-5 shadow-2xs mb-4 text-center">
+                <div className="bg-white border-2 border-emerald-200/90 rounded-2xl p-5 shadow-xs mb-4 text-center">
                   <div className="flex items-center justify-center gap-4 py-2">
-                    {/* SVG Solution Graphic */}
                     <svg className="w-24 h-24 text-emerald-600 shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="50" cy="50" r="14" fill="#f0fdf4" stroke="#059669" />
+                      <circle cx="50" cy="50" r="14" fill="#ecfdf5" stroke="#059669" />
                       <text x="50" y="52" fontSize="7" fontWeight="bold" fill="#047857" textAnchor="middle" stroke="none">BUDGET</text>
                       <path d="M50 36 L50 18" stroke="#10b981" />
                       <path d="M62 42 L80 30" stroke="#10b981" />
@@ -150,8 +148,8 @@ export default function PostRequirementPage() {
                     </svg>
 
                     <div className="text-left max-w-xs">
-                      <p className="text-xs font-bold text-gray-900 mb-1">Optimized Global Distribution</p>
-                      <p className="text-[11px] text-gray-500 leading-snug">
+                      <p className="text-xs font-bold text-emerald-950 mb-1">Optimized Global Distribution</p>
+                      <p className="text-[11px] text-gray-600 leading-snug">
                         1 Budget → Native Local Experts in France, Germany, Italy, UAE &amp; US. Pay only per event.
                       </p>
                     </div>
@@ -159,9 +157,9 @@ export default function PostRequirementPage() {
                 </div>
               </div>
 
-              <div className="p-3 bg-emerald-100/60 border border-emerald-200 rounded-xl text-xs text-emerald-950 font-medium flex items-center justify-between">
+              <div className="p-3 bg-emerald-200/70 border border-emerald-300 rounded-xl text-xs text-emerald-950 font-bold flex items-center justify-between shadow-2xs">
                 <span>✨ 0 Fixed Payroll Risk</span>
-                <span className="font-bold text-emerald-700">6+ Markets Covered</span>
+                <span className="text-emerald-800">6+ Markets Covered</span>
               </div>
             </div>
 
@@ -185,27 +183,27 @@ export default function PostRequirementPage() {
             </a>
           </div>
 
-          {/* Quick Metrics Bar */}
+          {/* Cheerful Color Metrics Bar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
-            <div className="bg-white border border-rose-100 p-4 rounded-xl shadow-2xs">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-600">Cost Savings</p>
-              <p className="text-xl font-serif font-bold text-gray-900">Up to 80%</p>
-              <p className="text-[10px] text-gray-500">Vs hiring full-time overseas reps</p>
+            <div className="bg-[#fff1f2] border-2 border-rose-200 p-4 rounded-2xl shadow-2xs">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-700">Cost Savings</p>
+              <p className="text-xl font-serif font-bold text-rose-950">Up to 80%</p>
+              <p className="text-[10px] text-rose-900/70">Vs hiring full-time overseas reps</p>
             </div>
-            <div className="bg-white border border-emerald-100 p-4 rounded-xl shadow-2xs">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Global Reach</p>
-              <p className="text-xl font-serif font-bold text-gray-900">5x Markets</p>
-              <p className="text-[10px] text-gray-500">Covered under the same budget</p>
+            <div className="bg-[#ecfdf5] border-2 border-emerald-200 p-4 rounded-2xl shadow-2xs">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Global Reach</p>
+              <p className="text-xl font-serif font-bold text-emerald-950">5x Markets</p>
+              <p className="text-[10px] text-emerald-900/70">Covered under the same budget</p>
             </div>
-            <div className="bg-white border border-amber-100 p-4 rounded-xl shadow-2xs">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600">Local Nuance</p>
-              <p className="text-xl font-serif font-bold text-gray-900">100% Native</p>
-              <p className="text-[10px] text-gray-500">Local language &amp; buyer network</p>
+            <div className="bg-[#fffbeb] border-2 border-amber-200 p-4 rounded-2xl shadow-2xs">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700">Local Nuance</p>
+              <p className="text-xl font-serif font-bold text-amber-950">100% Native</p>
+              <p className="text-[10px] text-amber-900/70">Local language &amp; buyer network</p>
             </div>
-            <div className="bg-white border border-sky-100 p-4 rounded-xl shadow-2xs">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600">Security</p>
-              <p className="text-[11px] font-bold text-gray-900">7-Day Escrow Payout</p>
-              <p className="text-[10px] text-gray-500">Section 10A IT Act Legal Contract</p>
+            <div className="bg-[#f0f9ff] border-2 border-sky-200 p-4 rounded-2xl shadow-2xs">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-sky-700">Security</p>
+              <p className="text-[11px] font-bold text-sky-950">7-Day Escrow Payout</p>
+              <p className="text-[10px] text-sky-900/70">Section 10A IT Act Contract</p>
             </div>
           </div>
         </div>
@@ -215,7 +213,7 @@ export default function PostRequirementPage() {
       <section id="interactive-presentation" className="py-16 md:py-24 bg-white border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-xs font-headline font-bold uppercase tracking-widest text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-full inline-block mb-3">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-rose-800 bg-rose-100 border border-rose-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
               Executive Presentation
             </span>
             <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
@@ -224,13 +222,13 @@ export default function PostRequirementPage() {
           </div>
 
           {/* Presentation Nav Switcher Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12 p-1.5 bg-gray-100/80 rounded-2xl max-w-3xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-2.5 mb-12 p-2 bg-gray-100/90 rounded-2xl max-w-3xl mx-auto border border-gray-200/80 shadow-2xs">
             <button
               onClick={() => setActiveStoryTab("problem")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "problem"
-                  ? "bg-white text-rose-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-[#701010] text-white shadow-md"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
               }`}
             >
               1. The Capital Trap
@@ -239,8 +237,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("nuances")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "nuances"
-                  ? "bg-white text-rose-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-[#701010] text-white shadow-md"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
               }`}
             >
               2. Cultural Nuances
@@ -249,8 +247,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("solution")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "solution"
-                  ? "bg-white text-rose-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-[#701010] text-white shadow-md"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
               }`}
             >
               3. Fractional Solution
@@ -259,8 +257,8 @@ export default function PostRequirementPage() {
               onClick={() => setActiveStoryTab("post")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold font-headline uppercase tracking-wider transition-all cursor-pointer ${
                 activeStoryTab === "post"
-                  ? "bg-white text-rose-700 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-[#701010] text-white shadow-md"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
               }`}
             >
               4. Live Post Demo
@@ -269,49 +267,49 @@ export default function PostRequirementPage() {
 
           {/* Presentation Slide 1: The Problem */}
           {activeStoryTab === "problem" && (
-            <div className="bg-[#fff5f5]/60 border border-rose-200 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
+            <div className="bg-[#fff1f2] border-2 border-rose-300 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-rose-600 bg-white border border-rose-200 px-2.5 py-1 rounded-md mb-4 inline-block">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-rose-800 bg-white border border-rose-300 px-3 py-1 rounded-md mb-4 inline-block shadow-2xs">
                     Slide 01 — The MSME Expansion Dilemma
                   </span>
-                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-rose-950 mb-4">
                     The Capital Trap of Traditional Overseas Offices
                   </h3>
-                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
-                    When a Business Owner, Manufacturer, or Trader wants to expand globally, traditional advice says: <em className="text-gray-900 font-semibold">"Set up a local entity, lease an office, and hire a full-time sales executive in the target country."</em>
+                  <p className="text-xs md:text-sm text-rose-900/80 leading-relaxed mb-6">
+                    When a Business Owner, Manufacturer, or Trader wants to expand globally, traditional advice says: <em className="text-rose-950 font-bold">"Set up a local entity, lease an office, and hire a full-time sales executive in the target country."</em>
                   </p>
 
-                  <div className="space-y-3 bg-white p-5 rounded-2xl border border-rose-100 text-xs">
-                    <div className="flex items-center justify-between text-gray-800 font-bold border-b border-gray-100 pb-2">
+                  <div className="space-y-3 bg-white p-5 rounded-2xl border-2 border-rose-200 text-xs shadow-2xs">
+                    <div className="flex items-center justify-between text-gray-900 font-bold border-b border-rose-100 pb-2">
                       <span>Full-Time Overseas Hire (1 Country)</span>
-                      <span className="text-rose-600">$80,000 - $120,000 / yr</span>
+                      <span className="text-rose-600 font-extrabold">$80,000 - $120,000 / yr</span>
                     </div>
-                    <div className="flex items-center justify-between text-gray-600">
+                    <div className="flex items-center justify-between text-gray-700">
                       <span>Local Office Lease &amp; Compliance</span>
                       <span>$25,000 / yr</span>
                     </div>
-                    <div className="flex items-center justify-between text-gray-600">
+                    <div className="flex items-center justify-between text-gray-700">
                       <span>Travel &amp; Administrative Overhead</span>
                       <span>$15,000 / yr</span>
                     </div>
-                    <div className="flex items-center justify-between font-bold text-rose-700 pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between font-bold text-rose-800 pt-2 border-t border-rose-100">
                       <span>Total Fixed Budget Consumed</span>
-                      <span>$120,000+ (Sunk in 1 Market)</span>
+                      <span className="text-rose-700 font-extrabold">$120,000+ (Sunk in 1 Market)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Visual Doodle Illustration / Comparison Diagram */}
-                <div className="bg-white border border-rose-200 rounded-2xl p-6 shadow-sm text-center">
-                  <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-white border-2 border-rose-300 rounded-2xl p-6 shadow-sm text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-rose-100 border border-rose-300 text-rose-600 flex items-center justify-center mx-auto mb-4 shadow-2xs">
                     <AlertCircle className="w-8 h-8" />
                   </div>
-                  <h4 className="font-serif font-bold text-lg text-gray-900 mb-2">High Risk &amp; High Sunk Cost</h4>
-                  <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                  <h4 className="font-serif font-bold text-lg text-rose-950 mb-2">High Risk &amp; High Sunk Cost</h4>
+                  <p className="text-xs text-gray-600 mb-6 leading-relaxed">
                     You have spent your <strong>entire MSME expansion budget</strong> on a single country. If that market slows down, 100% of your capital is at risk, leaving $0 for UK, Germany, UAE, or US opportunities.
                   </p>
-                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900 font-medium">
+                  <div className="p-3 bg-rose-100/80 border border-rose-300 rounded-xl text-xs text-rose-950 font-bold">
                     ⚠️ 0 Flexibility | 0 Budget for other markets | High Fixed Payroll Risk
                   </div>
                 </div>
@@ -319,69 +317,75 @@ export default function PostRequirementPage() {
             </div>
           )}
 
-          {/* Presentation Slide 2: Cultural Sales Nuance Matrix */}
+          {/* Presentation Slide 2: Cultural Sales Nuance Matrix (Cheerful Color Panels) */}
           {activeStoryTab === "nuances" && (
-            <div className="bg-[#fffbeb]/60 border border-amber-200 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
+            <div className="bg-[#fffbeb] border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
               <div className="text-center max-w-3xl mx-auto mb-10">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700 bg-white border border-amber-200 px-2.5 py-1 rounded-md mb-3 inline-block">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-900 bg-white border border-amber-300 px-3 py-1 rounded-md mb-3 inline-block shadow-2xs">
                   Slide 02 — Cross-Border Reality
                 </span>
-                <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-3">
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-amber-950 mb-3">
                   How You Sell in France 🇫🇷 ≠ Italy 🇮🇹 ≠ Germany 🇩🇪
                 </h3>
-                <p className="text-xs md:text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-amber-900/80">
                   Every country has distinct business etiquettes, language expectations, and buyer relationships. A single full-time hire cannot effectively cover multiple distinct cultures.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* France */}
-                <div className="bg-white border border-amber-200 rounded-2xl p-6 shadow-2xs">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl">🇫🇷</span>
-                    <div>
-                      <h4 className="font-serif font-bold text-base text-gray-900">France (Paris Expos)</h4>
-                      <p className="text-[10px] text-amber-700 font-bold uppercase">Relationship &amp; Compliance</p>
+                {/* France (Soft Royal Blue / Indigo Tint) */}
+                <div className="bg-[#f4f4ff] border-2 border-indigo-200 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-3xl">🇫🇷</span>
+                      <div>
+                        <h4 className="font-serif font-bold text-base text-indigo-950">France (Paris Expos)</h4>
+                        <p className="text-[10px] text-indigo-700 font-bold uppercase">Relationship &amp; Compliance</p>
+                      </div>
                     </div>
+                    <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                      Requires fluent French, formal business etiquette, strict EU regulatory documentation, and local relationship cultivation.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                    Requires fluent French, formal business etiquette, strict EU regulatory documentation, and local relationship cultivation.
-                  </p>
-                  <div className="text-[11px] text-amber-900 font-medium p-2.5 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="text-[11px] text-indigo-950 font-bold p-3 bg-white rounded-xl border border-indigo-200 shadow-2xs">
                     💡 Needs local native French speaker with trade fair networks.
                   </div>
                 </div>
 
-                {/* Italy */}
-                <div className="bg-white border border-amber-200 rounded-2xl p-6 shadow-2xs">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl">🇮🇹</span>
-                    <div>
-                      <h4 className="font-serif font-bold text-base text-gray-900">Italy (Milan Trade Fairs)</h4>
-                      <p className="text-[10px] text-amber-700 font-bold uppercase">Design &amp; Personal Rapport</p>
+                {/* Italy (Warm Terracotta / Orange Tint) */}
+                <div className="bg-[#fff7ed] border-2 border-orange-200 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-3xl">🇮🇹</span>
+                      <div>
+                        <h4 className="font-serif font-bold text-base text-orange-950">Italy (Milan Trade Fairs)</h4>
+                        <p className="text-[10px] text-orange-700 font-bold uppercase">Design &amp; Personal Rapport</p>
+                      </div>
                     </div>
+                    <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                      Requires strong personal rapport, deep aesthetic and product design presentation, and direct localized buyer introductions.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                    Requires strong personal rapport, deep aesthetic and product design presentation, and direct localized buyer introductions.
-                  </p>
-                  <div className="text-[11px] text-amber-900 font-medium p-2.5 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="text-[11px] text-orange-950 font-bold p-3 bg-white rounded-xl border border-orange-200 shadow-2xs">
                     💡 Needs on-ground Italian rep with direct B2B buyer connections.
                   </div>
                 </div>
 
-                {/* Germany */}
-                <div className="bg-white border border-amber-200 rounded-2xl p-6 shadow-2xs">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl">🇩🇪</span>
-                    <div>
-                      <h4 className="font-serif font-bold text-base text-gray-900">Germany (Hannover Messe)</h4>
-                      <p className="text-[10px] text-amber-700 font-bold uppercase">Precision &amp; Technical Specs</p>
+                {/* Germany (Crisp Forest Emerald Tint) */}
+                <div className="bg-[#f0fdf4] border-2 border-emerald-200 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-3xl">🇩🇪</span>
+                      <div>
+                        <h4 className="font-serif font-bold text-base text-emerald-950">Germany (Hannover Messe)</h4>
+                        <p className="text-[10px] text-emerald-700 font-bold uppercase">Precision &amp; Technical Specs</p>
+                      </div>
                     </div>
+                    <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                      Requires extreme engineering precision, structured data sheets, German fluency, and verified quality certification handovers.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                    Requires extreme engineering precision, structured data sheets, German fluency, and verified quality certification handovers.
-                  </p>
-                  <div className="text-[11px] text-amber-900 font-medium p-2.5 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="text-[11px] text-emerald-950 font-bold p-3 bg-white rounded-xl border border-emerald-200 shadow-2xs">
                     💡 Needs technical sales delegate fluent in German &amp; ISO standards.
                   </div>
                 </div>
@@ -391,50 +395,50 @@ export default function PostRequirementPage() {
 
           {/* Presentation Slide 3: The Fractional Solution */}
           {activeStoryTab === "solution" && (
-            <div className="bg-[#f0fdf4]/60 border border-emerald-200 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
+            <div className="bg-[#ecfdf5] border-2 border-emerald-300 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-white border border-emerald-200 px-2.5 py-1 rounded-md mb-4 inline-block">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-900 bg-white border border-emerald-300 px-3 py-1 rounded-md mb-4 inline-block shadow-2xs">
                     Slide 03 — The Fractional Allocation Strategy
                   </span>
-                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-emerald-950 mb-4">
                     Redistribute One Budget Across 6+ Countries Effortlessly
                   </h3>
-                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                  <p className="text-xs md:text-sm text-emerald-900/80 leading-relaxed mb-6">
                     Instead of spending $100,000 on 1 country, **allocate $10,000 to $15,000 per market** to hire top Fractional Sales Partners for specific expos, B2B meetings, and buyer verifications.
                   </p>
 
-                  <div className="space-y-2 text-xs font-medium text-gray-800">
-                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-emerald-100">
+                  <div className="space-y-2.5 text-xs font-bold text-gray-900">
+                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>🇫🇷 Paris Expo: Hire local French Sales Rep (€1,200 package)</span>
                     </div>
-                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-emerald-100">
+                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>🇩🇪 Frankfurt Messe: Hire technical German Sales Rep (€1,500 package)</span>
                     </div>
-                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-emerald-100">
+                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>🇦🇪 Dubai Gitex: Hire bilingual Arabic/English Sales Rep ($1,800 package)</span>
                     </div>
-                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-emerald-100">
+                    <div className="flex items-center gap-2.5 bg-white p-3 rounded-xl border-2 border-emerald-200 shadow-2xs">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>🇺🇸 Las Vegas CES: Hire US B2B Booth Delegate ($2,000 package)</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white border border-emerald-200 rounded-2xl p-6 shadow-sm text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-white border-2 border-emerald-300 rounded-2xl p-6 shadow-sm text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-2xs">
                     <TrendingUp className="w-8 h-8" />
                   </div>
-                  <h4 className="font-serif font-bold text-lg text-gray-900 mb-2">10x Multi-Country ROI</h4>
-                  <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                  <h4 className="font-serif font-bold text-lg text-emerald-950 mb-2">10x Multi-Country ROI</h4>
+                  <p className="text-xs text-gray-600 mb-6 leading-relaxed">
                     Zero fixed payroll. Zero office leases. Pay only for verified event packages with <strong>7-day escrow protection</strong> and real-time scanned leads CRM.
                   </p>
                   <button
                     onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors cursor-pointer"
                   >
                     Post Requirement &amp; Allocate Budget
                   </button>
@@ -445,21 +449,21 @@ export default function PostRequirementPage() {
 
           {/* Presentation Slide 4: Live Event Post Showcase */}
           {activeStoryTab === "post" && (
-            <div className="bg-[#f0f9ff]/60 border border-sky-200 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
+            <div className="bg-[#f0f9ff] border-2 border-sky-300 rounded-3xl p-8 md:p-12 shadow-sm animate-in fade-in duration-300">
               <div className="text-center max-w-3xl mx-auto mb-10">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-700 bg-white border border-sky-200 px-2.5 py-1 rounded-md mb-3 inline-block">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-900 bg-white border border-sky-300 px-3 py-1 rounded-md mb-3 inline-block shadow-2xs">
                   Slide 04 — Real Platform Execution
                 </span>
-                <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-3">
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-sky-950 mb-3">
                   How a Sales Partner Event Listing Appears on Platform
                 </h3>
-                <p className="text-xs md:text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-sky-900/80">
                   Business Owners review transparent event posts created by Sales Partners, complete with line-item packages, venue location, and verified partner profiles.
                 </p>
               </div>
 
               {/* Demo Post Card Graphic */}
-              <div className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden text-left">
+              <div className="max-w-3xl mx-auto bg-white border-2 border-sky-200 rounded-2xl shadow-md overflow-hidden text-left">
                 <div className="relative h-64 w-full bg-gray-100">
                   <Image 
                     src="/hero-bg-2.png" 
@@ -467,7 +471,7 @@ export default function PostRequirementPage() {
                     fill 
                     className="object-cover"
                   />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm flex items-center gap-1.5">
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-red-600" /> Paris Expo Porte de Versailles, France
                   </div>
                   <div className="absolute top-4 right-4 bg-[#701010] text-white px-3 py-1 rounded-full text-xs font-bold font-headline uppercase tracking-wider shadow-sm">
@@ -492,17 +496,17 @@ export default function PostRequirementPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/60">
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
                       <p className="text-[10px] font-bold text-gray-500 uppercase">Bronze Package</p>
                       <p className="text-sm font-bold text-gray-900">€500</p>
                       <p className="text-[10px] text-gray-500 mt-1">Visiting Card Scan &amp; Booth Pitch</p>
                     </div>
-                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl">
-                      <p className="text-[10px] font-bold text-rose-700 uppercase">Silver Package (Popular)</p>
+                    <div className="p-3 bg-rose-50 border-2 border-rose-200 rounded-xl">
+                      <p className="text-[10px] font-bold text-rose-800 uppercase">Silver Package (Popular)</p>
                       <p className="text-sm font-bold text-rose-950">€1,200</p>
-                      <p className="text-[10px] text-rose-900/60 mt-1">+ 2-hr Live Stream &amp; Sample Check</p>
+                      <p className="text-[10px] text-rose-900/70 mt-1">+ 2-hr Live Stream &amp; Sample Check</p>
                     </div>
-                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/60">
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
                       <p className="text-[10px] font-bold text-gray-500 uppercase">Gold Package</p>
                       <p className="text-sm font-bold text-gray-900">€2,500</p>
                       <p className="text-[10px] text-gray-500 mt-1">Full 5-Day Booth Management &amp; B2B Meetings</p>
@@ -510,13 +514,13 @@ export default function PostRequirementPage() {
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-2 text-xs text-gray-700 font-medium">
                       <ShieldCheck className="w-4 h-4 text-emerald-600" />
                       <span>Protected by 7-Day Escrow &amp; GPS Check-In Audit</span>
                     </div>
                     <button
                       onClick={() => router.push("/login?role=obo&redirect=create-post")}
-                      className="px-5 py-2.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                      className="px-5 py-2.5 bg-[#701010] hover:bg-[#5a0c0c] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-sm"
                     >
                       Book Representation
                     </button>
@@ -528,27 +532,139 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* Interactive Budget Simulator */}
+      {/* Scope of Requirements Section (Cheerful Cards) */}
+      <section className="py-16 md:py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-rose-800 bg-rose-100 border border-rose-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
+              Versatile Coverage
+            </span>
+            <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
+              What Requirements Can You Post?
+            </h2>
+            <p className="text-sm md:text-base text-gray-500 mt-3">
+              Sales Partners provide complete on-ground coverage across trade expos, B2B meetings, and field verification tasks.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Requirement Card 1 */}
+            <div className="bg-[#fff1f2] border-2 border-rose-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-white border-2 border-rose-200 text-rose-600 flex items-center justify-center mb-5 shadow-2xs group-hover:scale-105 transition-transform">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-serif font-bold text-rose-950 mb-2">
+                  Expo Booth Management &amp; Sales
+                </h3>
+                <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                  Deploy trained local Sales Partners to manage your stall at international trade fairs, pitch products to visitors, and capture verified buyer leads.
+                </p>
+                <ul className="space-y-2 text-xs font-bold text-rose-900">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0" /> Full stall representation &amp; product pitch
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0" /> Visiting card scanning via AI OCR
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 shrink-0" /> Mandatory 2-hr live video feed
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-6 pt-4 border-t border-rose-200">
+                <span className="text-xs font-bold text-rose-700 flex items-center gap-1">
+                  Popular for Expos <ArrowUpRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+
+            {/* Requirement Card 2 */}
+            <div className="bg-[#ecfdf5] border-2 border-emerald-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-white border-2 border-emerald-200 text-emerald-600 flex items-center justify-center mb-5 shadow-2xs group-hover:scale-105 transition-transform">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-serif font-bold text-emerald-950 mb-2">
+                  On-Ground Buyer Verification
+                </h3>
+                <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                  Protect your business against fraud. Have local partners physically visit buyer offices or factories to verify business credentials and physical existence.
+                </p>
+                <ul className="space-y-2 text-xs font-bold text-emerald-900">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> Physical office &amp; factory visit check
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> Geotagged photo &amp; video evidence
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> Business registration audit
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-6 pt-4 border-t border-emerald-200">
+                <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
+                  Risk Mitigation <ArrowUpRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+
+            {/* Requirement Card 3 */}
+            <div className="bg-[#fffbeb] border-2 border-amber-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-white border-2 border-amber-200 text-amber-600 flex items-center justify-center mb-5 shadow-2xs group-hover:scale-105 transition-transform">
+                  <Layers className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-serif font-bold text-amber-950 mb-2">
+                  Sample Handovers &amp; Quality Checks
+                </h3>
+                <p className="text-xs text-gray-700 leading-relaxed mb-4">
+                  Need to deliver physical product samples or perform batch quality checks before shipping? Local Sales Partners handle physical handovers and inspections.
+                </p>
+                <ul className="space-y-2 text-xs font-bold text-amber-900">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" /> In-person sample delivery to buyers
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" /> Pre-shipment batch condition checks
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" /> Immediate buyer feedback collection
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-6 pt-4 border-t border-amber-200">
+                <span className="text-xs font-bold text-amber-700 flex items-center gap-1">
+                  Export Operations <ArrowUpRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Budget Simulator Panel */}
       <section className="py-16 md:py-24 bg-[#f8fafc] border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-xs font-headline font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full inline-block mb-3">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-emerald-800 bg-emerald-100 border border-emerald-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
               Interactive ROI Calculator
             </span>
             <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 tracking-tight">
               Compare Your Global Reach: Traditional vs. Fractional
             </h2>
-            <p className="text-xs md:text-sm text-gray-500 mt-2">
+            <p className="text-xs md:text-sm text-gray-600 mt-2">
               Slide your annual international sales budget to see how many global expos and countries you can cover.
             </p>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <div className="bg-gradient-to-br from-[#fffbeb] via-rose-50/50 to-[#ecfdf5] border-2 border-amber-200 rounded-3xl p-8 shadow-sm">
             {/* Slider control */}
-            <div className="mb-10 max-w-2xl mx-auto">
+            <div className="mb-10 max-w-2xl mx-auto bg-white p-6 rounded-2xl border-2 border-amber-200 shadow-2xs">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold text-gray-600 uppercase">Your Annual Sales Budget</span>
-                <span className="text-xl font-serif font-bold text-[#701010]">${budgetSlider.toLocaleString('en-US')} USD</span>
+                <span className="text-xs font-bold text-gray-700 uppercase">Your Annual Sales Budget</span>
+                <span className="text-2xl font-serif font-bold text-[#701010]">${budgetSlider.toLocaleString('en-US')} USD</span>
               </div>
               <input
                 type="range"
@@ -559,7 +675,7 @@ export default function PostRequirementPage() {
                 onChange={(e) => setBudgetSlider(Number(e.target.value))}
                 className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#701010]"
               />
-              <div className="flex justify-between text-[10px] text-gray-400 mt-2">
+              <div className="flex justify-between text-[10px] text-gray-500 font-bold mt-2">
                 <span>$10,000</span>
                 <span>$75,000</span>
                 <span>$150,000</span>
@@ -569,53 +685,53 @@ export default function PostRequirementPage() {
             {/* Comparison Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Traditional Route */}
-              <div className="bg-rose-50/50 border border-rose-200/80 rounded-2xl p-6">
+              <div className="bg-[#fff1f2] border-2 border-rose-300 rounded-2xl p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-serif font-bold text-base text-gray-900">Traditional Fixed Overseas Hire</h4>
-                  <XIcon className="w-5 h-5 text-rose-500" />
+                  <h4 className="font-serif font-bold text-base text-rose-950">Traditional Fixed Overseas Hire</h4>
+                  <XIcon className="w-5 h-5 text-rose-600" />
                 </div>
-                <div className="space-y-3 text-xs text-gray-700">
-                  <div className="flex justify-between py-1.5 border-b border-rose-200/60">
+                <div className="space-y-3 text-xs text-gray-800">
+                  <div className="flex justify-between py-1.5 border-b border-rose-200 font-medium">
                     <span>Countries Covered</span>
                     <span className="font-bold text-rose-700">{traditionalMarketsCovered} Market Only</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-rose-200/60">
+                  <div className="flex justify-between py-1.5 border-b border-rose-200 font-medium">
                     <span>Expos Attended</span>
                     <span className="font-bold text-rose-700">1 - 2 Fairs max</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-rose-200/60">
+                  <div className="flex justify-between py-1.5 border-b border-rose-200 font-medium">
                     <span>Fixed Payroll Risk</span>
                     <span className="font-bold text-rose-700">100% Sunk Expense</span>
                   </div>
-                  <div className="flex justify-between py-1.5 font-bold text-rose-900">
+                  <div className="flex justify-between py-1.5 font-bold text-rose-950">
                     <span>Overall Flexibility</span>
-                    <span className="text-rose-600">Zero (Locked in 1 Country)</span>
+                    <span className="text-rose-700">Zero (Locked in 1 Country)</span>
                   </div>
                 </div>
               </div>
 
               {/* Fractional Route */}
-              <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-6 shadow-2xs">
+              <div className="bg-[#ecfdf5] border-2 border-emerald-300 rounded-2xl p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-serif font-bold text-base text-gray-900">Fractional Sales Partner Allocation</h4>
+                  <h4 className="font-serif font-bold text-base text-emerald-950">Fractional Sales Partner Allocation</h4>
                   <Check className="w-5 h-5 text-emerald-600" />
                 </div>
-                <div className="space-y-3 text-xs text-gray-700">
-                  <div className="flex justify-between py-1.5 border-b border-emerald-200/60">
+                <div className="space-y-3 text-xs text-gray-800">
+                  <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
                     <span>Countries Covered</span>
                     <span className="font-bold text-emerald-700">{fractionalCountriesCovered} Global Markets 🌍</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-emerald-200/60">
+                  <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
                     <span>Expos Attended</span>
                     <span className="font-bold text-emerald-700">{fractionalExposCovered} Trade Fairs ✨</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-emerald-200/60">
+                  <div className="flex justify-between py-1.5 border-b border-emerald-200 font-medium">
                     <span>Escrow &amp; Audit Protection</span>
                     <span className="font-bold text-emerald-700">100% Money-Back Escrow</span>
                   </div>
-                  <div className="flex justify-between py-1.5 font-bold text-emerald-900">
+                  <div className="flex justify-between py-1.5 font-bold text-emerald-950">
                     <span>Overall Flexibility</span>
-                    <span className="text-emerald-600">Maximum (On-Demand Execution)</span>
+                    <span className="text-emerald-700">Maximum (On-Demand Execution)</span>
                   </div>
                 </div>
               </div>
@@ -624,39 +740,39 @@ export default function PostRequirementPage() {
         </div>
       </section>
 
-      {/* Escrow Guarantee & Legal Security Section */}
+      {/* Escrow Guarantee Banner (Rich Cheerful Palette) */}
       <section className="py-16 md:py-24 bg-white border-b border-gray-200">
         <div className="container mx-auto px-6 max-w-5xl">
-          <div className="bg-gradient-to-r from-rose-50 via-amber-50 to-sky-50 border border-rose-200/80 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
+          <div className="bg-gradient-to-r from-rose-100 via-amber-100 to-emerald-100 border-2 border-amber-300 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
               <div className="lg:col-span-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-200 text-rose-800 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-rose-300 text-rose-900 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
                   <span>Biztribe Escrow &amp; Audit Guarantee</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-4">
                   Zero Financial Risk for Business Owners
                 </h3>
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
+                <p className="text-xs md:text-sm text-gray-700 leading-relaxed mb-6">
                   Your funds are protected in escrow. Payouts are withheld if a Sales Partner fails to arrive on time, misses the mandatory 2-hour live stream, fails to post 2-hour social updates, or misrepresents your brand.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-800 font-medium">
-                  <div className="flex items-center gap-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-900 font-bold">
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Mandatory GPS Check-In Audit
                   </div>
-                  <div className="flex items-center gap-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 100% Confidentiality &amp; NDA
                   </div>
-                  <div className="flex items-center gap-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> 12-Month Non-Compete Guarantee
                   </div>
-                  <div className="flex items-center gap-2 bg-white/80 p-2.5 rounded-lg border border-rose-100">
+                  <div className="flex items-center gap-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 shadow-2xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Transparent 25% Platform Fee
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-rose-200/90 rounded-2xl p-6 shadow-sm text-center">
+              <div className="bg-white border-2 border-amber-300 rounded-2xl p-6 shadow-sm text-center">
                 <Award className="w-10 h-10 text-[#701010] mx-auto mb-3" />
                 <h4 className="text-base font-serif font-bold text-gray-900 mb-1">Ready to Hire a Rep?</h4>
                 <p className="text-xs text-gray-500 mb-6">Create your business account and post your requirement in under 2 minutes.</p>
@@ -673,10 +789,10 @@ export default function PostRequirementPage() {
       </section>
 
       {/* Frequently Asked Questions (Accordion) */}
-      <section className="py-16 md:py-24 bg-[#fafafa]">
+      <section className="py-16 md:py-24 bg-[#fcfcfc]">
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="text-center mb-12">
-            <span className="text-xs font-headline font-bold uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full inline-block mb-3">
+            <span className="text-xs font-headline font-bold uppercase tracking-widest text-amber-900 bg-amber-100 border border-amber-300 px-3.5 py-1.5 rounded-full inline-block mb-3 shadow-2xs">
               Clear Answers
             </span>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 tracking-tight">
@@ -709,7 +825,7 @@ export default function PostRequirementPage() {
             ].map((faq, index) => (
               <div 
                 key={index} 
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs transition-all"
+                className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-2xs transition-all"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
@@ -719,7 +835,7 @@ export default function PostRequirementPage() {
                   <ChevronDown className={`w-4 h-4 text-gray-500 shrink-0 transition-transform ${openFaq === index ? "rotate-180 text-[#701010]" : ""}`} />
                 </button>
                 {openFaq === index && (
-                  <div className="px-6 pb-4 pt-1 text-xs text-gray-600 leading-relaxed border-t border-gray-100 bg-gray-50/50">
+                  <div className="px-6 pb-4 pt-1 text-xs text-gray-700 leading-relaxed border-t border-gray-100 bg-gray-50/50 font-medium">
                     {faq.a}
                   </div>
                 )}
