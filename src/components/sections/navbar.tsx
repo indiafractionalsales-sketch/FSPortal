@@ -138,14 +138,14 @@ export function Navbar() {
                       <Briefcase className="w-4 h-4" />
                     </span>
                     <span className="text-[9px] font-headline font-bold uppercase tracking-widest text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
-                      Brands &amp; MSMEs
+                      Manufacturers &amp; Traders
                     </span>
                   </div>
                   <h3 className="font-serif font-bold text-base text-white tracking-wide mb-1">
                     For Business Owners
                   </h3>
                   <p className="text-[11px] text-white/50 mb-5">
-                    Expand into new global markets with dedicated sales representation.
+                    Manufacturers, Traders &amp; Exporters expanding into global markets with dedicated sales representation.
                   </p>
 
                   <ul className="space-y-3">
