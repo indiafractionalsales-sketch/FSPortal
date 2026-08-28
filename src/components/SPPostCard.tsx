@@ -831,52 +831,111 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           )}
 
           {/* Consultancy Details Area */}
-          <div className="px-4 pb-3 border-t border-gray-100 pt-3">
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <h4
-                className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors"
-                onClick={onViewDetails}
-              >
-                {post.serviceTitle || post.eventName || "Business Consultancy Service"}
-              </h4>
-              <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
-                Consultancy
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-2 bg-teal-50/40 p-3 rounded-xl border border-teal-100/60">
-              {post.domain && (
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain / Industry</span>
-                  <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.domain}</span>
-                </div>
-              )}
-              {post.targetMarkets && (
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Target Markets</span>
-                  <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.targetMarkets}</span>
-                </div>
-              )}
-              {post.engagementMode && (
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
-                  <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementMode}</span>
-                </div>
-              )}
-              {post.engagementDuration && (
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
-                  <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementDuration}</span>
-                </div>
-              )}
-            </div>
-
-            {post.languages && (
-              <div className="mt-2 text-[10px] text-gray-500 font-sans">
-                <span className="font-bold text-gray-700">Languages:</span> {post.languages}
+          {post.mediaUrl ? (
+            <div className="flex w-full border-t border-b border-gray-100 bg-gray-50/30">
+              {/* Media Thumbnail */}
+              <div className="w-1/3 min-h-[140px] overflow-hidden flex-shrink-0 border-r border-gray-100 bg-gray-100">
+                <img src={post.mediaUrl} alt={post.serviceTitle || "Consultancy"} className="w-full h-full object-cover" />
               </div>
-            )}
-          </div>
+              {/* Details Column */}
+              <div className="flex-1 p-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-start justify-between gap-1 mb-1.5">
+                    <h4
+                      className="font-serif font-bold text-sm text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors line-clamp-2"
+                      onClick={onViewDetails}
+                    >
+                      {post.serviceTitle || post.eventName || "Business Consultancy Service"}
+                    </h4>
+                    <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                      Consultancy
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 bg-teal-50/50 p-2 rounded-lg border border-teal-100/60">
+                    {post.domain && (
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain</span>
+                        <span className="text-[11px] font-bold text-teal-950 truncate">{post.domain}</span>
+                      </div>
+                    )}
+                    {post.targetMarkets && (
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Markets</span>
+                        <span className="text-[11px] font-bold text-teal-950 truncate">{post.targetMarkets}</span>
+                      </div>
+                    )}
+                    {post.engagementMode && (
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
+                        <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementMode}</span>
+                      </div>
+                    )}
+                    {post.engagementDuration && (
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
+                        <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementDuration}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {post.languages && (
+                  <div className="mt-1 text-[9px] text-gray-500 font-sans truncate">
+                    <span className="font-bold text-gray-700">Languages:</span> {post.languages}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* No Media: Full Width Grid */
+            <div className="px-4 pb-3 border-t border-gray-100 pt-3">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h4
+                  className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors"
+                  onClick={onViewDetails}
+                >
+                  {post.serviceTitle || post.eventName || "Business Consultancy Service"}
+                </h4>
+                <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                  Consultancy
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-2 bg-teal-50/40 p-3 rounded-xl border border-teal-100/60">
+                {post.domain && (
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain / Industry</span>
+                    <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.domain}</span>
+                  </div>
+                )}
+                {post.targetMarkets && (
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Target Markets</span>
+                    <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.targetMarkets}</span>
+                  </div>
+                )}
+                {post.engagementMode && (
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
+                    <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementMode}</span>
+                  </div>
+                )}
+                {post.engagementDuration && (
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
+                    <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementDuration}</span>
+                  </div>
+                )}
+              </div>
+
+              {post.languages && (
+                <div className="mt-2 text-[10px] text-gray-500 font-sans">
+                  <span className="font-bold text-gray-700">Languages:</span> {post.languages}
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>
