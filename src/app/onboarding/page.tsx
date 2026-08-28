@@ -420,8 +420,8 @@ export default function OnboardingWizard() {
                 {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
                 {oboData.country && (oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                    <Input label="Legal Company Name *" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
-                    <Input label="Brand Name *" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
+                    <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
+                    <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
                     {oboData.country === "India" ? (
                       <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
                     ) : (
@@ -456,10 +456,10 @@ export default function OnboardingWizard() {
             )}
             {userType === "sp" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Mobile (Primary) *" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
+                <Input label="Mobile (Primary)" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
                 <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({...p, mobileWhatsapp: v}))} />
-                <Select label="Country *" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
-                <Input label="City *" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
+                <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
                 <Input label="State / Region / County" value={spData.regionCounty} onChange={(v: string) => setSpData(p => ({...p, regionCounty: v}))} />
                 <Input label="Postal Code" value={spData.postcode} onChange={(v: string) => setSpData(p => ({...p, postcode: v}))} />
               </div>
@@ -469,7 +469,7 @@ export default function OnboardingWizard() {
                 <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Employed", "Self-Employed / Freelancer", "Seeking Opportunities"]} />
                 <Input label="Current / Last Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
                 <Input label="Industry Experience" value={spData.industryExperience} onChange={(v: string) => setSpData(p => ({...p, industryExperience: v}))} placeholder="e.g. SaaS, Fintech, Retail" />
-                <Select label="Years of Experience *" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} options={["0-2 years", "3-5 years", "6-10 years", "10+ years"]} />
+                <Select label="Years of Experience" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} options={["0-2 years", "3-5 years", "6-10 years", "10+ years"]} />
                 <Select label="Target Market" value={spData.targetMarket} onChange={(v: string) => setSpData(p => ({...p, targetMarket: v}))} options={["B2B", "B2C", "Both B2B & B2C"]} />
               </div>
             )}
@@ -478,7 +478,7 @@ export default function OnboardingWizard() {
                 <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({...p, linkedinProfile: v}))} />
                 <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({...p, socialFollowing: v}))} />
                 <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({...p, avgDealSize: v}))} />
-                <Select label="Preferred Currency *" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
+                <Select label="Preferred Currency" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
                 <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({...p, pastBrands: v}))} />
               </div>
             )}
@@ -493,7 +493,7 @@ export default function OnboardingWizard() {
             {/* TPSP Forms */}
             {userType === "tpsp" && currentStep === 1 && (
               <div className="space-y-4">
-                <Select label="Country *" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
 
                 {tpspData.country === "India" && (
                   <div className="mb-4">
@@ -532,7 +532,7 @@ export default function OnboardingWizard() {
                 {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
                 {tpspData.country && (tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 gap-x-4">
-                    <Input label="Company Name *" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+                    <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
                     <Input 
                       label={tpspData.country === "India" && isGstVerified ? "Registered Business Address (GST)" : "Registered Business Address"} 
                       readOnly={isGstVerified} 
@@ -540,8 +540,8 @@ export default function OnboardingWizard() {
                       onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} 
                       placeholder="e.g. Unit 401, Tech Park, City, Country" 
                     />
-                    <Input label="Primary Services Provided *" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
-                    <Input label="Contact Person *" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
+                    <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
+                    <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
                   </div>
                 )}
               </div>
