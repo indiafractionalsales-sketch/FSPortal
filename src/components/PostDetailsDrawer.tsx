@@ -89,7 +89,11 @@ export default function PostDetailsDrawer({ isOpen, onClose, post, postId }: Pos
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100/50 bg-white/50">
           <div>
             <h2 className="text-xl font-serif font-bold text-gray-900">
-              {post.postType === "obo" ? "Business Owner Opportunity" : "Sales Partner Event"}
+              {post.postType === "obo"
+                ? "Business Owner Opportunity"
+                : post.spPostSubType === "consultancy"
+                ? "Business Consultancy Opportunity"
+                : "Sales Partner Event"}
             </h2>
             <div className="flex items-center gap-2 mt-0.5">
               <p className="text-xs text-gray-500 font-headline uppercase tracking-wider">Posted by {post.authorName || "User"}</p>
@@ -177,6 +181,44 @@ export default function PostDetailsDrawer({ isOpen, onClose, post, postId }: Pos
                 <DetailItem icon={CheckSquare} label="Company Preferred" value={post.companyPreferred} />
                 <DetailItem icon={CheckSquare} label="Insurance Required" value={post.insuranceRequired} />
               </div>
+            </div>
+          ) : post.spPostSubType === "consultancy" ? (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <SectionHeading icon={Briefcase} title="Consultancy Service Details" />
+              <div className="mb-4">
+                <p className="text-xl font-serif font-bold text-gray-900">
+                  {post.serviceTitle || post.eventName || "Business Consultancy Service"}
+                </p>
+                {post.specialisation && (
+                  <div className="mt-3 p-3.5 bg-teal-50/60 border border-teal-100 rounded-xl">
+                    <p className="text-[10px] font-headline font-bold uppercase tracking-wider text-teal-900 mb-1">
+                      Specialisation Statement
+                    </p>
+                    <p className="text-xs text-gray-800 font-sans whitespace-pre-wrap leading-relaxed">
+                      {post.specialisation}
+                    </p>
+                  </div>
+                )}
+                {post.description && (
+                  <p className="text-xs text-gray-700 mt-3 whitespace-pre-wrap leading-relaxed">
+                    {post.description}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <DetailItem icon={Briefcase} label="Domain / Industry" value={post.domain} />
+                <DetailItem icon={Globe} label="Target Markets" value={post.targetMarkets} />
+                <DetailItem icon={Target} label="Engagement Mode" value={post.engagementMode} />
+                <DetailItem icon={Clock} label="Typical Duration" value={post.engagementDuration} />
+                <DetailItem icon={FileText} label="Languages Spoken" value={post.languages} />
+              </div>
+              {post.videoUrl && (
+                <div className="mt-4">
+                  <a href={post.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-700 text-white rounded-lg text-sm font-bold w-full hover:bg-teal-800 transition-colors">
+                    <ExternalLink className="w-4 h-4" /> Watch Intro Video
+                  </a>
+                </div>
+              )}
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">

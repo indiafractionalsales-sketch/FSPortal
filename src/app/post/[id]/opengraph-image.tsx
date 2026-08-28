@@ -25,7 +25,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const { id } = await params;
   const post = await getPostByIdServer(id);
 
-  const title = post?.eventName || post?.targetIndustry || "Sales Partnership Opportunity";
+  const title = post?.serviceTitle || post?.eventName || post?.targetIndustry || "Sales Partnership Opportunity";
   const dateStr = post?.date
     ? new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : "Upcoming Date";
@@ -33,7 +33,11 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const venueStr = [post?.venue, post?.city, post?.country].filter(Boolean).join(", ") || "Location on Request";
   const footfall = post?.expectedFootfall || "1000+";
   const mediaUrl = post?.mediaUrl;
-  const tagType = post?.postType === "obo" ? "BUSINESS REQUIREMENT" : "EVENT";
+  const tagType = post?.postType === "obo"
+    ? "BUSINESS REQUIREMENT"
+    : post?.spPostSubType === "consultancy"
+    ? "BUSINESS CONSULTANCY"
+    : "EVENT";
 
   // Safely fetch mediaUrl to Base64 with tight 1s timeout to ensure sub-second response for crawlers
   let mediaBase64: string | null = null;

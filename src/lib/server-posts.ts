@@ -14,6 +14,16 @@ import { getDbForId } from "@/lib/firebase-admin";
 
 export interface ServerPost {
   id: string;
+  // ── Shared fields ────────────────────────────────────────
+  postType?: string;          // "sp" | "obo"
+  spPostSubType?: string;     // "event" (default) | "consultancy"
+  description?: string;
+  mediaUrl?: string;
+  ownerUid?: string;
+  createdAt?: string;
+  updatedAt?: string;
+
+  // ── Event post fields ────────────────────────────────────
   eventName?: string;
   eventUrl?: string;
   date?: string;
@@ -23,10 +33,17 @@ export interface ServerPost {
   venue?: string;
   googleMapLink?: string;
   expectedFootfall?: string;
-  description?: string;
-  postType?: string;
-  mediaUrl?: string;
-  ownerUid?: string;
+
+  // ── Consultancy post fields ──────────────────────────────
+  serviceTitle?: string;
+  domain?: string;
+  specialisation?: string;
+  targetMarkets?: string;
+  engagementMode?: string;
+  engagementDuration?: string;
+  languages?: string;
+
+  // ── OBO post fields ─────────────────────────────────────
   targetCountry?: string;
   targetIndustry?: string;
   targetCustomerType?: string;
@@ -38,8 +55,6 @@ export interface ServerPost {
   currency?: string;
   budgetMin?: number;
   budgetMax?: number;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 const PROJECT_ID = "fractional-sales-4436e";
