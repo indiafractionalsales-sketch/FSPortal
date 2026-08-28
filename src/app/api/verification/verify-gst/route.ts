@@ -76,24 +76,33 @@ export async function POST(req: Request) {
       rawResponse: gstResult.rawResponse
     };
 
-    // Save to Verifications collection in fsindiadb
-    await setDocument("Verifications", verificationId, record, idToken, "fsindiadb");
+    // Save to Verifications collection in fsindiadb (fallback to default)
+    try {
+      await setDocument("Verifications", verificationId, record, idToken, "fsindiadb");
+    } catch (saveErr) {
+      console.warn("Notice: Writing Verifications to fsindiadb failed, using default db:", saveErr);
+      await setDocument("Verifications", verificationId, record, idToken, "default").catch(() => {});
+    }
 
     // Step 3: Update User document with verification metadata in both fsindiadb and default
-    const userDocIndia = (await getDocument("users", uid, idToken, "fsindiadb")) || (await getDocument("users", uid, idToken, "default")) || {};
-    const updatedUser = {
-      ...userDocIndia,
-      isVerified: calculatedStatus === "approved",
-      verificationStatus: calculatedStatus,
-      verificationId,
-      verifiedType: "gst_india",
-      verifiedBadge: calculatedStatus === "approved" ? "GST Verified 🛡️" : "Pending Admin Review ⏳",
-      gstin: gstin.trim().toUpperCase(),
-      legalName: gstResult.legalName
-    };
+    try {
+      const userDocIndia = (await getDocument("users", uid, idToken, "fsindiadb").catch(() => null)) || (await getDocument("users", uid, idToken, "default").catch(() => null)) || {};
+      const updatedUser = {
+        ...userDocIndia,
+        isVerified: calculatedStatus === "approved",
+        verificationStatus: calculatedStatus,
+        verificationId,
+        verifiedType: "gst_india",
+        verifiedBadge: calculatedStatus === "approved" ? "GST Verified 🛡️" : "Pending Admin Review ⏳",
+        gstin: gstin.trim().toUpperCase(),
+        legalName: gstResult.legalName
+      };
 
-    await setDocument("users", uid, updatedUser, idToken, "fsindiadb");
-    await setDocument("users", uid, updatedUser, idToken, "default");
+      await setDocument("users", uid, updatedUser, idToken, "fsindiadb").catch(() => {});
+      await setDocument("users", uid, updatedUser, idToken, "default").catch(() => {});
+    } catch (userErr) {
+      console.warn("Non-blocking user doc update warning:", userErr);
+    }
 
     return NextResponse.json({
       success: true,

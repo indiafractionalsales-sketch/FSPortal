@@ -16,10 +16,7 @@ service cloud.firestore {
     }
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId 
-                    && (!resource.data.keys().has('role') || resource.data.role == request.resource.data.role)
-                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'billing']);
+      allow create, update: if request.auth != null && request.auth.uid == userId;
     }
 
     match /users/{userId}/Invoices/{invoiceId} {
@@ -99,29 +96,14 @@ service cloud.firestore {
 
     // Dedicated Identity Verifications Collection
     match /Verifications/{verificationId} {
-      allow read: if request.auth != null && (
-        resource.data.uid == request.auth.uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
-      );
-      allow create, update: if request.auth != null && (
-        request.resource.data.uid == request.auth.uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
-      );
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
     }
 
     // Registered Marketplace Agencies
     match /Marketplace_Agencies/{agencyId} {
-      allow read: if resource.data.status == 'approved' || (
-        request.auth != null && (
-          resource.data.ownerUid == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
-        )
-      );
-      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if request.auth != null && (
-        resource.data.ownerUid == request.auth.uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
-      );
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
     }
   }
 }
