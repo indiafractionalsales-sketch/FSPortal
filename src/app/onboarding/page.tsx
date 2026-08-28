@@ -386,10 +386,16 @@ export default function OnboardingWizard() {
                       verifiedBadge={verifiedGstBadge}
                       currentGstin={oboData.gstNumber}
                       onSuccess={(summary) => {
-                        setIsGstVerified(true);
-                        setVerifiedGstBadge("GST Verified 🛡️");
-                        setVerificationStatus("approved");
-                        if (summary) {
+                        if (summary?.gstin) {
+                          setIsGstVerified(true);
+                          setVerifiedGstBadge("GST Verified 🛡️");
+                          setVerificationStatus("approved");
+                        } else {
+                          setIsGstVerified(false);
+                          setVerificationStatus("pending_admin_approval");
+                          setVerifiedGstBadge("Pending Admin Review ⏳");
+                        }
+                        if (summary?.legalName) {
                           setOboData(p => ({
                             ...p,
                             legalName: summary.legalName || p.legalName,
@@ -481,10 +487,16 @@ export default function OnboardingWizard() {
                       verificationStatus={verificationStatus}
                       verifiedBadge={verifiedGstBadge}
                       onSuccess={(summary) => {
-                        setIsGstVerified(true);
-                        setVerifiedGstBadge("GST Verified 🛡️");
-                        setVerificationStatus("approved");
-                        if (summary) {
+                        if (summary?.gstin) {
+                          setIsGstVerified(true);
+                          setVerifiedGstBadge("GST Verified 🛡️");
+                          setVerificationStatus("approved");
+                        } else {
+                          setIsGstVerified(false);
+                          setVerificationStatus("pending_admin_approval");
+                          setVerifiedGstBadge("Pending Admin Review ⏳");
+                        }
+                        if (summary?.legalName) {
                           setTpspData(p => ({
                             ...p,
                             companyName: summary.legalName || p.companyName,

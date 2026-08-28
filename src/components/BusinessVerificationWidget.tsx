@@ -88,7 +88,8 @@ export default function BusinessVerificationWidget({
         });
       }
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to verify GSTIN.");
+      setErrorMessage(`${err.message || "Failed to verify GSTIN."} Switched to manual entry so you can enter company name for Admin approval.`);
+      setActiveTab("manual_admin");
     } finally {
       setLoading(false);
     }
@@ -124,7 +125,15 @@ export default function BusinessVerificationWidget({
       if (!res.ok) throw new Error(data.error || "Manual submission failed.");
 
       setSuccessMessage("Business verification request queued for Admin Approval!");
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        onSuccess({
+          legalName: businessName,
+          tradeName: businessName,
+          gstin: "",
+          state: "",
+          city: ""
+        });
+      }
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to submit manual verification.");
     } finally {
