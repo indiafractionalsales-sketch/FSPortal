@@ -26,15 +26,25 @@ import { getVisitorId } from "@/lib/fingerprint";
 import BusinessVerificationWidget from "@/components/BusinessVerificationWidget";
 
 // Helper Components (Must be outside the main component to prevent focus loss on re-render)
-const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false }: any) => (
+const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false, readOnly = false }: any) => (
   <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
+    <div className="flex items-center justify-between">
+      <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
+      {readOnly && (
+        <span className="text-[10px] font-headline font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+          🔒 Verified from GST
+        </span>
+      )}
+    </div>
     <input 
       type={type} 
       value={value} 
-      onChange={(e) => onChange(e.target.value)} 
+      readOnly={readOnly}
+      onChange={(e) => !readOnly && onChange(e.target.value)} 
       placeholder={placeholder} 
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none" 
+      className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${
+        readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
+      }`} 
     />
   </div>
 );
@@ -393,7 +403,7 @@ export default function OnboardingWizard() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                  <Input label="Legal Company Name" required value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
+                  <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
                   <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
                   <Input label="GST/TAX Number" required value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
                   <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
@@ -487,7 +497,7 @@ export default function OnboardingWizard() {
                 )}
 
                 <div className="grid grid-cols-1 gap-x-4">
-                  <Input label="Company Name" required value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+                  <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
                   <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing..." />
                   <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
                 </div>

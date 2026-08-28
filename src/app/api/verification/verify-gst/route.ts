@@ -42,6 +42,15 @@ export async function POST(req: Request) {
     const verificationId = `ver_gst_${gstin.trim().toUpperCase()}`;
     const now = new Date().toISOString();
 
+    const isRegularOrSEZ = 
+      gstResult.taxpayerType.toLowerCase().includes("regular") || 
+      gstResult.taxpayerType.toLowerCase().includes("sez");
+
+    // Auto-approve Regular & SEZ units; Queue Composition/Casual/Suspended for Admin Review
+    const calculatedStatus = (gstResult.status.toLowerCase() === "active" && isRegularOrSEZ)
+      ? "approved"
+      : "pending_admin_approval";
+
     // Step 2: Create record for dedicated Verifications collection in fsindiadb
     const record: VerificationRecord = {
       id: verificationId,
@@ -51,15 +60,18 @@ export async function POST(req: Request) {
       verificationType: "gst_india",
       identifier: gstin.trim().toUpperCase(),
       country: "India",
-      status: "approved",
+      status: calculatedStatus,
       verifiedAt: now,
-      approvedBy: "system_auto",
+      approvedBy: calculatedStatus === "approved" ? "system_auto" : "",
       summary: {
         legalName: gstResult.legalName,
         tradeName: gstResult.tradeName,
         taxpayerType: gstResult.taxpayerType,
         state: gstResult.state,
-        city: gstResult.city
+        city: gstResult.city,
+        notes: calculatedStatus === "pending_admin_approval" 
+          ? `Queued for Admin Review: Taxpayer type is '${gstResult.taxpayerType}'`
+          : undefined
       },
       rawResponse: gstResult.rawResponse
     };
@@ -71,11 +83,11 @@ export async function POST(req: Request) {
     const userDocIndia = (await getDocument("users", uid, idToken, "fsindiadb")) || (await getDocument("users", uid, idToken, "default")) || {};
     const updatedUser = {
       ...userDocIndia,
-      isVerified: true,
-      verificationStatus: "approved",
+      isVerified: calculatedStatus === "approved",
+      verificationStatus: calculatedStatus,
       verificationId,
       verifiedType: "gst_india",
-      verifiedBadge: "GST Verified 🛡️",
+      verifiedBadge: calculatedStatus === "approved" ? "GST Verified 🛡️" : "Pending Admin Review ⏳",
       gstin: gstin.trim().toUpperCase(),
       legalName: gstResult.legalName
     };

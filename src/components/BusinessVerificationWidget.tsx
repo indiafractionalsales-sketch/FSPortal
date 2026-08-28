@@ -164,7 +164,7 @@ export default function BusinessVerificationWidget({
           onClick={() => setActiveTab("auto_gst")}
           className={`py-2 text-xs font-headline font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 ${
             activeTab === "auto_gst"
-              ? "bg-[#701010] text-white shadow-xs"
+              ? "bg-blue-600 text-white shadow-xs"
               : "text-gray-600 hover:text-gray-900"
           }`}
         >
@@ -216,14 +216,14 @@ export default function BusinessVerificationWidget({
               placeholder="e.g. 27AAAAA0000A1Z5"
               value={gstin}
               onChange={(e) => setGstin(e.target.value.toUpperCase())}
-              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono text-gray-900 uppercase tracking-wider focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono text-gray-900 uppercase tracking-wider focus:outline-none focus:border-blue-600 focus:bg-white transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading || gstin.length < 15}
-            className="w-full py-2.5 bg-[#701010] hover:bg-[#580d0d] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
