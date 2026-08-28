@@ -22,7 +22,13 @@ interface BusinessVerificationWidgetProps {
   verificationStatus?: string;
   verifiedBadge?: string;
   currentGstin?: string;
-  onSuccess?: () => void;
+  onSuccess?: (verificationSummary?: {
+    legalName: string;
+    tradeName?: string;
+    gstin?: string;
+    state?: string;
+    city?: string;
+  }) => void;
 }
 
 export default function BusinessVerificationWidget({
@@ -70,8 +76,17 @@ export default function BusinessVerificationWidget({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "GST Verification failed.");
 
-      setSuccessMessage(`GSTIN Verified Successfully! Legal Name: ${data.verification.summary.legalName}`);
-      if (onSuccess) onSuccess();
+      const summary = data.verification?.summary || {};
+      setSuccessMessage(`GSTIN Verified Successfully! Legal Name: ${summary.legalName || gstin}`);
+      if (onSuccess) {
+        onSuccess({
+          legalName: summary.legalName || "",
+          tradeName: summary.tradeName || summary.legalName || "",
+          gstin: gstin.toUpperCase(),
+          state: summary.state || "",
+          city: summary.city || ""
+        });
+      }
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to verify GSTIN.");
     } finally {
