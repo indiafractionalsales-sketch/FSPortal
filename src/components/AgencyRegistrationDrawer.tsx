@@ -103,7 +103,11 @@ export default function AgencyRegistrationDrawer({
           createdAt: new Date().toISOString()
         };
 
-        await setDocument("Marketplace_Agencies", agencyId, newAgencyRecord, idToken, "default");
+        const targetDb = (country === "India" || !country) ? "fsindiadb" : "default";
+        await setDocument("Marketplace_Agencies", agencyId, newAgencyRecord, idToken, targetDb);
+        if (targetDb !== "default") {
+          await setDocument("Marketplace_Agencies", agencyId, newAgencyRecord, idToken, "default");
+        }
       }
     } catch (err) {
       console.warn("Error saving agency registration to Firestore:", err);

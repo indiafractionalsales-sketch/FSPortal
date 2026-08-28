@@ -34,12 +34,19 @@ export async function POST(req: Request) {
 
     // Verify admin rights
     const adminUser = (await getDocument("users", adminUid, idToken, "default")) as any;
-    if (!adminUser || adminUser.isAdmin !== true) {
+    if (!adminUser || (adminUser.isAdmin !== true && adminUser.role !== "admin")) {
       return NextResponse.json({ error: "Access denied. Admin rights required." }, { status: 403 });
     }
 
-    // Update Agency document in Marketplace_Agencies collection
-    const agencyDoc = (await getDocument("Marketplace_Agencies", agencyId, idToken, "default")) as any || {};
+    // Check agency doc in fsindiadb first, then default
+    let agencyDoc = (await getDocument("Marketplace_Agencies", agencyId, idToken, "fsindiadb")) as any;
+    let targetDb = "fsindiadb";
+
+    if (!agencyDoc) {
+      agencyDoc = (await getDocument("Marketplace_Agencies", agencyId, idToken, "default")) as any || {};
+      targetDb = "default";
+    }
+
     const updatedAgency = {
       ...agencyDoc,
       id: agencyId,
@@ -48,7 +55,7 @@ export async function POST(req: Request) {
       updatedBy: adminUid
     };
 
-    await setDocument("Marketplace_Agencies", agencyId, updatedAgency, idToken, "default");
+    await setDocument("Marketplace_Agencies", agencyId, updatedAgency, idToken, targetDb);
 
     return NextResponse.json({
       success: true,

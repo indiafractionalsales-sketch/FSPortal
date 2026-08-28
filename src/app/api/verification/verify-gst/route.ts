@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     const verificationId = `ver_gst_${gstin.trim().toUpperCase()}`;
     const now = new Date().toISOString();
 
-    // Step 2: Create record for dedicated Verifications collection
+    // Step 2: Create record for dedicated Verifications collection in fsindiadb
     const record: VerificationRecord = {
       id: verificationId,
       uid,
@@ -64,13 +64,13 @@ export async function POST(req: Request) {
       rawResponse: gstResult.rawResponse
     };
 
-    // Save to Verifications collection
-    await setDocument("Verifications", verificationId, record, idToken, "default");
+    // Save to Verifications collection in fsindiadb
+    await setDocument("Verifications", verificationId, record, idToken, "fsindiadb");
 
-    // Step 3: Update User document with verification metadata
-    const userDoc = (await getDocument("users", uid, idToken, "default")) as any || {};
+    // Step 3: Update User document with verification metadata in both fsindiadb and default
+    const userDocIndia = (await getDocument("users", uid, idToken, "fsindiadb")) || (await getDocument("users", uid, idToken, "default")) || {};
     const updatedUser = {
-      ...userDoc,
+      ...userDocIndia,
       isVerified: true,
       verificationStatus: "approved",
       verificationId,
@@ -79,6 +79,8 @@ export async function POST(req: Request) {
       gstin: gstin.trim().toUpperCase(),
       legalName: gstResult.legalName
     };
+
+    await setDocument("users", uid, updatedUser, idToken, "fsindiadb");
     await setDocument("users", uid, updatedUser, idToken, "default");
 
     return NextResponse.json({

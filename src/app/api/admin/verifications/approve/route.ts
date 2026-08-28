@@ -30,11 +30,19 @@ export async function POST(req: Request) {
 
     // Check admin rights
     const adminUser = (await getDocument("users", adminUid, idToken, "default")) as any;
-    if (!adminUser || adminUser.isAdmin !== true) {
+    if (!adminUser || (adminUser.isAdmin !== true && adminUser.role !== "admin")) {
       return NextResponse.json({ error: "Access denied. Admin rights required." }, { status: 403 });
     }
 
-    const verificationDoc = (await getDocument("Verifications", verificationId, idToken, "default")) as any;
+    // Check verification doc in fsindiadb first, then default
+    let verificationDoc = (await getDocument("Verifications", verificationId, idToken, "fsindiadb")) as any;
+    let targetDb = "fsindiadb";
+
+    if (!verificationDoc) {
+      verificationDoc = (await getDocument("Verifications", verificationId, idToken, "default")) as any;
+      targetDb = "default";
+    }
+
     if (!verificationDoc) {
       return NextResponse.json({ error: "Verification record not found" }, { status: 404 });
     }
@@ -49,16 +57,17 @@ export async function POST(req: Request) {
       approvedBy: adminUid
     };
 
-    await setDocument("Verifications", verificationId, updatedVerification, idToken, "default");
+    await setDocument("Verifications", verificationId, updatedVerification, idToken, targetDb);
 
     // Update target user flags
-    const userDoc = (await getDocument("users", targetUid, idToken, "default")) as any || {};
+    const userDoc = (await getDocument("users", targetUid, idToken, targetDb)) || (await getDocument("users", targetUid, idToken, "default")) || {};
     const updatedUser = {
       ...userDoc,
       isVerified: action === "approve",
       verificationStatus: newStatus,
       verifiedBadge: action === "approve" ? "Business Verified 🛡️" : ""
     };
+    await setDocument("users", targetUid, updatedUser, idToken, targetDb);
     await setDocument("users", targetUid, updatedUser, idToken, "default");
 
     return NextResponse.json({

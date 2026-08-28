@@ -66,11 +66,25 @@ export default function AdminVerificationsPage() {
   const fetchVerifications = async (idToken: string) => {
     setFetching(true);
     try {
-      const { docs } = await queryCollection("Verifications", idToken, {
+      const { docs: indiaDocs } = await queryCollection("Verifications", idToken, {
         orderByField: "verifiedAt",
-        orderDirection: "DESCENDING"
+        orderDirection: "DESCENDING",
+        databaseId: "fsindiadb"
+      }).catch(() => ({ docs: [] }));
+
+      const { docs: globalDocs } = await queryCollection("Verifications", idToken, {
+        orderByField: "verifiedAt",
+        orderDirection: "DESCENDING",
+        databaseId: "default"
+      }).catch(() => ({ docs: [] }));
+
+      const combinedMap = new Map<string, any>();
+      [...(indiaDocs || []), ...(globalDocs || [])].forEach(item => {
+        const key = String((item as any).id || (item as any).__id || Math.random());
+        combinedMap.set(key, item);
       });
-      setVerifications(docs || []);
+
+      setVerifications(Array.from(combinedMap.values()));
     } catch (err) {
       console.warn("Failed to fetch Verifications collection:", err);
       setVerifications([]);

@@ -67,13 +67,20 @@ export default function AdminMarketplacePage() {
   const fetchAgencies = async (idToken: string) => {
     setFetching(true);
     try {
-      const { docs } = await queryCollection("Marketplace_Agencies", idToken, {
+      const { docs: indiaDocs } = await queryCollection("Marketplace_Agencies", idToken, {
         orderByField: "createdAt",
-        orderDirection: "DESCENDING"
-      });
+        orderDirection: "DESCENDING",
+        databaseId: "fsindiadb"
+      }).catch(() => ({ docs: [] }));
+
+      const { docs: globalDocs } = await queryCollection("Marketplace_Agencies", idToken, {
+        orderByField: "createdAt",
+        orderDirection: "DESCENDING",
+        databaseId: "default"
+      }).catch(() => ({ docs: [] }));
 
       // Combine database agencies with mock agencies for full admin visibility
-      const combined = [...(docs || []), ...MOCK_AGENCIES.map(a => ({ ...a, status: "approved" }))];
+      const combined = [...(indiaDocs || []), ...(globalDocs || []), ...MOCK_AGENCIES.map(a => ({ ...a, status: "approved" }))];
       
       // Deduplicate by ID
       const uniqueMap = new Map<string, any>();

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields: uid and businessName" }, { status: 400 });
     }
 
+    const targetDb = country === "India" ? "fsindiadb" : "default";
     const verificationId = `ver_manual_${uid}_${Date.now()}`;
     const now = new Date().toISOString();
 
@@ -59,11 +60,11 @@ export async function POST(req: Request) {
       }
     };
 
-    // Write to Verifications collection
-    await setDocument("Verifications", verificationId, record, idToken, "default");
+    // Write to Verifications collection in target database (fsindiadb for India)
+    await setDocument("Verifications", verificationId, record, idToken, targetDb);
 
     // Update User Document
-    const userDoc = (await getDocument("users", uid, idToken, "default")) as any || {};
+    const userDoc = (await getDocument("users", uid, idToken, targetDb)) || (await getDocument("users", uid, idToken, "default")) || {};
     const updatedUser = {
       ...userDoc,
       isVerified: false,
@@ -72,7 +73,10 @@ export async function POST(req: Request) {
       verifiedType: "manual_admin",
       legalName: businessName
     };
-    await setDocument("users", uid, updatedUser, idToken, "default");
+    await setDocument("users", uid, updatedUser, idToken, targetDb);
+    if (targetDb !== "default") {
+      await setDocument("users", uid, updatedUser, idToken, "default");
+    }
 
     return NextResponse.json({
       success: true,
