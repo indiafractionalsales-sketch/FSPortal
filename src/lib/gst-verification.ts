@@ -138,79 +138,68 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       };
     }
 
-    // Step 2: Try standard Sandbox GSTIN endpoints
-    const headers = {
-      "Authorization": accessToken,
-      "x-api-key": apiKey,
-      "x-api-version": "1.0",
-      "Content-Type": "application/json"
-    };
+    // Step 2: Query GSTIN using the correct Sandbox endpoint
+    const gstRes = await fetch("https://api.sandbox.co.in/gst/compliance/public/gstin/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "authorization": accessToken,
+        "x-api-version": "1.0.0"
+      },
+      body: JSON.stringify({ gstin: cleanGstin })
+    });
 
-    const endpointVariants = [
-      { url: `https://api.sandbox.co.in/gsp/public/gstin/${cleanGstin}`, method: "GET" },
-      { url: `https://api.sandbox.co.in/gsp/public/gstin`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
-      { url: `https://api.sandbox.co.in/gsp/public/gstin/search?gstin=${cleanGstin}`, method: "GET" },
-      { url: `https://api.sandbox.co.in/kyc/gstin/${cleanGstin}`, method: "GET" },
-      { url: `https://api.sandbox.co.in/kyc/gstin`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
-      { url: `https://api.sandbox.co.in/kyc/gstin/search`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
-      { url: `https://api.sandbox.co.in/gst/public/gstin/${cleanGstin}`, method: "GET" }
-    ];
+    if (gstRes.ok) {
+      const gstData = await gstRes.json();
+      const data = gstData?.data || gstData;
 
-    let lastErrorText = "";
+      const legalName = data.lgnm || data.legal_name || data.legalName || data.company_name || "";
+      const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
+      const status = data.sts || data.status || "Active";
+      const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
+      const state = data.pradr?.addr?.stcd || data.state || "India";
+      const city = data.pradr?.addr?.dst || data.city || "";
 
-    for (const ep of endpointVariants) {
-      try {
-        console.log(`Trying Sandbox endpoint ${ep.method} ${ep.url}...`);
-        const res = await fetch(ep.url, {
-          method: ep.method,
-          headers,
-          body: ep.body
-        });
-
-        if (res.ok) {
-          const gstData = await res.json();
-          console.log(`Sandbox GST API Success from endpoint: ${ep.url}`, gstData);
-          const data = gstData?.data || gstData;
-
-          const legalName = data.lgnm || data.legal_name || data.legalName || data.company_name || "";
-          const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
-          const status = data.sts || data.status || "Active";
-          const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
-          const state = data.pradr?.addr?.stcd || data.state || data.principal_place_of_business?.state || "India";
-          const city = data.pradr?.addr?.dst || data.city || data.principal_place_of_business?.district || "";
-
-          if (legalName || data.gstin) {
-            return {
-              success: status.toLowerCase() === "active",
-              legalName: legalName || tradeName || "Verified Business",
-              tradeName: tradeName || legalName || "Verified Business",
-              taxpayerType,
-              state,
-              city,
-              status,
-              rawResponse: gstData
-            };
-          }
-        } else {
-          lastErrorText = await res.text();
-          console.warn(`Endpoint ${ep.url} returned status ${res.status}:`, lastErrorText);
-        }
-      } catch (epErr) {
-        console.warn(`Endpoint attempt ${ep.url} failed:`, epErr);
+      if (!legalName && !tradeName) {
+        return {
+          success: false,
+          legalName: "",
+          tradeName: "",
+          taxpayerType: "",
+          state: "",
+          city: "",
+          status: "NotFound",
+          rawResponse: gstData,
+          error: "GSTIN record not found or returned incomplete entity details."
+        };
       }
-    }
 
-    return {
-      success: false,
-      legalName: "",
-      tradeName: "",
-      taxpayerType: "",
-      state: "",
-      city: "",
-      status: "APIError",
-      rawResponse: {},
-      error: `Sandbox GST API search returned error. Details: ${lastErrorText || "Endpoint not found (404)"}`
-    };
+      return {
+        success: status.toLowerCase() === "active",
+        legalName: legalName || tradeName,
+        tradeName: tradeName || legalName,
+        taxpayerType,
+        state,
+        city,
+        status,
+        rawResponse: gstData
+      };
+    } else {
+      const errText = await gstRes.text();
+      console.error(`Sandbox GST API failed (${gstRes.status}):`, errText);
+      return {
+        success: false,
+        legalName: "",
+        tradeName: "",
+        taxpayerType: "",
+        state: "",
+        city: "",
+        status: "APIError",
+        rawResponse: {},
+        error: `GST lookup failed (${gstRes.status}). ${errText}`
+      };
+    }
   } catch (err: any) {
     console.error("Live Sandbox API call error:", err);
     return {
