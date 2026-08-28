@@ -98,7 +98,7 @@ export default function OnboardingWizard() {
   });
 
   const [tpspData, setTpspData] = useState({
-    companyName: "", services: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: "", country: ""
+    companyName: "", services: "", registeredAddress: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: "", country: ""
   });
 
   useEffect(() => {
@@ -500,6 +500,8 @@ export default function OnboardingWizard() {
                           setTpspData(p => ({
                             ...p,
                             companyName: summary.legalName || p.companyName,
+                            services: summary.services || p.services,
+                            registeredAddress: summary.fullAddress || p.registeredAddress,
                             location: summary.city && summary.state ? `${summary.city}, ${summary.state}` : p.location
                           }));
                         }
@@ -510,7 +512,8 @@ export default function OnboardingWizard() {
 
                 <div className="grid grid-cols-1 gap-x-4">
                   <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
-                  <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing..." />
+                  <Input label="Registered Business Address (GST)" readOnly={isGstVerified} value={tpspData.registeredAddress} onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} placeholder="e.g. Unit 401, Tech Park, Pune, Maharashtra" />
+                  <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
                   <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
                 </div>
               </div>

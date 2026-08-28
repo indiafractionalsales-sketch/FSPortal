@@ -28,6 +28,8 @@ interface BusinessVerificationWidgetProps {
     gstin?: string;
     state?: string;
     city?: string;
+    services?: string;
+    fullAddress?: string;
   }) => void;
 }
 
@@ -81,7 +83,9 @@ export default function BusinessVerificationWidget({
           tradeName: summary.tradeName || summary.legalName || "",
           gstin: gstin.toUpperCase(),
           state: summary.state || "",
-          city: summary.city || ""
+          city: summary.city || "",
+          services: summary.services || "",
+          fullAddress: summary.fullAddress || ""
         });
       }
     } catch (err: any) {

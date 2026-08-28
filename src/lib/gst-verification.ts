@@ -28,6 +28,8 @@ export interface VerificationRecord {
     taxpayerType?: string;
     state?: string;
     city?: string;
+    services?: string;
+    fullAddress?: string;
     documentUrl?: string;
     panNumber?: string;
     notes?: string;
@@ -53,6 +55,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
   taxpayerType: string;
   state: string;
   city: string;
+  services: string;
+  fullAddress: string;
   status: string;
   rawResponse: Record<string, unknown>;
   error?: string;
@@ -67,6 +71,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       taxpayerType: "",
       state: "",
       city: "",
+      services: "",
+      fullAddress: "",
       status: "Invalid",
       rawResponse: {},
       error: "Invalid Indian GSTIN format. Must be a 15-character alphanumeric code."
@@ -84,6 +90,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       taxpayerType: "",
       state: "",
       city: "",
+      services: "",
+      fullAddress: "",
       status: "ConfigError",
       rawResponse: {},
       error: "Live GST API credentials (SANDBOX_API_KEY) are not configured on the server."
@@ -114,6 +122,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
         taxpayerType: "",
         state: "",
         city: "",
+        services: "",
+        fullAddress: "",
         status: "AuthError",
         rawResponse: {},
         error: `Sandbox API Authentication failed (${authRes.status}). Verify SANDBOX_API_KEY and API_SECRET.`
@@ -132,6 +142,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
         taxpayerType: "",
         state: "",
         city: "",
+        services: "",
+        fullAddress: "",
         status: "AuthError",
         rawResponse: authData,
         error: "Sandbox API Authentication response did not return an access token."
@@ -171,6 +183,29 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       const state = nestedData.pradr?.addr?.stcd || nestedData.state || data.pradr?.addr?.stcd || data.state || "India";
       const city = nestedData.pradr?.addr?.dst || nestedData.city || data.pradr?.addr?.dst || data.city || "";
 
+      // Extract Nature of Business Activities (nba) array
+      const rawNba = nestedData.nba || data.nba || gstData.nba || [];
+      const services = Array.isArray(rawNba)
+        ? rawNba.map(s => String(s).trim()).filter(Boolean).join(", ")
+        : typeof rawNba === "string" ? rawNba : "";
+
+      // Extract Principal Place of Business Address (pradr)
+      const addrObj = nestedData.pradr?.addr || data.pradr?.addr || nestedData.principal_place_of_business || data.principal_place_of_business || {};
+      const addressParts = [
+        addrObj.bno || addrObj.building_no,
+        addrObj.flno || addrObj.floor_no,
+        addrObj.bnam || addrObj.building_name,
+        addrObj.st || addrObj.street,
+        addrObj.loc || addrObj.location,
+        addrObj.dst || addrObj.district,
+        addrObj.stcd || addrObj.state,
+        addrObj.pncd || addrObj.pincode
+      ].filter(Boolean);
+
+      const fullAddress = addressParts.length > 0
+        ? addressParts.join(", ")
+        : (typeof addrObj === "string" ? addrObj : `${city}${city && state ? ", " : ""}${state}`);
+
       if (!legalName && !tradeName) {
         const rawJson = JSON.stringify(gstData);
         return {
@@ -180,6 +215,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
           taxpayerType: "",
           state: "",
           city: "",
+          services: "",
+          fullAddress: "",
           status: "NotFound",
           rawResponse: gstData,
           error: data?.message || gstData?.message || `GST API returned no legal name. Raw response: ${rawJson}`
@@ -193,6 +230,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
         taxpayerType,
         state,
         city,
+        services,
+        fullAddress,
         status,
         rawResponse: gstData
       };
@@ -206,6 +245,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
         taxpayerType: "",
         state: "",
         city: "",
+        services: "",
+        fullAddress: "",
         status: "APIError",
         rawResponse: {},
         error: `GST lookup failed (${gstRes.status}). ${errText}`
@@ -220,6 +261,8 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       taxpayerType: "",
       state: "",
       city: "",
+      services: "",
+      fullAddress: "",
       status: "SystemError",
       rawResponse: {},
       error: `GST Verification Network Error: ${err.message || "Failed to reach Sandbox API."}`

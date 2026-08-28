@@ -69,6 +69,8 @@ export async function POST(req: Request) {
         taxpayerType: gstResult.taxpayerType,
         state: gstResult.state,
         city: gstResult.city,
+        services: gstResult.services,
+        fullAddress: gstResult.fullAddress,
         notes: calculatedStatus === "pending_admin_approval" 
           ? `Queued for Admin Review: Taxpayer type is '${gstResult.taxpayerType}'`
           : undefined
