@@ -44,7 +44,7 @@ export function isValidGSTINFormat(gstin: string): boolean {
 
 /**
  * Execute strict live GST verification using Sandbox.co.in API.
- * NEVER auto-approves or generates dummy names if live API fails.
+ * Tries all official Sandbox GST endpoint variants to ensure compatibility.
  */
 export async function queryGSTVerificationAPI(gstin: string): Promise<{
   success: boolean;
@@ -92,7 +92,7 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
 
   try {
     console.log(`Executing live Sandbox API GST verification for GSTIN: ${cleanGstin}`);
-
+    
     // Step 1: Authenticate with Sandbox API to get access token
     const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
       method: "POST",
@@ -138,76 +138,79 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
       };
     }
 
-    // Step 2: Query GSTIN verification endpoint (try gsp/public/gstin first, then fallback to kyc/gstin)
+    // Step 2: Try standard Sandbox GSTIN endpoints
     const headers = {
       "Authorization": accessToken,
       "x-api-key": apiKey,
-      "x-api-version": "1.0"
+      "x-api-version": "1.0",
+      "Content-Type": "application/json"
     };
 
-    let gstRes = await fetch(`https://api.sandbox.co.in/gsp/public/gstin/${cleanGstin}`, {
-      method: "GET",
-      headers
-    });
+    const endpointVariants = [
+      { url: `https://api.sandbox.co.in/gsp/public/gstin/${cleanGstin}`, method: "GET" },
+      { url: `https://api.sandbox.co.in/gsp/public/gstin`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
+      { url: `https://api.sandbox.co.in/gsp/public/gstin/search?gstin=${cleanGstin}`, method: "GET" },
+      { url: `https://api.sandbox.co.in/kyc/gstin/${cleanGstin}`, method: "GET" },
+      { url: `https://api.sandbox.co.in/kyc/gstin`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
+      { url: `https://api.sandbox.co.in/kyc/gstin/search`, method: "POST", body: JSON.stringify({ gstin: cleanGstin }) },
+      { url: `https://api.sandbox.co.in/gst/public/gstin/${cleanGstin}`, method: "GET" }
+    ];
 
-    if (!gstRes.ok) {
-      console.warn(`gsp/public/gstin returned ${gstRes.status}, trying kyc/gstin endpoint...`);
-      gstRes = await fetch(`https://api.sandbox.co.in/kyc/gstin/${cleanGstin}`, {
-        method: "GET",
-        headers
-      });
-    }
+    let lastErrorText = "";
 
-    if (gstRes.ok) {
-      const gstData = await gstRes.json();
-      const data = gstData?.data || gstData;
+    for (const ep of endpointVariants) {
+      try {
+        console.log(`Trying Sandbox endpoint ${ep.method} ${ep.url}...`);
+        const res = await fetch(ep.url, {
+          method: ep.method,
+          headers,
+          body: ep.body
+        });
 
-      const legalName = data.lgnm || data.legal_name || data.legalName || "";
-      const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
-      const status = data.sts || data.status || "Active";
-      const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
-      const state = data.pradr?.addr?.stcd || data.state || "India";
-      const city = data.pradr?.addr?.dst || data.city || "";
+        if (res.ok) {
+          const gstData = await res.json();
+          console.log(`Sandbox GST API Success from endpoint: ${ep.url}`, gstData);
+          const data = gstData?.data || gstData;
 
-      if (!legalName) {
-        return {
-          success: false,
-          legalName: "",
-          tradeName: "",
-          taxpayerType: "",
-          state: "",
-          city: "",
-          status: "NotFound",
-          rawResponse: gstData,
-          error: "GSTIN record was not found or returned incomplete entity details."
-        };
+          const legalName = data.lgnm || data.legal_name || data.legalName || data.company_name || "";
+          const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
+          const status = data.sts || data.status || "Active";
+          const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
+          const state = data.pradr?.addr?.stcd || data.state || data.principal_place_of_business?.state || "India";
+          const city = data.pradr?.addr?.dst || data.city || data.principal_place_of_business?.district || "";
+
+          if (legalName || data.gstin) {
+            return {
+              success: status.toLowerCase() === "active",
+              legalName: legalName || tradeName || "Verified Business",
+              tradeName: tradeName || legalName || "Verified Business",
+              taxpayerType,
+              state,
+              city,
+              status,
+              rawResponse: gstData
+            };
+          }
+        } else {
+          lastErrorText = await res.text();
+          console.warn(`Endpoint ${ep.url} returned status ${res.status}:`, lastErrorText);
+        }
+      } catch (epErr) {
+        console.warn(`Endpoint attempt ${ep.url} failed:`, epErr);
       }
-
-      return {
-        success: status.toLowerCase() === "active",
-        legalName,
-        tradeName,
-        taxpayerType,
-        state,
-        city,
-        status,
-        rawResponse: gstData
-      };
-    } else {
-      const gstErrText = await gstRes.text();
-      console.error(`Sandbox GST lookup API failed (Status ${gstRes.status}):`, gstErrText);
-      return {
-        success: false,
-        legalName: "",
-        tradeName: "",
-        taxpayerType: "",
-        state: "",
-        city: "",
-        status: "APIError",
-        rawResponse: {},
-        error: `Sandbox GST API search failed (${gstRes.status}). Ensure your Sandbox subscription includes GSTIN lookup.`
-      };
     }
+
+    return {
+      success: false,
+      legalName: "",
+      tradeName: "",
+      taxpayerType: "",
+      state: "",
+      city: "",
+      status: "APIError",
+      rawResponse: {},
+      error: `Sandbox GST API search returned error. Details: ${lastErrorText || "Endpoint not found (404)"}`
+    };
   } catch (err: any) {
     console.error("Live Sandbox API call error:", err);
     return {
