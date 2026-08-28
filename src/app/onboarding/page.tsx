@@ -80,6 +80,7 @@ export default function OnboardingWizard() {
   const [isGstVerified, setIsGstVerified] = useState(false);
   const [verifiedGstBadge, setVerifiedGstBadge] = useState("");
   const [verificationStatus, setVerificationStatus] = useState("");
+  const [verificationMode, setVerificationMode] = useState<"auto_gst" | "manual_admin">("auto_gst");
 
   // Data States
   const [oboData, setOboData] = useState({
@@ -130,9 +131,11 @@ export default function OnboardingWizard() {
 
   const isStepValid = () => {
     if (currentStep === 0) return !!userType;
-    
     if (userType === "obo") {
-      if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber && !!oboData.country;
+      if (currentStep === 1) {
+        if (oboData.country === "India" && !isGstVerified && verificationMode === "auto_gst") return false;
+        return !!oboData.legalName && !!oboData.brandName && !!oboData.country;
+      }
       if (currentStep === 2) return !!oboData.phone && !!oboData.website;
       if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent && termsConsent;
     }
@@ -144,7 +147,10 @@ export default function OnboardingWizard() {
       if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent && termsConsent;
     }
     if (userType === "tpsp") {
-      if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
+      if (currentStep === 1) {
+        if (tpspData.country === "India" && !isGstVerified && verificationMode === "auto_gst") return false;
+        return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
+      }
       if (currentStep === 2) return !!tpspData.phone && !!tpspData.website;
       if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent && termsConsent;
     }
@@ -385,15 +391,18 @@ export default function OnboardingWizard() {
                       verificationStatus={verificationStatus}
                       verifiedBadge={verifiedGstBadge}
                       currentGstin={oboData.gstNumber}
+                      mode={verificationMode}
+                      onModeChange={setVerificationMode}
+                      onReset={() => {
+                        setIsGstVerified(false);
+                        setVerificationStatus("");
+                        setVerifiedGstBadge("");
+                      }}
                       onSuccess={(summary) => {
                         if (summary?.gstin) {
                           setIsGstVerified(true);
                           setVerifiedGstBadge("GST Verified 🛡️");
                           setVerificationStatus("approved");
-                        } else {
-                          setIsGstVerified(false);
-                          setVerificationStatus("pending_admin_approval");
-                          setVerifiedGstBadge("Pending Admin Review ⏳");
                         }
                         if (summary?.legalName) {
                           setOboData(p => ({
@@ -408,13 +417,16 @@ export default function OnboardingWizard() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                  <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
-                  <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
-                  <Input label="GST/TAX Number" required value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
-                  <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
-                  <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
-                </div>
+                {/* Show fields only if not waiting on Auto GST verification */}
+                {(oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                    <Input label="Legal Company Name *" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
+                    <Input label="Brand Name *" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
+                    <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
+                    <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
+                  </div>
+                )}
               </div>
             )}
             {userType === "obo" && currentStep === 2 && (
@@ -486,15 +498,18 @@ export default function OnboardingWizard() {
                       isVerified={isGstVerified}
                       verificationStatus={verificationStatus}
                       verifiedBadge={verifiedGstBadge}
+                      mode={verificationMode}
+                      onModeChange={setVerificationMode}
+                      onReset={() => {
+                        setIsGstVerified(false);
+                        setVerificationStatus("");
+                        setVerifiedGstBadge("");
+                      }}
                       onSuccess={(summary) => {
                         if (summary?.gstin) {
                           setIsGstVerified(true);
                           setVerifiedGstBadge("GST Verified 🛡️");
                           setVerificationStatus("approved");
-                        } else {
-                          setIsGstVerified(false);
-                          setVerificationStatus("pending_admin_approval");
-                          setVerifiedGstBadge("Pending Admin Review ⏳");
                         }
                         if (summary?.legalName) {
                           setTpspData(p => ({
@@ -510,12 +525,15 @@ export default function OnboardingWizard() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-x-4">
-                  <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
-                  <Input label="Registered Business Address (GST)" readOnly={isGstVerified} value={tpspData.registeredAddress} onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} placeholder="e.g. Unit 401, Tech Park, Pune, Maharashtra" />
-                  <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
-                  <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
-                </div>
+                {/* Show fields only if not waiting on Auto GST verification */}
+                {(tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                  <div className="grid grid-cols-1 gap-x-4">
+                    <Input label="Company Name *" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+                    <Input label="Registered Business Address (GST)" readOnly={isGstVerified} value={tpspData.registeredAddress} onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} placeholder="e.g. Unit 401, Tech Park, Pune, Maharashtra" />
+                    <Input label="Primary Services Provided *" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
+                    <Input label="Contact Person *" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
+                  </div>
+                )}
               </div>
             )}
             {userType === "tpsp" && currentStep === 2 && (
