@@ -381,7 +381,7 @@ export default function OnboardingWizard() {
             {/* OBO Forms */}
             {userType === "obo" && currentStep === 1 && (
               <div className="space-y-4">
-                <Select label="Country" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Select label="Country *" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
 
                 {oboData.country === "India" && (
                   <div className="mb-4">
@@ -417,12 +417,16 @@ export default function OnboardingWizard() {
                   </div>
                 )}
 
-                {/* Show fields only if not waiting on Auto GST verification */}
-                {(oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
+                {oboData.country && (oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                     <Input label="Legal Company Name *" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
                     <Input label="Brand Name *" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
-                    <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    {oboData.country === "India" ? (
+                      <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    ) : (
+                      <Input label="Tax ID / Registration Number" value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    )}
                     <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
                     <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
                   </div>
@@ -489,7 +493,7 @@ export default function OnboardingWizard() {
             {/* TPSP Forms */}
             {userType === "tpsp" && currentStep === 1 && (
               <div className="space-y-4">
-                <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Select label="Country *" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
 
                 {tpspData.country === "India" && (
                   <div className="mb-4">
@@ -525,11 +529,17 @@ export default function OnboardingWizard() {
                   </div>
                 )}
 
-                {/* Show fields only if not waiting on Auto GST verification */}
-                {(tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
+                {tpspData.country && (tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 gap-x-4">
                     <Input label="Company Name *" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
-                    <Input label="Registered Business Address (GST)" readOnly={isGstVerified} value={tpspData.registeredAddress} onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} placeholder="e.g. Unit 401, Tech Park, Pune, Maharashtra" />
+                    <Input 
+                      label={tpspData.country === "India" && isGstVerified ? "Registered Business Address (GST)" : "Registered Business Address"} 
+                      readOnly={isGstVerified} 
+                      value={tpspData.registeredAddress} 
+                      onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} 
+                      placeholder="e.g. Unit 401, Tech Park, City, Country" 
+                    />
                     <Input label="Primary Services Provided *" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
                     <Input label="Contact Person *" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
                   </div>
