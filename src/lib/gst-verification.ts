@@ -43,7 +43,8 @@ export function isValidGSTINFormat(gstin: string): boolean {
 }
 
 /**
- * Execute GST verification using Sandbox.co.in API or fallback simulator
+ * Execute strict live GST verification using Sandbox.co.in API.
+ * NEVER auto-approves or generates dummy names if live API fails.
  */
 export async function queryGSTVerificationAPI(gstin: string): Promise<{
   success: boolean;
@@ -75,79 +76,100 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
   const apiKey = (process.env.SANDBOX_API_KEY || "").replace(/^["']|["']$/g, "").trim();
   const apiSecret = (process.env.SANDBOX_API_SECRET || "").replace(/^["']|["']$/g, "").trim();
 
-  // If live Sandbox API key is provided and not dummy placeholder
-  if (apiKey && apiKey.length > 5 && !apiKey.includes("your_sandbox")) {
-    try {
-      console.log(`Executing live Sandbox API GST verification for GSTIN: ${cleanGstin}`);
-      // Step 1: Authenticate with Sandbox API to get access token
-      const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
-        method: "POST",
-        headers: {
-          "x-api-key": apiKey,
-          "x-api-secret": apiSecret || "",
-          "x-api-version": "1.0",
-          "Content-Type": "application/json"
-        }
-      });
+  if (!apiKey || apiKey.length < 5 || apiKey.includes("your_sandbox")) {
+    return {
+      success: false,
+      legalName: "",
+      tradeName: "",
+      taxpayerType: "",
+      state: "",
+      city: "",
+      status: "ConfigError",
+      rawResponse: {},
+      error: "Live GST API credentials (SANDBOX_API_KEY) are not configured on the server."
+    };
+  }
 
-      if (!authRes.ok) {
-        const authErrText = await authRes.text();
-        console.error(`Sandbox API authentication failed (Status ${authRes.status}):`, authErrText);
-        throw new Error(`Sandbox API Auth Failed: ${authRes.statusText}`);
-      }
-
-      const authData = await authRes.json();
-      const accessToken = authData?.data?.access_token || authData?.access_token;
-
-      if (!accessToken) {
-        console.error("Sandbox API returned no access_token:", authData);
-        throw new Error("Sandbox API Authentication did not yield access_token.");
-      }
-
-      // Step 2: Query GSTIN verification endpoint (try gsp/public/gstin first, then fallback to kyc/gstin)
-      const headers = {
-        "Authorization": accessToken,
+  try {
+    console.log(`Executing live Sandbox API GST verification for GSTIN: ${cleanGstin}`);
+    
+    // Step 1: Authenticate with Sandbox API to get access token
+    const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
+      method: "POST",
+      headers: {
         "x-api-key": apiKey,
-        "x-api-version": "1.0"
-      };
+        "x-api-secret": apiSecret || "",
+        "x-api-version": "1.0",
+        "Content-Type": "application/json"
+      }
+    });
 
-      let gstRes = await fetch(`https://api.sandbox.co.in/gsp/public/gstin/${cleanGstin}`, {
+    if (!authRes.ok) {
+      const authErrText = await authRes.text();
+      console.error(`Sandbox API authentication failed (Status ${authRes.status}):`, authErrText);
+      return {
+        success: false,
+        legalName: "",
+        tradeName: "",
+        taxpayerType: "",
+        state: "",
+        city: "",
+        status: "AuthError",
+        rawResponse: {},
+        error: `Sandbox API Authentication failed (${authRes.status}). Verify SANDBOX_API_KEY and API_SECRET.`
+      };
+    }
+
+    const authData = await authRes.json();
+    const accessToken = authData?.data?.access_token || authData?.access_token;
+
+    if (!accessToken) {
+      console.error("Sandbox API returned no access_token:", authData);
+      return {
+        success: false,
+        legalName: "",
+        tradeName: "",
+        taxpayerType: "",
+        state: "",
+        city: "",
+        status: "AuthError",
+        rawResponse: authData,
+        error: "Sandbox API Authentication response did not return an access token."
+      };
+    }
+
+    // Step 2: Query GSTIN verification endpoint (try gsp/public/gstin first, then fallback to kyc/gstin)
+    const headers = {
+      "Authorization": accessToken,
+      "x-api-key": apiKey,
+      "x-api-version": "1.0"
+    };
+
+    let gstRes = await fetch(`https://api.sandbox.co.in/gsp/public/gstin/${cleanGstin}`, {
+      method: "GET",
+      headers
+    });
+
+    if (!gstRes.ok) {
+      console.warn(`gsp/public/gstin returned ${gstRes.status}, trying kyc/gstin endpoint...`);
+      gstRes = await fetch(`https://api.sandbox.co.in/kyc/gstin/${cleanGstin}`, {
         method: "GET",
         headers
       });
+    }
 
-      if (!gstRes.ok) {
-        console.warn(`gsp/public/gstin returned ${gstRes.status}, trying kyc/gstin endpoint...`);
-        gstRes = await fetch(`https://api.sandbox.co.in/kyc/gstin/${cleanGstin}`, {
-          method: "GET",
-          headers
-        });
-      }
+    if (gstRes.ok) {
+      const gstData = await gstRes.json();
+      const data = gstData?.data || gstData;
 
-      if (gstRes.ok) {
-        const gstData = await gstRes.json();
-        const data = gstData?.data || gstData;
+      const legalName = data.lgnm || data.legal_name || data.legalName || "";
+      const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
+      const status = data.sts || data.status || "Active";
+      const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
+      const state = data.pradr?.addr?.stcd || data.state || "India";
+      const city = data.pradr?.addr?.dst || data.city || "";
 
-        const legalName = data.lgnm || data.legal_name || data.legalName || "Verified Business";
-        const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
-        const status = data.sts || data.status || "Active";
-        const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
-        const state = data.pradr?.addr?.stcd || data.state || "India";
-        const city = data.pradr?.addr?.dst || data.city || "";
-
-        return {
-          success: status.toLowerCase() === "active",
-          legalName,
-          tradeName,
-          taxpayerType,
-          state,
-          city,
-          status,
-          rawResponse: gstData
-        };
-      } else {
-        const gstErrText = await gstRes.text();
-        console.error(`Sandbox GST lookup API failed (Status ${gstRes.status}):`, gstErrText);
+      if (!legalName) {
         return {
           success: false,
           legalName: "",
@@ -155,47 +177,49 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
           taxpayerType: "",
           state: "",
           city: "",
-          status: "Error",
-          rawResponse: {},
-          error: `Sandbox Live API GST Search failed (${gstRes.status}). Check API key/secret permissions.`
+          status: "NotFound",
+          rawResponse: gstData,
+          error: "GSTIN record was not found or returned incomplete entity details."
         };
       }
-    } catch (err: any) {
-      console.error("Live Sandbox API call failed:", err);
-      // Fallback to simulator only if explicit error occurs
+
+      return {
+        success: status.toLowerCase() === "active",
+        legalName,
+        tradeName,
+        taxpayerType,
+        state,
+        city,
+        status,
+        rawResponse: gstData
+      };
+    } else {
+      const gstErrText = await gstRes.text();
+      console.error(`Sandbox GST lookup API failed (Status ${gstRes.status}):`, gstErrText);
+      return {
+        success: false,
+        legalName: "",
+        tradeName: "",
+        taxpayerType: "",
+        state: "",
+        city: "",
+        status: "APIError",
+        rawResponse: {},
+        error: `Sandbox GST API search failed (${gstRes.status}). Ensure your Sandbox subscription includes GSTIN lookup.`
+      };
     }
+  } catch (err: any) {
+    console.error("Live Sandbox API call error:", err);
+    return {
+      success: false,
+      legalName: "",
+      tradeName: "",
+      taxpayerType: "",
+      state: "",
+      city: "",
+      status: "SystemError",
+      rawResponse: {},
+      error: `GST Verification Network Error: ${err.message || "Failed to reach Sandbox API."}`
+    };
   }
-
-  // Fallback Simulator: Extract PAN & State for instant test verification
-  const stateCode = cleanGstin.substring(0, 2);
-  const pan = cleanGstin.substring(2, 12);
-
-  const mockStateMap: Record<string, string> = {
-    "27": "Maharashtra",
-    "07": "Delhi",
-    "29": "Karnataka",
-    "33": "Tamil Nadu",
-    "09": "Uttar Pradesh",
-    "19": "West Bengal",
-    "24": "Gujarat"
-  };
-
-  const simulatedState = mockStateMap[stateCode] || "India";
-
-  return {
-    success: true,
-    legalName: `BIZTRIBE PARTNER (${pan})`,
-    tradeName: `Biztribe Verified Agency (${pan})`,
-    taxpayerType: "Regular Taxpayer",
-    state: simulatedState,
-    city: "Metro Region",
-    status: "Active",
-    rawResponse: {
-      gstin: cleanGstin,
-      simulated: true,
-      legal_name: `BIZTRIBE PARTNER (${pan})`,
-      status: "Active",
-      state_code: stateCode
-    }
-  };
 }
