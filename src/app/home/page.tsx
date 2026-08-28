@@ -32,12 +32,21 @@ import SPCreatePostDrawer from "@/components/SPCreatePostDrawer";
 import OBOCreatePostDrawer from "@/components/OBOCreatePostDrawer";
 import PostDetailsDrawer from "@/components/PostDetailsDrawer";
 import LeftSidebar from "@/components/LeftSidebar";
+import MarketplaceHub from "@/components/MarketplaceHub";
+import AgencyRegistrationDrawer from "@/components/AgencyRegistrationDrawer";
+import { MarketplaceCategoryId } from "@/lib/marketplace-data";
+
 export default function HomePage() {
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [mobileTab, setMobileTab] = useState<"profile" | "feed" | "discover">("feed");
   const [loading, setLoading] = useState(true);
+
+  // Marketplace mode state
+  const [isMarketplaceActive, setIsMarketplaceActive] = useState(false);
+  const [activeMarketplaceCategory, setActiveMarketplaceCategory] = useState<MarketplaceCategoryId>("biz_dev");
+  const [isAgencyRegistrationOpen, setIsAgencyRegistrationOpen] = useState(false);
 
   // Agency Directory Lists & States with custom branding/logos
   const marketingAgencies = [
@@ -349,12 +358,10 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf8f5] text-[#0d0e12] font-body antialiased overflow-hidden h-screen flex flex-col text-sm">
       {/* Top Navbar */}
-      <Navbar user={user} profileData={{ spData, oboData, tpspData }} />
+      <Navbar user={user} userType={userType} profileData={{ spData, oboData, tpspData }} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden pb-16 md:pb-0">
-
-        {/* Left Sidebar */}
+      <div className="flex-1 flex overflow-hidden pb-16 md:pb-0">        {/* Left Sidebar */}
         <LeftSidebar
           user={user}
           userType={userType}
@@ -366,113 +373,130 @@ export default function HomePage() {
           setFeedTab={setFeedTab}
           mobileTab={mobileTab}
           setMobileTab={setMobileTab}
+          isMarketplaceActive={isMarketplaceActive}
+          setIsMarketplaceActive={setIsMarketplaceActive}
+          activeMarketplaceCategory={activeMarketplaceCategory}
+          setActiveMarketplaceCategory={setActiveMarketplaceCategory}
+          onOpenAgencyRegistration={() => setIsAgencyRegistrationOpen(true)}
         />
 
         {/* Center Feed Area */}
         <div className={`flex-1 ${mobileTab === 'feed' ? 'flex' : 'hidden'} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-gray-50/50`}>
           <div className="w-full max-w-[1020px] mx-auto space-y-4">
 
-            {/* Share Post Card */}
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
-              <div className="flex gap-3 mb-4">
-                {spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL ? (
-                  <img src={spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL || ""} alt="Profile" className="w-9 h-9 rounded-full object-cover shadow-sm" />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline shadow-sm">
-                    {user?.email?.charAt(0).toUpperCase() ?? "P"}
+            {isMarketplaceActive ? (
+              <MarketplaceHub
+                activeCategory={activeMarketplaceCategory}
+                onSelectCategory={setActiveMarketplaceCategory}
+                userEmail={user?.email || ""}
+                userName={spData.fullName || oboData.brandName || tpspData.companyName || user?.displayName || ""}
+                userType={userType}
+              />
+            ) : (
+              <>
+                {/* Share Post Card */}
+                <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
+                  <div className="flex gap-3 mb-4">
+                    {spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL ? (
+                      <img src={spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL || ""} alt="Profile" className="w-9 h-9 rounded-full object-cover shadow-sm" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-[#701010] flex-shrink-0 flex items-center justify-center text-white font-bold font-headline shadow-sm">
+                        {user?.email?.charAt(0).toUpperCase() ?? "P"}
+                      </div>
+                    )}
+                    <button 
+                      onClick={() => {
+                        if (userType === "sp") setIsCreatePostOpen(true);
+                        else if (userType === "obo" || userType === "tpsp") setIsOBOCreatePostOpen(true);
+                        else setIsOBOCreatePostOpen(true);
+                      }}
+                      className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full px-4 text-left text-gray-500 text-xs transition-colors flex items-center"
+                    >
+                      Start a post about fractional sales...
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-center border-t border-gray-100 pt-3">
+                    <button 
+                      onClick={() => {
+                        if (userType === "sp") setIsCreatePostOpen(true);
+                        else if (userType === "obo") setIsOBOCreatePostOpen(true);
+                        else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
+                      }}
+                      className="flex items-center justify-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-[#701010] hover:bg-[#701010]/5 border border-[#701010]/15 rounded-lg py-2 transition-all w-full bg-[#701010]/3 shadow-sm hover:shadow-md hover:scale-[1.01] duration-200"
+                    >
+                      <span>💼</span> Post My Business
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dynamic Posts Feed */}
+                {(() => {
+                  const displayedPosts = posts.filter((post) => {
+                    if (feedTab === "mine") return post.paymentStatus !== "sold";
+                    if (feedTab === "deals") return post.paymentStatus === "sold";
+                    return true;
+                  });
+
+                  return (
+                    <>
+                      {displayedPosts.length === 0 && !feedLoading && (
+                        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
+                          <p className="text-sm font-headline font-bold uppercase tracking-wider">
+                            {feedTab === "deals" ? "No deals yet" : "No posts yet"}
+                          </p>
+                          <p className="text-xs mt-1">
+                            {feedTab === "deals" 
+                              ? "Your completed business transactions will appear here." 
+                              : "Be the first to post an event!"}
+                          </p>
+                        </div>
+                      )}
+
+                      {displayedPosts.map((post) => {
+                        const isMine = post.ownerUid === user?.uid;
+                        const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
+                        const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
+
+                        return (
+                          <SPPostCard
+                            key={post.__id as string}
+                            post={post as any}
+                            authorName={(dynamicName || post.authorName) as string | undefined}
+                            authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
+                            currentUserCurrency={spData.preferredCurrency}
+                            onEdit={() => handleEditPost(post)}
+                            onViewDetails={() => setViewingPost(post)}
+                          />
+                        );
+                      })}
+                    </>
+                  );
+                })()}
+
+                {/* Loading spinner */}
+                {feedLoading && hasMore && (
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 border-2 border-[#701010] border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
-                <button 
-                  onClick={() => {
-                    if (userType === "sp") setIsCreatePostOpen(true);
-                    else if (userType === "obo") setIsOBOCreatePostOpen(true);
-                    else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
-                  }}
-                  className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full px-4 text-left text-gray-500 text-xs transition-colors flex items-center"
-                >
-                  Start a post about fractional sales...
-                </button>
-              </div>
-              <div className="flex items-center justify-center border-t border-gray-100 pt-3">
-                <button 
-                  onClick={() => {
-                    if (userType === "sp") setIsCreatePostOpen(true);
-                    else if (userType === "obo") setIsOBOCreatePostOpen(true);
-                    else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
-                  }}
-                  className="flex items-center justify-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-[#701010] hover:bg-[#701010]/5 border border-[#701010]/15 rounded-lg py-2 transition-all w-full bg-[#701010]/3 shadow-sm hover:shadow-md hover:scale-[1.01] duration-200"
-                >
-                  <span>💼</span> Post My Business
-                </button>
-              </div>
-            </div>
 
+                {/* Invisible sentinel element — triggers next page load when scrolled into view */}
+                {hasMore && <div ref={sentinelRef} className="h-4" />}
 
-            {/* Dynamic Posts Feed */}
-            {(() => {
-              const displayedPosts = posts.filter((post) => {
-                if (feedTab === "mine") return post.paymentStatus !== "sold";
-                if (feedTab === "deals") return post.paymentStatus === "sold";
-                return true;
-              });
-
-              return (
-                <>
-                  {displayedPosts.length === 0 && !feedLoading && (
-                    <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center text-gray-400">
-                      <p className="text-sm font-headline font-bold uppercase tracking-wider">
-                        {feedTab === "deals" ? "No deals yet" : "No posts yet"}
-                      </p>
-                      <p className="text-xs mt-1">
-                        {feedTab === "deals" 
-                          ? "Your completed business transactions will appear here." 
-                          : "Be the first to post an event!"}
-                      </p>
-                    </div>
-                  )}
-
-                  {displayedPosts.map((post) => {
-                    const isMine = post.ownerUid === user?.uid;
-                    const dynamicName = isMine ? (spData.fullName || oboData.brandName || oboData.legalName || tpspData.companyName || user?.displayName || user?.email) : null;
-                    const dynamicAvatar = isMine ? (spData.profilePhoto || oboData.logo || tpspData.logo || user?.photoURL) : null;
-
-                    return (
-                      <SPPostCard
-                        key={post.__id as string}
-                        post={post as any}
-                        authorName={(dynamicName || post.authorName) as string | undefined}
-                        authorAvatar={(dynamicAvatar || post.authorAvatar) as string | undefined}
-                        currentUserCurrency={spData.preferredCurrency}
-                        onEdit={() => handleEditPost(post)}
-                        onViewDetails={() => setViewingPost(post)}
-                      />
-                    );
-                  })}
-                </>
-              );
-            })()}
-
-            {/* Loading spinner */}
-            {feedLoading && hasMore && (
-              <div className="flex justify-center py-6">
-                <div className="w-6 h-6 border-2 border-[#701010] border-t-transparent rounded-full animate-spin" />
-              </div>
-            )}
-
-            {/* Invisible sentinel element — triggers next page load when scrolled into view */}
-            {hasMore && <div ref={sentinelRef} className="h-4" />}
-
-            {!hasMore && posts.length > 0 && (
-              <p className="text-center text-[10px] font-headline font-bold uppercase tracking-widest text-gray-400 py-4">
-                You&apos;ve reached the end
-              </p>
+                {!hasMore && posts.length > 0 && (
+                  <p className="text-center text-[10px] font-headline font-bold uppercase tracking-widest text-gray-400 py-4">
+                    You&apos;ve reached the end
+                  </p>
+                )}
+              </>
             )}
 
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className={`w-full lg:w-[300px] 2xl:w-[400px] flex-shrink-0 ${mobileTab === 'discover' ? 'flex' : 'hidden'} lg:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 border-l border-gray-100 space-y-6`}>
+        {/* Right Sidebar (Only shown when NOT on Marketplace) */}
+        {!isMarketplaceActive && (
+          <div className={`w-full lg:w-[300px] 2xl:w-[400px] flex-shrink-0 ${mobileTab === 'discover' ? 'flex' : 'hidden'} lg:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 border-l border-gray-100 space-y-6`}>
 
           {/* Section 1: Overseas Marketing Agencies */}
           <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
@@ -534,10 +558,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Section 2: Business Development Agencies */}
+          {/* Section 2: Deal Closing Agencies */}
           <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Biz Dev Partners</h4>
+              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Deal Closing Partners</h4>
               <div className="flex items-center gap-1 text-gray-400">
                 <button
                   onClick={() => setActiveBizDevIndex(prev => (prev === 0 ? bizDevAgencies.length - 1 : prev - 1))}
@@ -653,27 +677,12 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
         </div>
+        )}
 
       </div>
 
-      {/* Global CSS for scrollbar control */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: transparent;
-        }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-          background-color: #0d0e12;
-        }
-      `}} />
+
 
       {/* SP Post Creation Drawer */}
       <SPCreatePostDrawer 
@@ -712,6 +721,12 @@ export default function HomePage() {
         isOpen={!!viewingPost}
         onClose={() => setViewingPost(null)}
         post={viewingPost}
+      />
+
+      {/* Agency Registration Drawer */}
+      <AgencyRegistrationDrawer
+        isOpen={isAgencyRegistrationOpen}
+        onClose={() => setIsAgencyRegistrationOpen(false)}
       />
 
       {/* Mobile Bottom Navigation */}

@@ -23,6 +23,7 @@ import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 
 interface NavbarProps {
   user?: User | null;
+  userType?: string;
   profileData?: {
     spData?: { profilePhoto?: string; fullName?: string };
     oboData?: { logo?: string; brandName?: string };
@@ -30,7 +31,7 @@ interface NavbarProps {
   };
 }
 
-export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
+export default function Navbar({ user = null, userType = "", profileData = {} }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -63,8 +64,18 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
     return "Partner User";
   };
 
+  const getPersonaLabel = () => {
+    if (userType === "obo") return "Overseas Business Owner";
+    if (userType === "sp") return "Sales Partner";
+    if (userType === "tpsp") return "Service Provider";
+    if (oboData && (oboData.brandName || oboData.logo)) return "Overseas Business Owner";
+    if (tpspData && (tpspData.companyName || tpspData.logo)) return "Service Provider";
+    return "Sales Partner";
+  };
+
   const profileImage = getProfileImage();
   const profileName = getProfileName();
+  const personaLabel = getPersonaLabel();
 
   return (
     <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
@@ -107,6 +118,12 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
 
       {/* Right: Profile & Actions */}
       <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
+        
+        {/* Persona Badge (moved from Left Sidebar) */}
+        <span className="hidden sm:inline-flex items-center text-[10px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-2.5 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-xs">
+          {personaLabel}
+        </span>
+
         <button className="hidden md:flex w-9 h-9 hover:bg-gray-100 rounded-full items-center justify-center transition-colors relative">
           <Bell className="w-4 h-4 text-gray-700" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>
