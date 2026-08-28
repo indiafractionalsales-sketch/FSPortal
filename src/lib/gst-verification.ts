@@ -152,16 +152,27 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
 
     if (gstRes.ok) {
       const gstData = await gstRes.json();
+      console.log("Raw Sandbox GST API Response:", JSON.stringify(gstData));
+      
       const data = gstData?.data || gstData;
+      const nestedData = data?.data || data;
 
-      const legalName = data.lgnm || data.legal_name || data.legalName || data.company_name || "";
-      const tradeName = data.tradeNam || data.trade_name || data.tradeName || legalName;
-      const status = data.sts || data.status || "Active";
-      const taxpayerType = data.dty || data.taxpayer_type || data.taxpayerType || "Regular";
-      const state = data.pradr?.addr?.stcd || data.state || "India";
-      const city = data.pradr?.addr?.dst || data.city || "";
+      const legalName = 
+        nestedData.lgnm || nestedData.legal_name || nestedData.legalName || nestedData.legal_name_of_business ||
+        nestedData.company_name || nestedData.name || data.lgnm || data.legal_name || data.legal_name_of_business ||
+        gstData.lgnm || gstData.legal_name || gstData.legal_name_of_business || "";
+
+      const tradeName = 
+        nestedData.tradeNam || nestedData.trade_name || nestedData.tradeName || nestedData.business_name ||
+        data.tradeNam || data.trade_name || data.business_name || legalName;
+
+      const status = nestedData.sts || nestedData.status || nestedData.gstin_status || data.sts || data.status || "Active";
+      const taxpayerType = nestedData.dty || nestedData.taxpayer_type || nestedData.taxpayerType || data.dty || data.taxpayer_type || "Regular";
+      const state = nestedData.pradr?.addr?.stcd || nestedData.state || data.pradr?.addr?.stcd || data.state || "India";
+      const city = nestedData.pradr?.addr?.dst || nestedData.city || data.pradr?.addr?.dst || data.city || "";
 
       if (!legalName && !tradeName) {
+        const rawJson = JSON.stringify(gstData);
         return {
           success: false,
           legalName: "",
@@ -171,7 +182,7 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
           city: "",
           status: "NotFound",
           rawResponse: gstData,
-          error: "GSTIN record not found or returned incomplete entity details."
+          error: data?.message || gstData?.message || `GST API returned no legal name. Raw response: ${rawJson}`
         };
       }
 
