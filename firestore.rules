@@ -96,5 +96,32 @@ service cloud.firestore {
                         || request.auth.uid == resource.data.clientId);
       allow delete: if false;
     }
+
+    // Dedicated Identity Verifications Collection
+    match /Verifications/{verificationId} {
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+      allow create, update: if request.auth != null && (
+        request.resource.data.uid == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // Registered Marketplace Agencies
+    match /Marketplace_Agencies/{agencyId} {
+      allow read: if resource.data.status == 'approved' || (
+        request.auth != null && (
+          resource.data.ownerUid == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        )
+      );
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null && (
+        resource.data.ownerUid == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
   }
 }
