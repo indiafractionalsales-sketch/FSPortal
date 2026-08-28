@@ -26,42 +26,48 @@ import { getVisitorId } from "@/lib/fingerprint";
 import BusinessVerificationWidget from "@/components/BusinessVerificationWidget";
 
 // Helper Components (Must be outside the main component to prevent focus loss on re-render)
-const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false, readOnly = false }: any) => (
-  <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <div className="flex items-center justify-between">
-      <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
-      {readOnly && (
-        <span className="text-[10px] font-headline font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-          🔒 Verified from GST
-        </span>
-      )}
+const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false, readOnly = false }: any) => {
+  const cleanLabel = (label || "").replace(/\s*\*+\s*$/, "").trim();
+  return (
+    <div className="flex flex-col gap-1.5 mb-4 w-full">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-semibold text-gray-700">{cleanLabel}{required && <span className="text-red-500 ml-1">*</span>}</label>
+        {readOnly && (
+          <span className="text-[10px] font-headline font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+            🔒 Verified from GST
+          </span>
+        )}
+      </div>
+      <input 
+        type={type} 
+        value={value} 
+        readOnly={readOnly}
+        onChange={(e) => !readOnly && onChange(e.target.value)} 
+        placeholder={placeholder} 
+        className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${
+          readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
+        }`} 
+      />
     </div>
-    <input 
-      type={type} 
-      value={value} 
-      readOnly={readOnly}
-      onChange={(e) => !readOnly && onChange(e.target.value)} 
-      placeholder={placeholder} 
-      className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${
-        readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
-      }`} 
-    />
-  </div>
-);
+  );
+};
 
-const Select = ({ label, value, onChange, options, required = false }: any) => (
-  <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
-    <select 
-      value={value} 
-      onChange={(e) => onChange(e.target.value)} 
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none bg-white"
-    >
+const Select = ({ label, value, onChange, options, required = false }: any) => {
+  const cleanLabel = (label || "").replace(/\s*\*+\s*$/, "").trim();
+  return (
+    <div className="flex flex-col gap-1.5 mb-4 w-full">
+      <label className="text-sm font-semibold text-gray-700">{cleanLabel}{required && <span className="text-red-500 ml-1">*</span>}</label>
+      <select 
+        value={value} 
+        onChange={(e) => onChange(e.target.value)} 
+        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none bg-white"
+      >
       <option value="">Select option</option>
       {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   </div>
-);
+  );
+};
 
 export default function OnboardingWizard() {
   const router = useRouter();
