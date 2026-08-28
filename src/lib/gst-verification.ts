@@ -92,7 +92,7 @@ export async function queryGSTVerificationAPI(gstin: string): Promise<{
 
   try {
     console.log(`Executing live Sandbox API GST verification for GSTIN: ${cleanGstin}`);
-    
+
     // Step 1: Authenticate with Sandbox API to get access token
     const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
       method: "POST",
