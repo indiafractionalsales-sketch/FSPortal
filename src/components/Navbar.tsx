@@ -16,21 +16,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Bell, Settings, LogOut, Scan, CreditCard } from "lucide-react";
+import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 
 interface NavbarProps {
   user?: User | null;
+  userType?: string;
   profileData?: {
     spData?: { profilePhoto?: string; fullName?: string };
     oboData?: { logo?: string; brandName?: string };
     tpspData?: { logo?: string; companyName?: string };
   };
+  isMarketplaceActive?: boolean;
+  onMarketplaceClick?: () => void;
+  onHomeClick?: () => void;
 }
 
-export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
+export default function Navbar({ 
+  user = null, 
+  userType = "", 
+  profileData = {},
+  isMarketplaceActive = false,
+  onMarketplaceClick,
+  onHomeClick
+}: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -63,8 +74,18 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
     return "Partner User";
   };
 
+  const getPersonaLabel = () => {
+    if (userType === "obo") return "Overseas Business Owner";
+    if (userType === "sp") return "Sales Partner";
+    if (userType === "tpsp") return "Service Provider";
+    if (oboData && (oboData.brandName || oboData.logo)) return "Overseas Business Owner";
+    if (tpspData && (tpspData.companyName || tpspData.logo)) return "Service Provider";
+    return "Sales Partner";
+  };
+
   const profileImage = getProfileImage();
   const profileName = getProfileName();
+  const personaLabel = getPersonaLabel();
 
   return (
     <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
@@ -73,7 +94,7 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
         <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-wrap md:flex-nowrap items-center gap-1 hover:opacity-80 transition-opacity">
           <span className="whitespace-nowrap">Fractional Sales</span>
           <span className="hidden md:inline-block text-[#701010] font-headline text-[8px] md:text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1 py-[1px] md:px-1.5 md:py-0.5 ml-0 md:ml-1 rounded-sm">
-            Portal
+            Partner
           </span>
         </Link>
         <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
@@ -81,32 +102,66 @@ export default function Navbar({ user = null, profileData = {} }: NavbarProps) {
 
       {/* Center: Nav icons */}
       <div className="flex items-center justify-center gap-1 flex-shrink-0 h-full">
+        {/* 1. Home Feed */}
         <button 
-          onClick={() => router.push("/home")}
-          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
-            pathname === "/home" 
+          onClick={() => {
+            if (onHomeClick) {
+              onHomeClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            !isMarketplaceActive && pathname === "/home" 
               ? "border-[#701010] text-[#701010]" 
               : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
           }`}
-          title="Home"
+          title="Home Feed"
         >
           <Home className="w-5 h-5" />
         </button>
+
+        {/* 2. Scan Visiting Card */}
         <button 
           onClick={() => setIsScanOpen(true)}
-          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
             isScanOpen 
               ? "border-[#701010] text-[#701010]" 
-              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-55"
           }`}
           title="Scan Visiting Card"
         >
           <Scan className="w-5 h-5" />
         </button>
+
+        {/* 3. Marketplace Directory */}
+        <button 
+          onClick={() => {
+            if (onMarketplaceClick) {
+              onMarketplaceClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            isMarketplaceActive 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Marketplace Directory"
+        >
+          <Store className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Right: Profile & Actions */}
       <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
+        
+        {/* Persona Badge (moved from Left Sidebar) */}
+        <span className="hidden sm:inline-flex items-center text-[10px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-2.5 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-xs">
+          {personaLabel}
+        </span>
+
         <button className="hidden md:flex w-9 h-9 hover:bg-gray-100 rounded-full items-center justify-center transition-colors relative">
           <Bell className="w-4 h-4 text-gray-700" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>

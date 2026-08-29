@@ -123,6 +123,8 @@ export async function saveDocument(
   }
 }
 
+export const setDocument = saveDocument;
+
 /**
  * Fetch a Firestore document via REST API.
  * Equivalent to SDK's getDoc().

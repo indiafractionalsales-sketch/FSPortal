@@ -12,8 +12,10 @@
 
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, PlusCircle, ShoppingBag } from "lucide-react";
+import { MARKETPLACE_CATEGORIES, MarketplaceCategoryId } from "@/lib/marketplace-data";
 
 interface LeftSidebarProps {
   user: any;
@@ -23,10 +25,15 @@ interface LeftSidebarProps {
   tpspData: any;
   planName: string;
   feedTab?: string;
-  setFeedTab?: (tab: "global" | "mine" | "deals") => void;
+  setFeedTab?: (tab: any) => void;
   mobileTab?: string;
   setMobileTab?: (tab: "profile" | "feed" | "discover") => void;
   className?: string; // To allow layout adjustments from parent
+  isMarketplaceActive?: boolean;
+  setIsMarketplaceActive?: (active: boolean) => void;
+  activeMarketplaceCategory?: MarketplaceCategoryId;
+  setActiveMarketplaceCategory?: (cat: MarketplaceCategoryId) => void;
+  onOpenAgencyRegistration?: () => void;
 }
 
 export default function LeftSidebar({
@@ -40,11 +47,17 @@ export default function LeftSidebar({
   setFeedTab,
   mobileTab,
   setMobileTab,
-  className = ""
+  className = "",
+  isMarketplaceActive = false,
+  setIsMarketplaceActive,
+  activeMarketplaceCategory = "biz_dev",
+  setActiveMarketplaceCategory,
+  onOpenAgencyRegistration
 }: LeftSidebarProps) {
   const router = useRouter();
 
   const handleFeedTabClick = (tab: "global" | "mine" | "deals") => {
+    if (setIsMarketplaceActive) setIsMarketplaceActive(false);
     if (setFeedTab) setFeedTab(tab);
     if (setMobileTab) setMobileTab("feed");
     // If we're not on the home page, redirect to home and let it handle the feed tab
@@ -53,10 +66,29 @@ export default function LeftSidebar({
     }
   };
 
+  const handleMarketplaceClick = () => {
+    if (setIsMarketplaceActive) setIsMarketplaceActive(true);
+    if (setMobileTab) setMobileTab("feed");
+    if (typeof window !== 'undefined' && window.location.pathname !== "/home") {
+      router.push("/home");
+    }
+  };
+
+  const handleBackToMainMenu = () => {
+    if (setIsMarketplaceActive) setIsMarketplaceActive(false);
+    if (setFeedTab) setFeedTab("global");
+    if (setMobileTab) setMobileTab("feed");
+  };
+
+  const handleCategoryClick = (catId: MarketplaceCategoryId) => {
+    if (setActiveMarketplaceCategory) setActiveMarketplaceCategory(catId);
+    if (setMobileTab) setMobileTab("feed");
+  };
+
   return (
-    <div className={`w-full md:w-[260px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : (mobileTab ? 'hidden' : 'flex')} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100 ${className}`}>
+    <div className={`w-full md:w-[300px] xl:w-[320px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : (mobileTab ? 'hidden' : 'flex')} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100 ${className}`}>
       
-      {/* Profile Card */}
+      {/* Profile Header (Banner & Avatar) */}
       <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
         {/* Banner */}
         <div className="h-16 bg-[#701010] relative overflow-hidden">
@@ -66,8 +98,8 @@ export default function LeftSidebar({
         </div>
 
         {/* Avatar */}
-        <div className="px-4 pb-4">
-          <div className="relative -mt-8 mb-2">
+        <div className="px-4 pb-3">
+          <div className="relative -mt-8">
             {spData?.profilePhoto ? (
               <img
                 src={spData.profilePhoto}
@@ -92,80 +124,138 @@ export default function LeftSidebar({
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => router.push("/profile")}
-            className="font-serif font-bold text-base text-gray-900 leading-tight hover:text-[#701010] transition-colors cursor-pointer block text-left w-full truncate"
-            title={spData?.fullName || oboData?.brandName || tpspData?.companyName || user?.displayName || user?.email || "Partner User"}
-          >
-            {spData?.fullName || oboData?.brandName || tpspData?.companyName || user?.displayName || user?.email || "Partner User"}
-          </button>
-          <p className="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-wider truncate">
-            {userType === "obo" ? "Overseas Business Owner" : userType === "sp" ? "Sales Partner" : userType === "tpsp" ? "Service Provider" : "Configure Profile"}
-          </p>
-          {planName && (
-            <div className="mt-1">
-              <span className="inline-block text-[8px] font-headline font-bold bg-[#701010]/10 text-[#701010] border border-[#701010]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                {planName}
-              </span>
-            </div>
-          )}
-          <p className="text-xs text-gray-500 mt-1 leading-snug truncate" title={user?.email || ""}>{user?.email || ""}</p>
         </div>
       </div>
 
-      {/* Quick Links */}
-      <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-4 py-4 flex-1">
-        <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-50">Quick Links</h4>
-        <ul className="space-y-1.5">
-          <li>
-            <button onClick={() => handleFeedTabClick("global")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "global" ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
-              <span className="text-base">🌍</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">Global Feed</span>
-            </button>
-          </li>
-          <li>
-            <button onClick={() => handleFeedTabClick("mine")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "mine" ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
-              <span className="text-base">📝</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
-            </button>
-          </li>
-          <li>
-            <button onClick={() => handleFeedTabClick("deals")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "deals" ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
-              <span className="text-base">💼</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => router.push('/networking')} 
-              className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
+      {/* Dynamic Sidebar Content: Marketplace Mode vs Standard Mode */}
+      {isMarketplaceActive ? (
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-3.5 py-4 flex-1 flex flex-col justify-between space-y-3">
+          <div>
+            {/* Sticky Back Button Header */}
+            <button
+              onClick={handleBackToMainMenu}
+              className="w-full flex items-center gap-2 px-2.5 py-2 mb-3 bg-[#701010]/5 hover:bg-[#701010]/10 text-[#701010] font-headline font-bold text-xs uppercase tracking-wider rounded-lg transition-all border border-[#701010]/15 group cursor-pointer"
             >
-              <span className="text-base">✨</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">AI Powered Networking</span>
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Back to Main Menu</span>
             </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => router.push('/pricing')} 
-              className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
-            >
-              <span className="text-base">💳</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider">Plans & Subscriptions</span>
-            </button>
-          </li>
-          <div className="h-px bg-gray-100 my-2" />
-          <li>
-            <button 
-              onClick={() => router.push('/security')} 
-              className="w-full flex items-center gap-2.5 px-2 py-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0369a1] transition-all rounded-lg text-left cursor-pointer"
-            >
-              <span className="text-base">🛡️</span>
-              <span className="text-xs font-headline font-bold uppercase tracking-wider text-[#0369a1]">Trust & Security</span>
-            </button>
-          </li>
-        </ul>
-      </div>
+
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 px-1">
+              <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest flex items-center gap-1.5">
+                <ShoppingBag className="w-3.5 h-3.5 text-[#701010]" /> Marketplace
+              </h4>
+              <span className="text-[9px] font-headline font-bold text-[#701010] bg-[#701010]/10 px-1.5 py-0.5 rounded">
+                {MARKETPLACE_CATEGORIES.length} Categories
+              </span>
+            </div>
+
+            {/* Category Tabs */}
+            <ul className="space-y-1 custom-scrollbar">
+              {MARKETPLACE_CATEGORIES.map((cat) => {
+                const isActive = activeMarketplaceCategory === cat.id;
+
+                return (
+                  <li key={cat.id}>
+                    <button
+                      onClick={() => handleCategoryClick(cat.id)}
+                      className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 transition-all rounded-lg text-left cursor-pointer ${
+                        isActive
+                          ? "bg-blue-50/90 border-l-4 border-blue-600 text-blue-950 font-bold shadow-xs"
+                          : "hover:bg-gray-50 text-gray-700 border-l-4 border-transparent"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0 pr-1">
+                        <span className="text-sm flex-shrink-0">{cat.icon}</span>
+                        <span className={`text-[12px] font-headline leading-tight ${isActive ? "text-blue-950 font-bold" : "font-semibold"}`}>
+                          {cat.shortName}
+                        </span>
+                      </div>
+                      <span className={`text-[9px] font-headline font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                        isActive ? "bg-blue-200/80 text-blue-900" : "bg-gray-100 text-gray-500"
+                      }`}>
+                        {cat.badgeCount}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Quick Register CTA (Only visible for Third-Party Service Providers) */}
+          {userType === "tpsp" && onOpenAgencyRegistration && (
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                onClick={onOpenAgencyRegistration}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-50 hover:bg-[#701010]/5 border border-gray-200 hover:border-[#701010]/30 text-gray-800 hover:text-[#701010] transition-all rounded-lg text-xs font-headline font-bold uppercase tracking-wider cursor-pointer"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-[#701010]" /> Register Agency
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Standard Quick Links Mode */
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm px-4 py-4 flex-1">
+          <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-50">Quick Links</h4>
+          <ul className="space-y-1.5">
+            <li>
+              <button onClick={() => handleFeedTabClick("global")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "global" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+                <span className="text-base">🌍</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">Global Feed</span>
+              </button>
+            </li>
+            <li>
+              <button onClick={() => handleFeedTabClick("mine")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "mine" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+                <span className="text-base">📝</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
+              </button>
+            </li>
+            <li>
+              <button onClick={() => handleFeedTabClick("deals")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "deals" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+                <span className="text-base">💼</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
+              </button>
+            </li>
+
+            {/* Marketplace Entry Button */}
+            <li>
+              <button 
+                onClick={handleMarketplaceClick} 
+                className="w-full flex items-center justify-between px-2 py-2 bg-gradient-to-r from-[#701010]/10 to-amber-50 hover:from-[#701010]/15 hover:to-amber-100 border border-[#701010]/20 text-[#701010] transition-all rounded-lg text-left cursor-pointer group shadow-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">🛍️</span>
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider text-[#701010]">Marketplace</span>
+                </div>
+                <span className="text-[9px] font-headline font-bold uppercase tracking-widest bg-[#701010] text-white px-1.5 py-0.5 rounded shadow-xs">
+                  New
+                </span>
+              </button>
+            </li>
+
+            <li>
+              <button 
+                onClick={() => router.push('/networking')} 
+                className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
+              >
+                <span className="text-base">✨</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">AI Powered Networking</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => router.push('/pricing')} 
+                className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700"
+              >
+                <span className="text-base">💳</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">Plans & Subscriptions</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 }

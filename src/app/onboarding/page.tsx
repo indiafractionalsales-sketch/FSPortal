@@ -23,34 +23,51 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { saveDocument } from "@/lib/firestore-rest";
 import { uploadImage } from "@/lib/storage-rest";
 import { getVisitorId } from "@/lib/fingerprint";
+import BusinessVerificationWidget from "@/components/BusinessVerificationWidget";
 
 // Helper Components (Must be outside the main component to prevent focus loss on re-render)
-const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false }: any) => (
-  <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
-    <input 
-      type={type} 
-      value={value} 
-      onChange={(e) => onChange(e.target.value)} 
-      placeholder={placeholder} 
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none" 
-    />
-  </div>
-);
+const Input = ({ label, value, onChange, type = "text", placeholder = "", required = false, readOnly = false }: any) => {
+  const cleanLabel = (label || "").replace(/\s*\*+\s*$/, "").trim();
+  return (
+    <div className="flex flex-col gap-1.5 mb-4 w-full">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-semibold text-gray-700">{cleanLabel}{required && <span className="text-red-500 ml-1">*</span>}</label>
+        {readOnly && (
+          <span className="text-[10px] font-headline font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+            🔒 Verified from GST
+          </span>
+        )}
+      </div>
+      <input 
+        type={type} 
+        value={value} 
+        readOnly={readOnly}
+        onChange={(e) => !readOnly && onChange(e.target.value)} 
+        placeholder={placeholder} 
+        className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${
+          readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
+        }`} 
+      />
+    </div>
+  );
+};
 
-const Select = ({ label, value, onChange, options, required = false }: any) => (
-  <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-sm font-semibold text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>
-    <select 
-      value={value} 
-      onChange={(e) => onChange(e.target.value)} 
-      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none bg-white"
-    >
+const Select = ({ label, value, onChange, options, required = false }: any) => {
+  const cleanLabel = (label || "").replace(/\s*\*+\s*$/, "").trim();
+  return (
+    <div className="flex flex-col gap-1.5 mb-4 w-full">
+      <label className="text-sm font-semibold text-gray-700">{cleanLabel}{required && <span className="text-red-500 ml-1">*</span>}</label>
+      <select 
+        value={value} 
+        onChange={(e) => onChange(e.target.value)} 
+        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none bg-white"
+      >
       <option value="">Select option</option>
       {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   </div>
-);
+  );
+};
 
 export default function OnboardingWizard() {
   const router = useRouter();
@@ -64,6 +81,12 @@ export default function OnboardingWizard() {
   const [error, setError] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [termsConsent, setTermsConsent] = useState(false);
+
+  // Verification States
+  const [isGstVerified, setIsGstVerified] = useState(false);
+  const [verifiedGstBadge, setVerifiedGstBadge] = useState("");
+  const [verificationStatus, setVerificationStatus] = useState("");
+  const [verificationMode, setVerificationMode] = useState<"auto_gst" | "manual_admin">("auto_gst");
 
   // Data States
   const [oboData, setOboData] = useState({
@@ -82,7 +105,7 @@ export default function OnboardingWizard() {
   });
 
   const [tpspData, setTpspData] = useState({
-    companyName: "", services: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: "", country: ""
+    companyName: "", services: "", registeredAddress: "", contactPerson: "", phone: "", email: "", website: "", location: "", logo: "", banner: "", country: ""
   });
 
   useEffect(() => {
@@ -114,9 +137,11 @@ export default function OnboardingWizard() {
 
   const isStepValid = () => {
     if (currentStep === 0) return !!userType;
-    
     if (userType === "obo") {
-      if (currentStep === 1) return !!oboData.legalName && !!oboData.brandName && !!oboData.gstNumber && !!oboData.country;
+      if (currentStep === 1) {
+        if (oboData.country === "India" && !isGstVerified && verificationMode === "auto_gst") return false;
+        return !!oboData.legalName && !!oboData.brandName && !!oboData.country;
+      }
       if (currentStep === 2) return !!oboData.phone && !!oboData.website;
       if (currentStep === 3) return !!oboData.logo && !!oboData.banner && gdprConsent && termsConsent;
     }
@@ -128,7 +153,10 @@ export default function OnboardingWizard() {
       if (currentStep === 5) return !!spData.profilePhoto && !!spData.banner && gdprConsent && termsConsent;
     }
     if (userType === "tpsp") {
-      if (currentStep === 1) return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
+      if (currentStep === 1) {
+        if (tpspData.country === "India" && !isGstVerified && verificationMode === "auto_gst") return false;
+        return !!tpspData.companyName && !!tpspData.services && !!tpspData.contactPerson && !!tpspData.country;
+      }
       if (currentStep === 2) return !!tpspData.phone && !!tpspData.website;
       if (currentStep === 3) return !!tpspData.logo && !!tpspData.banner && gdprConsent && termsConsent;
     }
@@ -200,25 +228,43 @@ export default function OnboardingWizard() {
         uid: user.uid,
         role: userType,
         databaseId: databaseId,
+        isVerified: isGstVerified,
+        verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
+        verifiedBadge: verifiedGstBadge,
         createdAt: new Date().toISOString(),
         gdprConsent: gdprConsent,
         gdprConsentDate: new Date().toISOString(),
         ...termsAudit,
       }, idToken, "default");
 
+      if (databaseId !== "default") {
+        await saveDocument("users", user.uid, {
+          uid: user.uid,
+          role: userType,
+          databaseId: databaseId,
+          isVerified: isGstVerified,
+          verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
+          verifiedBadge: verifiedGstBadge,
+          createdAt: new Date().toISOString(),
+          gdprConsent: gdprConsent,
+          gdprConsentDate: new Date().toISOString(),
+          ...termsAudit,
+        }, idToken, databaseId);
+      }
+
       // Save Profile Doc
       if (userType === "obo") {
-        const finalData = { ...oboData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
+        const finalData = { ...oboData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "sp") {
-        const finalData = { ...spData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
+        const finalData = { ...spData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId);
       } else if (userType === "tpsp") {
-        const finalData = { ...tpspData, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
+        const finalData = { ...tpspData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
         await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);
@@ -340,13 +386,57 @@ export default function OnboardingWizard() {
 
             {/* OBO Forms */}
             {userType === "obo" && currentStep === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Legal Company Name" required value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
-                <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
-                <Select label="Country" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
-                <Input label="GST/TAX Number" required value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
-                <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
-                <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
+              <div className="space-y-4">
+                <Select label="Country *" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+
+                {oboData.country === "India" && (
+                  <div className="mb-4">
+                    <BusinessVerificationWidget
+                      userRole="obo"
+                      isVerified={isGstVerified}
+                      verificationStatus={verificationStatus}
+                      verifiedBadge={verifiedGstBadge}
+                      currentGstin={oboData.gstNumber}
+                      mode={verificationMode}
+                      onModeChange={setVerificationMode}
+                      onReset={() => {
+                        setIsGstVerified(false);
+                        setVerificationStatus("");
+                        setVerifiedGstBadge("");
+                      }}
+                      onSuccess={(summary) => {
+                        if (summary?.gstin) {
+                          setIsGstVerified(true);
+                          setVerifiedGstBadge("GST Verified 🛡️");
+                          setVerificationStatus("approved");
+                        }
+                        if (summary?.legalName) {
+                          setOboData(p => ({
+                            ...p,
+                            legalName: summary.legalName || p.legalName,
+                            brandName: summary.tradeName || summary.legalName || p.brandName,
+                            gstNumber: summary.gstin || p.gstNumber
+                          }));
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
+                {oboData.country && (oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                    <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
+                    <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
+                    {oboData.country === "India" ? (
+                      <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    ) : (
+                      <Input label="Tax ID / Registration Number" value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                    )}
+                    <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
+                    <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
+                  </div>
+                )}
               </div>
             )}
             {userType === "obo" && currentStep === 2 && (
@@ -364,26 +454,29 @@ export default function OnboardingWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                 <Input label="Full Name" required value={spData.fullName} onChange={(v: string) => setSpData(p => ({...p, fullName: v}))} />
                 <Input label="Preferred Name" value={spData.preferredName} onChange={(v: string) => setSpData(p => ({...p, preferredName: v}))} />
-                <Select label="Gender" value={spData.gender} onChange={(v: string) => setSpData(p => ({...p, gender: v}))} options={["Male", "Female", "Other", "Prefer not to say"]} />
+                <Select label="Gender" value={spData.gender} onChange={(v: string) => setSpData(p => ({...p, gender: v}))} options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
                 <Input label="Date of Birth" type="date" value={spData.dob} onChange={(v: string) => setSpData(p => ({...p, dob: v}))} />
                 <Input label="Nationality" value={spData.nationality} onChange={(v: string) => setSpData(p => ({...p, nationality: v}))} />
+                <Select label="Primary Language" value={spData.primaryLanguage} onChange={(v: string) => setSpData(p => ({...p, primaryLanguage: v}))} options={["English", "Spanish", "French", "German", "Mandarin", "Hindi", "Other"]} />
               </div>
             )}
             {userType === "sp" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Primary Mobile" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
+                <Input label="Mobile (Primary)" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
                 <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({...p, mobileWhatsapp: v}))} />
-                <Input label="Personal Email" type="email" value={spData.emailPersonal} onChange={(v: string) => setSpData(p => ({...p, emailPersonal: v}))} />
-                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
                 <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
+                <Input label="State / Region / County" value={spData.regionCounty} onChange={(v: string) => setSpData(p => ({...p, regionCounty: v}))} />
+                <Input label="Postal Code" value={spData.postcode} onChange={(v: string) => setSpData(p => ({...p, postcode: v}))} />
               </div>
             )}
             {userType === "sp" && currentStep === 3 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Freelance", "Employed", "Part-time"]} />
-                <Input label="Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
-                <Input label="Years of Experience" type="number" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} />
-                <Select label="Focus Area" value={spData.b2bB2cExperience} onChange={(v: string) => setSpData(p => ({...p, b2bB2cExperience: v}))} options={["B2B", "B2C", "Both"]} />
+                <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Employed", "Self-Employed / Freelancer", "Seeking Opportunities"]} />
+                <Input label="Current / Last Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
+                <Input label="Industry Experience" value={spData.industryExperience} onChange={(v: string) => setSpData(p => ({...p, industryExperience: v}))} placeholder="e.g. SaaS, Fintech, Retail" />
+                <Select label="Years of Experience" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} options={["0-2 years", "3-5 years", "6-10 years", "10+ years"]} />
+                <Select label="Target Market" value={spData.targetMarket} onChange={(v: string) => setSpData(p => ({...p, targetMarket: v}))} options={["B2B", "B2C", "Both B2B & B2C"]} />
               </div>
             )}
             {userType === "sp" && currentStep === 4 && (
@@ -391,7 +484,7 @@ export default function OnboardingWizard() {
                 <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({...p, linkedinProfile: v}))} />
                 <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({...p, socialFollowing: v}))} />
                 <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({...p, avgDealSize: v}))} />
-                <Select label="Preferred Currency *" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
+                <Select label="Preferred Currency" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
                 <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({...p, pastBrands: v}))} />
               </div>
             )}
@@ -405,11 +498,58 @@ export default function OnboardingWizard() {
 
             {/* TPSP Forms */}
             {userType === "tpsp" && currentStep === 1 && (
-              <div className="grid grid-cols-1 gap-x-4">
-                <Input label="Company Name" required value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+              <div className="space-y-4">
                 <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
-                <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing..." />
-                <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
+
+                {tpspData.country === "India" && (
+                  <div className="mb-4">
+                    <BusinessVerificationWidget
+                      userRole="tpsp"
+                      isVerified={isGstVerified}
+                      verificationStatus={verificationStatus}
+                      verifiedBadge={verifiedGstBadge}
+                      mode={verificationMode}
+                      onModeChange={setVerificationMode}
+                      onReset={() => {
+                        setIsGstVerified(false);
+                        setVerificationStatus("");
+                        setVerifiedGstBadge("");
+                      }}
+                      onSuccess={(summary) => {
+                        if (summary?.gstin) {
+                          setIsGstVerified(true);
+                          setVerifiedGstBadge("GST Verified 🛡️");
+                          setVerificationStatus("approved");
+                        }
+                        if (summary?.legalName) {
+                          setTpspData(p => ({
+                            ...p,
+                            companyName: summary.legalName || p.companyName,
+                            services: summary.services || p.services,
+                            registeredAddress: summary.fullAddress || p.registeredAddress,
+                            location: summary.city && summary.state ? `${summary.city}, ${summary.state}` : p.location
+                          }));
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
+                {tpspData.country && (tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
+                  <div className="grid grid-cols-1 gap-x-4">
+                    <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
+                    <Input 
+                      label={tpspData.country === "India" && isGstVerified ? "Registered Business Address (GST)" : "Registered Business Address"} 
+                      readOnly={isGstVerified} 
+                      value={tpspData.registeredAddress} 
+                      onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} 
+                      placeholder="e.g. Unit 401, Tech Park, City, Country" 
+                    />
+                    <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
+                    <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
+                  </div>
+                )}
               </div>
             )}
             {userType === "tpsp" && currentStep === 2 && (
