@@ -21,7 +21,7 @@ import {
   Search, Home, Tv, Store, Users, Grid, MessageCircle, Bell,
   Settings, LogOut, MoreHorizontal, ThumbsUp, Share2, Plus,
   Bookmark, Clock, Calendar, Video, ImageIcon, ChevronDown, ChevronUp, Check, X, Phone, Globe, FileText, Briefcase, GraduationCap, Award,
-  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass, MapPin, Star, UserIcon, ArrowRight
+  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass, MapPin, Star, UserIcon, ArrowRight, FileCheck
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
@@ -49,6 +49,11 @@ export default function HomePage() {
   const [isAgencyRegistrationOpen, setIsAgencyRegistrationOpen] = useState(false);
 
   // Agency Directory Lists & States with custom branding/logos
+  const marketEntryAgencies = [
+    { name: "BioPharma EU & UK Access Advisory", location: "London, UK", desc: "MHRA & EMA product registration, CE marking, and NHS market entry.", tag: "Pharma & MedTech", website: "biopharmaccess.co.uk", icon: "FileCheck", bg: "bg-gradient-to-br from-amber-600 to-yellow-800" },
+    { name: "Apex Global Regulatory Group", location: "Washington DC, USA", desc: "US FDA 510(k) clearances, OTC listings, and USDA import permits.", tag: "FDA & Permits", website: "apexregulatory.com", icon: "Shield", bg: "bg-gradient-to-br from-amber-700 to-amber-900" }
+  ];
+
   const marketingAgencies = [
     { name: "Global Growth Media", location: "London, UK", desc: "Expert B2B SaaS growth & performance marketing for international scale.", tag: "SaaS & Tech", website: "globalgrowth.io", icon: "TrendingUp", bg: "bg-gradient-to-br from-indigo-500 to-purple-600" },
     { name: "Pacific Brand Architects", location: "Singapore", desc: "Premium brand localization and entry strategy for Southeast Asia.", tag: "Consumer Brands", website: "pacificarchitects.sg", icon: "Compass", bg: "bg-gradient-to-br from-orange-400 to-red-500" },
@@ -67,6 +72,7 @@ export default function HomePage() {
     { name: "IndoPacific Legal Advisory", location: "Sydney, Australia", desc: "Joint-venture agreements, localized employment laws, and tax registry.", tag: "Corporate Law", website: "indopacificlaw.com.au", icon: "GraduationCap", bg: "bg-gradient-to-br from-red-700 to-red-900" }
   ];
 
+  const [activeMarketEntryIndex, setActiveMarketEntryIndex] = useState(0);
   const [activeMarketingIndex, setActiveMarketingIndex] = useState(0);
   const [activeBizDevIndex, setActiveBizDevIndex] = useState(0);
   const [activeLegalIndex, setActiveLegalIndex] = useState(0);
@@ -498,7 +504,65 @@ export default function HomePage() {
         {!isMarketplaceActive && (
           <div className={`w-full lg:w-[300px] 2xl:w-[400px] flex-shrink-0 ${mobileTab === 'discover' ? 'flex' : 'hidden'} lg:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 border-l border-gray-100 space-y-6`}>
 
-          {/* Section 1: Overseas Marketing Agencies */}
+          {/* Section 1: Market Entry & Compliances */}
+          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Market Entry & Compliances</h4>
+              <div className="flex items-center gap-1 text-gray-400">
+                <button
+                  onClick={() => setActiveMarketEntryIndex(prev => (prev === 0 ? marketEntryAgencies.length - 1 : prev - 1))}
+                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
+                  {activeMarketEntryIndex + 1}/{marketEntryAgencies.length}
+                </span>
+                <button
+                  onClick={() => setActiveMarketEntryIndex(prev => (prev === marketEntryAgencies.length - 1 ? 0 : prev + 1))}
+                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* Logo & Header Info */}
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-lg ${marketEntryAgencies[activeMarketEntryIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
+                    {marketEntryAgencies[activeMarketEntryIndex].tag}
+                  </span>
+                  <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
+                    {marketEntryAgencies[activeMarketEntryIndex].name}
+                  </h5>
+                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
+                    📍 {marketEntryAgencies[activeMarketEntryIndex].location}
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-sans">
+                {marketEntryAgencies[activeMarketEntryIndex].desc}
+              </p>
+              <div className="pt-1.5 border-t border-gray-50">
+                <button
+                  onClick={() => {
+                    setActiveMarketplaceCategory("market_entry_compliance");
+                    setIsMarketplaceActive(true);
+                  }}
+                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
+                >
+                  <ArrowRight className="w-3 h-3" /> Explore
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Overseas Marketing Agencies */}
           <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between border-b border-gray-50 pb-2">
               <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Marketing Agencies</h4>
