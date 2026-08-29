@@ -54,7 +54,7 @@ export function Navbar() {
             <Link href="/" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
               Fractional Sales 
               <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1 rounded-sm">
-                Portal
+                Partner
               </span>
             </Link>
             <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Every Post is a Business</span>
@@ -93,7 +93,7 @@ export function Navbar() {
               <Link href="/" onClick={() => setIsOpen(false)} className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
                 Fractional Sales 
                 <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1 rounded-sm">
-                  Portal
+                  Partner
                 </span>
               </Link>
               <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Every Post is a Business</span>

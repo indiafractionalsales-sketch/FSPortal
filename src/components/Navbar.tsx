@@ -94,7 +94,7 @@ export default function Navbar({
         <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-wrap md:flex-nowrap items-center gap-1 hover:opacity-80 transition-opacity">
           <span className="whitespace-nowrap">Fractional Sales</span>
           <span className="hidden md:inline-block text-[#701010] font-headline text-[8px] md:text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1 py-[1px] md:px-1.5 md:py-0.5 ml-0 md:ml-1 rounded-sm">
-            Portal
+            Partner
           </span>
         </Link>
         <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
