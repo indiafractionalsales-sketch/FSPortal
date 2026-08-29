@@ -364,7 +364,14 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf8f5] text-[#0d0e12] font-body antialiased overflow-hidden h-screen flex flex-col text-sm">
       {/* Top Navbar */}
-      <Navbar user={user} userType={userType} profileData={{ spData, oboData, tpspData }} />
+      <Navbar 
+        user={user} 
+        userType={userType} 
+        profileData={{ spData, oboData, tpspData }}
+        isMarketplaceActive={isMarketplaceActive}
+        onHomeClick={() => setIsMarketplaceActive(false)}
+        onMarketplaceClick={() => setIsMarketplaceActive(true)}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden pb-16 md:pb-0">        {/* Left Sidebar */}

@@ -16,7 +16,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Bell, Settings, LogOut, Scan, CreditCard } from "lucide-react";
+import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
@@ -29,9 +29,19 @@ interface NavbarProps {
     oboData?: { logo?: string; brandName?: string };
     tpspData?: { logo?: string; companyName?: string };
   };
+  isMarketplaceActive?: boolean;
+  onMarketplaceClick?: () => void;
+  onHomeClick?: () => void;
 }
 
-export default function Navbar({ user = null, userType = "", profileData = {} }: NavbarProps) {
+export default function Navbar({ 
+  user = null, 
+  userType = "", 
+  profileData = {},
+  isMarketplaceActive = false,
+  onMarketplaceClick,
+  onHomeClick
+}: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -92,27 +102,55 @@ export default function Navbar({ user = null, userType = "", profileData = {} }:
 
       {/* Center: Nav icons */}
       <div className="flex items-center justify-center gap-1 flex-shrink-0 h-full">
+        {/* 1. Home Feed */}
         <button 
-          onClick={() => router.push("/home")}
-          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
-            pathname === "/home" 
+          onClick={() => {
+            if (onHomeClick) {
+              onHomeClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            !isMarketplaceActive && pathname === "/home" 
               ? "border-[#701010] text-[#701010]" 
               : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
           }`}
-          title="Home"
+          title="Home Feed"
         >
           <Home className="w-5 h-5" />
         </button>
+
+        {/* 2. Scan Visiting Card */}
         <button 
           onClick={() => setIsScanOpen(true)}
-          className={`px-4 md:px-8 h-full border-b-2 transition-colors flex items-center justify-center ${
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
             isScanOpen 
               ? "border-[#701010] text-[#701010]" 
-              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-55"
           }`}
           title="Scan Visiting Card"
         >
           <Scan className="w-5 h-5" />
+        </button>
+
+        {/* 3. Marketplace Directory */}
+        <button 
+          onClick={() => {
+            if (onMarketplaceClick) {
+              onMarketplaceClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            isMarketplaceActive 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Marketplace Directory"
+        >
+          <Store className="w-5 h-5" />
         </button>
       </div>
 
