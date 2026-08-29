@@ -45,6 +45,7 @@ export default function MarketplaceHub({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("All");
   const [onlyVerified, setOnlyVerified] = useState(false);
+  const [marketingSubFilter, setMarketingSubFilter] = useState<string>("all");
   const [selectedAgencyForInquiry, setSelectedAgencyForInquiry] = useState<MarketplaceAgency | null>(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [savedAgencyIds, setSavedAgencyIds] = useState<Set<string>>(new Set());
@@ -71,6 +72,14 @@ export default function MarketplaceHub({
 
     // Region match
     if (selectedRegion !== "All" && agency.region !== selectedRegion) return false;
+
+    // Sub-filter for Marketing & Growth
+    if (activeCategory === "marketing" && marketingSubFilter !== "all") {
+      const q = marketingSubFilter.toLowerCase();
+      const matchSpecialty = agency.specialties.some((s) => s.toLowerCase().includes(q));
+      const matchTag = agency.tag.toLowerCase().includes(q);
+      if (!matchSpecialty && !matchTag) return false;
+    }
 
     // Search query match
     if (searchQuery.trim()) {
@@ -224,6 +233,31 @@ export default function MarketplaceHub({
           </div>
 
         </div>
+
+        {/* Marketing & Growth Sub-Filter Pills */}
+        {activeCategory === "marketing" && (
+          <div className="pt-2 border-t border-gray-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <span className="text-[11px] font-headline font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">Filter Focus:</span>
+            {[
+              { id: "all", label: "All Marketing & Growth" },
+              { id: "digital", label: "Digital & Performance Ads" },
+              { id: "pr", label: "PR & Brand Positioning" },
+              { id: "consumer", label: "Retail & Consumer GTM" }
+            ].map((sub) => (
+              <button
+                key={sub.id}
+                onClick={() => setMarketingSubFilter(sub.id)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-headline font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  marketingSubFilter === sub.id
+                    ? "bg-[#701010] text-white shadow-xs font-bold"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                {sub.label}
+              </button>
+            ))}
+          </div>
+        )}
 
       </div>
 

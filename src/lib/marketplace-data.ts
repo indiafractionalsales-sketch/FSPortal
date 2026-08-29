@@ -37,7 +37,6 @@ export interface MarketplaceAgency {
 export type MarketplaceCategoryId =
   | "biz_dev"
   | "marketing"
-  | "digital_marketing"
   | "multilingual"
   | "cha"
   | "export"
@@ -67,21 +66,12 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "marketing",
-    name: "Marketing Agencies",
-    shortName: "Marketing",
-    icon: "📣",
-    badgeCount: 18,
-    description: "Strategic international brand localization, PR, product launches, and regional positioning for global markets.",
-    color: "from-purple-600 to-indigo-600"
-  },
-  {
-    id: "digital_marketing",
-    name: "Digital Marketing Agencies",
-    shortName: "Digital Marketing",
+    name: "Marketing & Growth Agencies",
+    shortName: "Marketing & Growth",
     icon: "🚀",
-    badgeCount: 22,
-    description: "Performance marketing, localized SEO, PPC management, multi-platform social media growth, and conversion optimization.",
-    color: "from-blue-600 to-cyan-600"
+    badgeCount: 40,
+    description: "Full-stack marketing, performance ads, localized SEO, PR, brand positioning, and trade show execution.",
+    color: "from-purple-600 to-indigo-600"
   },
   {
     id: "multilingual",
@@ -239,11 +229,11 @@ export const MOCK_AGENCIES: MarketplaceAgency[] = [
     stats: { projectsDone: "70+", avgResponse: "< 3 hrs", teamSize: "22 Specialists" }
   },
 
-  // 3. Digital Marketing
+  // 2. Marketing & Growth
   {
     id: "agency-dig-1",
     name: "Apex Performance Digital",
-    category: "digital_marketing",
+    category: "marketing",
     location: "San Francisco, USA",
     country: "United States",
     region: "North America",
@@ -256,13 +246,13 @@ export const MOCK_AGENCIES: MarketplaceAgency[] = [
     rating: 4.9,
     reviewCount: 64,
     isVerified: true,
-    specialties: ["Global LinkedIn Ads", "International SEO", "Funnel Conversion Optimization"],
+    specialties: ["Digital Marketing", "Global LinkedIn Ads", "International SEO", "Funnel Conversion Optimization"],
     stats: { projectsDone: "300+", avgResponse: "< 1 hr", teamSize: "50 Growth Marketers" }
   },
   {
     id: "agency-dig-2",
     name: "Nordic Digital House",
-    category: "digital_marketing",
+    category: "marketing",
     location: "Stockholm, Sweden",
     country: "Sweden",
     region: "Europe",
@@ -275,7 +265,7 @@ export const MOCK_AGENCIES: MarketplaceAgency[] = [
     rating: 4.8,
     reviewCount: 40,
     isVerified: true,
-    specialties: ["EU Market PPC", "Content Marketing Strategy", "Account-Based Marketing (ABM)"],
+    specialties: ["Digital Marketing", "EU Market PPC", "Content Marketing Strategy", "Account-Based Marketing (ABM)"],
     stats: { projectsDone: "140+", avgResponse: "< 2 hrs", teamSize: "35 Growth Marketers" }
   },
 
