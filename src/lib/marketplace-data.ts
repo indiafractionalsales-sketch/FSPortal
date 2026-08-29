@@ -85,8 +85,8 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "multilingual",
-    name: "Multilingual Support Agencies",
-    shortName: "Multilingual Support",
+    name: "Lingual Support Agencies",
+    shortName: "Lingual Support",
     icon: "🗣️",
     badgeCount: 11,
     description: "24/7 multilingual customer support, technical helpdesk, document translation, and live customer voice assistance.",
