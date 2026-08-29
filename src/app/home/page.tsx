@@ -21,7 +21,7 @@ import {
   Search, Home, Tv, Store, Users, Grid, MessageCircle, Bell,
   Settings, LogOut, MoreHorizontal, ThumbsUp, Share2, Plus,
   Bookmark, Clock, Calendar, Video, ImageIcon, ChevronDown, ChevronUp, Check, X, Phone, Globe, FileText, Briefcase, GraduationCap, Award,
-  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass, MapPin, Star, UserIcon
+  ChevronLeft, ChevronRight, ExternalLink, Shield, TrendingUp, Compass, MapPin, Star, UserIcon, ArrowRight
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
@@ -545,14 +545,24 @@ export default function HomePage() {
               <p className="text-xs text-gray-600 leading-relaxed font-sans">
                 {marketingAgencies[activeMarketingIndex].desc}
               </p>
-              <div className="pt-1.5 border-t border-gray-50">
+              <div className="pt-2 border-t border-gray-50 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setActiveMarketplaceCategory("marketing");
+                    setIsMarketplaceActive(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#701010] hover:bg-[#5a0c0c] text-white text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg transition-all shadow-xs cursor-pointer"
+                >
+                  <span>Explore Marketing</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
                 <a
                   href={`https://${marketingAgencies[activeMarketingIndex].website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline"
+                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-gray-500 hover:text-[#701010] transition-colors"
                 >
-                  <ExternalLink className="w-3 h-3" /> Visit Website
+                  <ExternalLink className="w-3 h-3" /> Site
                 </a>
               </div>
             </div>
@@ -605,14 +615,24 @@ export default function HomePage() {
               <p className="text-xs text-gray-600 leading-relaxed font-sans">
                 {bizDevAgencies[activeBizDevIndex].desc}
               </p>
-              <div className="pt-1.5 border-t border-gray-50">
+              <div className="pt-2 border-t border-gray-50 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setActiveMarketplaceCategory("biz_dev");
+                    setIsMarketplaceActive(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#701010] hover:bg-[#5a0c0c] text-white text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg transition-all shadow-xs cursor-pointer"
+                >
+                  <span>Explore Deal Closure</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
                 <a
                   href={`https://${bizDevAgencies[activeBizDevIndex].website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline"
+                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-gray-500 hover:text-[#701010] transition-colors"
                 >
-                  <ExternalLink className="w-3 h-3" /> Visit Website
+                  <ExternalLink className="w-3 h-3" /> Site
                 </a>
               </div>
             </div>
@@ -665,14 +685,24 @@ export default function HomePage() {
               <p className="text-xs text-gray-600 leading-relaxed font-sans">
                 {legalAgencies[activeLegalIndex].desc}
               </p>
-              <div className="pt-1.5 border-t border-gray-50">
+              <div className="pt-2 border-t border-gray-50 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setActiveMarketplaceCategory("legal");
+                    setIsMarketplaceActive(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#701010] hover:bg-[#5a0c0c] text-white text-[10px] font-headline font-bold uppercase tracking-wider rounded-lg transition-all shadow-xs cursor-pointer"
+                >
+                  <span>Explore Legal</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
                 <a
                   href={`https://${legalAgencies[activeLegalIndex].website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline"
+                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-gray-500 hover:text-[#701010] transition-colors"
                 >
-                  <ExternalLink className="w-3 h-3" /> Visit Advisory
+                  <ExternalLink className="w-3 h-3" /> Site
                 </a>
               </div>
             </div>
