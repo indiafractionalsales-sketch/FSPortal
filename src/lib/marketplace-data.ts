@@ -94,7 +94,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "cha",
-    name: "CHAs (Custom House Agents)",
+    name: "Custom House Agents (CHAs) & Customs Clearance",
     shortName: "CHAs & Customs",
     icon: "🚢",
     badgeCount: 15,
@@ -103,7 +103,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "export",
-    name: "Export Agencies",
+    name: "Turnkey Export Management Agencies",
     shortName: "Export Agencies",
     icon: "🌍",
     badgeCount: 12,
@@ -112,7 +112,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "accounting",
-    name: "Over-seas Accounting Support",
+    name: "Overseas Accounting & Tax Advisory",
     shortName: "Overseas Accounting",
     icon: "📊",
     badgeCount: 16,
@@ -121,7 +121,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "legal",
-    name: "Over-seas Legal Support",
+    name: "Overseas Legal & Compliance Support",
     shortName: "Overseas Legal",
     icon: "⚖️",
     badgeCount: 19,
@@ -130,7 +130,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   },
   {
     id: "office_space",
-    name: "Office Spaces",
+    name: "Flexible Workspaces & Executive Office Setup",
     shortName: "Office Spaces",
     icon: "🏢",
     badgeCount: 25,
