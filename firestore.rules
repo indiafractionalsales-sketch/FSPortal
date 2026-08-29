@@ -18,8 +18,8 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null && request.auth.uid == userId 
-                    && (!resource.data.keys().has('role') || resource.data.role == request.resource.data.role)
-                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'billing']);
+                    && (resource == null || !resource.data.keys().has('role') || resource.data.role == request.resource.data.role)
+                    && (resource == null || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'billing']));
     }
 
     match /users/{userId}/Invoices/{invoiceId} {
