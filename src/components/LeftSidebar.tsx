@@ -252,16 +252,6 @@ export default function LeftSidebar({
                 <span className="text-xs font-headline font-bold uppercase tracking-wider">Plans & Subscriptions</span>
               </button>
             </li>
-            <div className="h-px bg-gray-100 my-2" />
-            <li>
-              <button 
-                onClick={() => router.push('/security')} 
-                className="w-full flex items-center gap-2.5 px-2 py-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0369a1] transition-all rounded-lg text-left cursor-pointer"
-              >
-                <span className="text-base">🛡️</span>
-                <span className="text-xs font-headline font-bold uppercase tracking-wider text-[#0369a1]">Trust & Security</span>
-              </button>
-            </li>
           </ul>
         </div>
       )}
