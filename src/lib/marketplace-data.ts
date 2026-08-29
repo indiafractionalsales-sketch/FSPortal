@@ -57,6 +57,15 @@ export interface MarketplaceCategoryInfo {
 
 export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   {
+    id: "market_entry_compliance",
+    name: "Market Entry & Compliances",
+    shortName: "Market Entry & Compliances",
+    icon: "📜",
+    badgeCount: 18,
+    description: "Cross-border product licensing, FDA/EMA/MHRA regulatory approvals, local compliance advisory, and market entry consultation.",
+    color: "from-amber-700 to-yellow-900"
+  },
+  {
     id: "biz_dev",
     name: "Deal Closure Agencies",
     shortName: "Deal Closure",
@@ -82,15 +91,6 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
     badgeCount: 11,
     description: "24/7 multilingual customer support, technical helpdesk, document translation, and live customer voice assistance.",
     color: "from-emerald-600 to-teal-600"
-  },
-  {
-    id: "market_entry_compliance",
-    name: "Market Entry & Compliance",
-    shortName: "Market Entry & Compliance",
-    icon: "📜",
-    badgeCount: 18,
-    description: "Cross-border product licensing, FDA/EMA/MHRA regulatory approvals, local compliance advisory, and market entry consultation.",
-    color: "from-amber-700 to-yellow-900"
   },
   {
     id: "cha",
