@@ -221,42 +221,36 @@ export default function OnboardingWizard() {
       else if (userType === "sp") userCountry = spData.country;
       else if (userType === "tpsp") userCountry = tpspData.country;
 
-      const databaseId = userCountry.toLowerCase() === "india" ? "fsindiadb" : "default";
+      // ── Save User Doc via server-side Admin SDK ──────────────────────────
+      // Uses /api/onboarding/complete which writes with Admin SDK (bypasses
+      // client security rules) while enforcing all security checks server-side.
+      // This allows users to change persona/role without hitting 403 errors.
+      const completeRes = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          role: userType,
+          country: userCountry,
+          isVerified: isGstVerified,
+          verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
+          verifiedBadge: verifiedGstBadge,
+          gdprConsent: gdprConsent,
+          gdprConsentDate: new Date().toISOString(),
+          ...termsAudit,
+        }),
+      });
 
-      // Save User Doc
-      await saveDocument("users", user.uid, {
-        uid: user.uid,
-        role: userType,
-        databaseId: databaseId,
-        isVerified: isGstVerified,
-        verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
-        verifiedBadge: verifiedGstBadge,
-        createdAt: new Date().toISOString(),
-        gdprConsent: gdprConsent,
-        gdprConsentDate: new Date().toISOString(),
-        ...termsAudit,
-      }, idToken, "default");
-
-      if (databaseId !== "default") {
-        try {
-          await saveDocument("users", user.uid, {
-            uid: user.uid,
-            role: userType,
-            databaseId: databaseId,
-            isVerified: isGstVerified,
-            verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
-            verifiedBadge: verifiedGstBadge,
-            createdAt: new Date().toISOString(),
-            gdprConsent: gdprConsent,
-            gdprConsentDate: new Date().toISOString(),
-            ...termsAudit,
-          }, idToken, databaseId);
-        } catch (dbErr) {
-          console.warn(`Secondary database sync to ${databaseId} skipped/failed:`, dbErr);
-        }
+      if (!completeRes.ok) {
+        const errData = await completeRes.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to save user profile. Please try again.");
       }
 
-      // Save Profile Doc (Always write to default database first for global availability)
+      const { databaseId } = await completeRes.json();
+
+      // ── Save Profile Doc (client-side — secured by Firestore rules) ──────
       if (userType === "obo") {
         const finalData = { ...oboData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
