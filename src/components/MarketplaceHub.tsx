@@ -35,6 +35,18 @@ interface MarketplaceHubProps {
   userType?: string;
 }
 
+const CATEGORY_GRADIENT_STYLES: Record<string, string> = {
+  market_entry_compliance: "linear-gradient(135deg, #78350f 0%, #451a03 100%)",
+  biz_dev: "linear-gradient(135deg, #9a3412 0%, #7c2d12 100%)",
+  marketing: "linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%)",
+  multilingual: "linear-gradient(135deg, #047857 0%, #134e4a 100%)",
+  cha: "linear-gradient(135deg, #0369a1 0%, #1e1b4b 100%)",
+  export: "linear-gradient(135deg, #9f1239 0%, #4c0519 100%)",
+  accounting: "linear-gradient(135deg, #047857 0%, #064e3b 100%)",
+  legal: "linear-gradient(135deg, #334155 0%, #0f172a 100%)",
+  office_space: "linear-gradient(135deg, #6b21a8 0%, #3b0764 100%)"
+};
+
 export default function MarketplaceHub({
   activeCategory,
   onSelectCategory,
@@ -59,21 +71,13 @@ export default function MarketplaceHub({
     }
   };
 
-  // Get current category info
   const categoryInfo = MARKETPLACE_CATEGORIES.find((cat) => cat.id === activeCategory) || MARKETPLACE_CATEGORIES[0];
 
-  // Filter agencies
   const filteredAgencies = MOCK_AGENCIES.filter((agency) => {
-    // Category match
     if (agency.category !== activeCategory) return false;
-
-    // Verified match
     if (onlyVerified && !agency.isVerified) return false;
-
-    // Region match
     if (selectedRegion !== "All" && agency.region !== selectedRegion) return false;
 
-    // Sub-filter for Marketing & Growth
     if (activeCategory === "marketing" && marketingSubFilter !== "all") {
       const q = marketingSubFilter.toLowerCase();
       const matchSpecialty = agency.specialties.some((s) => s.toLowerCase().includes(q));
@@ -81,7 +85,6 @@ export default function MarketplaceHub({
       if (!matchSpecialty && !matchTag) return false;
     }
 
-    // Search query match
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchName = agency.name.toLowerCase().includes(q);
@@ -108,19 +111,21 @@ export default function MarketplaceHub({
     <div className="w-full space-y-5">
       
       {/* Category Hero Banner */}
-      <div className={`w-full rounded-2xl p-6 bg-gradient-to-r ${categoryInfo.color} text-white shadow-md relative overflow-hidden`}>
-        {/* Subtle background decoration circles */}
+      <div 
+        className="w-full rounded-2xl p-6 text-white shadow-md relative overflow-hidden transition-all duration-300"
+        style={{ background: CATEGORY_GRADIENT_STYLES[categoryInfo.id] || "linear-gradient(135deg, #701010 0%, #450a0a 100%)" }}
+      >
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/15 backdrop-blur-md border border-white/20 rounded-full text-xs font-headline font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/20 backdrop-blur-md border border-white/25 rounded-full text-xs font-headline font-bold uppercase tracking-wider text-white shadow-xs">
               <span>{categoryInfo.icon}</span>
               <span>Marketplace Category</span>
             </div>
-            <h2 className="font-serif font-bold text-xl md:text-2xl tracking-tight leading-tight">
+            <h2 className="font-serif font-bold text-2xl md:text-3xl tracking-tight leading-tight text-white drop-shadow-xs">
               {categoryInfo.name}
             </h2>
-            <p className="text-xs md:text-sm text-white/90 font-sans leading-relaxed">
+            <p className="text-xs md:text-sm text-white/95 font-sans leading-relaxed drop-shadow-2xs">
               {categoryInfo.description}
             </p>
           </div>
