@@ -160,18 +160,18 @@ export default function LeftSidebar({
                       onClick={() => handleCategoryClick(cat.id)}
                       className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 transition-all rounded-lg text-left cursor-pointer ${
                         isActive
-                          ? "bg-[#701010] text-white shadow-sm font-bold"
-                          : "hover:bg-gray-50 text-gray-700"
+                          ? "bg-blue-50/90 border-l-4 border-blue-600 text-blue-950 font-bold shadow-xs"
+                          : "hover:bg-gray-50 text-gray-700 border-l-4 border-transparent"
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0 pr-1">
                         <span className="text-sm flex-shrink-0">{cat.icon}</span>
-                        <span className="text-[12px] font-headline font-semibold leading-tight">
+                        <span className={`text-[12px] font-headline leading-tight ${isActive ? "text-blue-950 font-bold" : "font-semibold"}`}>
                           {cat.shortName}
                         </span>
                       </div>
                       <span className={`text-[9px] font-headline font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-                        isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+                        isActive ? "bg-blue-200/80 text-blue-900" : "bg-gray-100 text-gray-500"
                       }`}>
                         {cat.badgeCount}
                       </span>

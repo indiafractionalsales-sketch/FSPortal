@@ -160,7 +160,7 @@ export default function MarketplaceHub({
                 onClick={() => onSelectCategory(cat.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-headline font-bold uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
                   activeCategory === cat.id
-                    ? "bg-[#701010] text-white shadow-sm"
+                    ? "bg-blue-50 text-blue-950 border border-blue-300 font-bold shadow-xs"
                     : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-150"
                 }`}
               >
