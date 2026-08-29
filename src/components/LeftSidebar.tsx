@@ -86,7 +86,7 @@ export default function LeftSidebar({
   };
 
   return (
-    <div className={`w-full md:w-[260px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : (mobileTab ? 'hidden' : 'flex')} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100 ${className}`}>
+    <div className={`w-full md:w-[300px] xl:w-[320px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : (mobileTab ? 'hidden' : 'flex')} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100 ${className}`}>
       
       {/* Profile Header (Banner & Avatar) */}
       <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
@@ -145,11 +145,11 @@ export default function LeftSidebar({
                 <ShoppingBag className="w-3.5 h-3.5 text-[#701010]" /> Marketplace
               </h4>
               <span className="text-[9px] font-headline font-bold text-[#701010] bg-[#701010]/10 px-1.5 py-0.5 rounded">
-                9 Categories
+                {MARKETPLACE_CATEGORIES.length} Categories
               </span>
             </div>
 
-            {/* 9 Category Tabs */}
+            {/* Category Tabs */}
             <ul className="space-y-1 custom-scrollbar">
               {MARKETPLACE_CATEGORIES.map((cat) => {
                 const isActive = activeMarketplaceCategory === cat.id;
@@ -164,9 +164,9 @@ export default function LeftSidebar({
                           : "hover:bg-gray-50 text-gray-700"
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0 pr-1">
                         <span className="text-sm flex-shrink-0">{cat.icon}</span>
-                        <span className="text-xs font-headline tracking-wider truncate">
+                        <span className="text-[12px] font-headline font-semibold leading-tight">
                           {cat.shortName}
                         </span>
                       </div>
