@@ -38,6 +38,7 @@ export type MarketplaceCategoryId =
   | "biz_dev"
   | "marketing"
   | "multilingual"
+  | "market_entry_compliance"
   | "cha"
   | "export"
   | "accounting"
@@ -81,6 +82,15 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
     badgeCount: 11,
     description: "24/7 multilingual customer support, technical helpdesk, document translation, and live customer voice assistance.",
     color: "from-emerald-600 to-teal-600"
+  },
+  {
+    id: "market_entry_compliance",
+    name: "Market Entry & Compliance",
+    shortName: "Market Entry & Compliance",
+    icon: "📜",
+    badgeCount: 18,
+    description: "Cross-border product licensing, FDA/EMA/MHRA regulatory approvals, local compliance advisory, and market entry consultation.",
+    color: "from-amber-700 to-yellow-900"
   },
   {
     id: "cha",
@@ -507,5 +517,45 @@ export const MOCK_AGENCIES: MarketplaceAgency[] = [
     isVerified: true,
     specialties: ["Free Zone Flexi Desks", "Visa License Lease Agreements", "High-Tech Boardrooms"],
     stats: { projectsDone: "210+", avgResponse: "< 1 hr", teamSize: "8 Locations" }
+  },
+
+  // 10. Market Entry & Compliance
+  {
+    id: "agency-mec-1",
+    name: "BioPharma EU & UK Access Advisory",
+    category: "market_entry_compliance",
+    location: "London, UK",
+    country: "United Kingdom",
+    region: "Europe",
+    tag: "Pharma & MedTech",
+    tagline: "MHRA & EMA product registration, CE/UKCA marking, and NHS market entry.",
+    description: "Helping Indian and overseas pharmaceutical and medical device manufacturers secure MHRA licenses, EMA dossiers, and NHS formulary listings in the UK & EU.",
+    website: "biopharmaccess.co.uk",
+    logoBg: "bg-gradient-to-br from-amber-600 to-orange-800",
+    iconName: "FileCheck",
+    rating: 4.9,
+    reviewCount: 38,
+    isVerified: true,
+    specialties: ["MHRA Drug Approval", "EMA Dossier Filing", "NHS Formulary Access", "CE Medical Marking"],
+    stats: { projectsDone: "150+", avgResponse: "< 2 hrs", teamSize: "18 Consultants" }
+  },
+  {
+    id: "agency-mec-2",
+    name: "Apex Global Regulatory Group",
+    category: "market_entry_compliance",
+    location: "Washington D.C., USA",
+    country: "United States",
+    region: "North America",
+    tag: "FDA & Federal Permits",
+    tagline: "Turnkey US FDA 510(k) clearances, OTC drug listings, and EPA/USDA permits.",
+    description: "Specialized regulatory compliance firm facilitating US market entry for overseas exporters in pharmaceuticals, cosmetics, food/beverages, and electronics.",
+    website: "apexregulatory.com",
+    logoBg: "bg-gradient-to-br from-yellow-600 to-amber-900",
+    iconName: "Shield",
+    rating: 4.8,
+    reviewCount: 45,
+    isVerified: true,
+    specialties: ["US FDA 510(k) Clearance", "OTC Drug & Cosmetic Filing", "USDA Import Licensing"],
+    stats: { projectsDone: "220+", avgResponse: "< 1 hr", teamSize: "32 Specialists" }
   }
 ];
