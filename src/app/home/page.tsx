@@ -558,10 +558,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Section 2: Deal Closing Agencies */}
+          {/* Section 2: Deal Closure Agencies */}
           <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Deal Closing Partners</h4>
+              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Deal Closure Partners</h4>
               <div className="flex items-center gap-1 text-gray-400">
                 <button
                   onClick={() => setActiveBizDevIndex(prev => (prev === 0 ? bizDevAgencies.length - 1 : prev - 1))}

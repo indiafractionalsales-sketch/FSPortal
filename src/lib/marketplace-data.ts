@@ -57,8 +57,8 @@ export interface MarketplaceCategoryInfo {
 export const MARKETPLACE_CATEGORIES: MarketplaceCategoryInfo[] = [
   {
     id: "biz_dev",
-    name: "Deal Closing Agencies",
-    shortName: "Deal Closing",
+    name: "Deal Closure Agencies",
+    shortName: "Deal Closure",
     icon: "💼",
     badgeCount: 14,
     description: "Outsourced enterprise deal closers, sales execution partners, matchmaking, and channel deal closure teams.",
