@@ -238,36 +238,49 @@ export default function OnboardingWizard() {
       }, idToken, "default");
 
       if (databaseId !== "default") {
-        await saveDocument("users", user.uid, {
-          uid: user.uid,
-          role: userType,
-          databaseId: databaseId,
-          isVerified: isGstVerified,
-          verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
-          verifiedBadge: verifiedGstBadge,
-          createdAt: new Date().toISOString(),
-          gdprConsent: gdprConsent,
-          gdprConsentDate: new Date().toISOString(),
-          ...termsAudit,
-        }, idToken, databaseId);
+        try {
+          await saveDocument("users", user.uid, {
+            uid: user.uid,
+            role: userType,
+            databaseId: databaseId,
+            isVerified: isGstVerified,
+            verificationStatus: verificationStatus || (isGstVerified ? "approved" : "unverified"),
+            verifiedBadge: verifiedGstBadge,
+            createdAt: new Date().toISOString(),
+            gdprConsent: gdprConsent,
+            gdprConsentDate: new Date().toISOString(),
+            ...termsAudit,
+          }, idToken, databaseId);
+        } catch (dbErr) {
+          console.warn(`Secondary database sync to ${databaseId} skipped/failed:`, dbErr);
+        }
       }
 
-      // Save Profile Doc
+      // Save Profile Doc (Always write to default database first for global availability)
       if (userType === "obo") {
         const finalData = { ...oboData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId);
+        await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, "default");
+        if (databaseId !== "default") {
+          try { await saveDocument("OBO_Profile", user.uid, finalData as any, idToken, databaseId); } catch (e) { console.warn("OBO secondary DB sync warning:", e); }
+        }
       } else if (userType === "sp") {
         const finalData = { ...spData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.profilePhoto?.startsWith("data:")) finalData.profilePhoto = await uploadImage(finalData.profilePhoto, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId);
+        await saveDocument("SP_Profile", user.uid, finalData as any, idToken, "default");
+        if (databaseId !== "default") {
+          try { await saveDocument("SP_Profile", user.uid, finalData as any, idToken, databaseId); } catch (e) { console.warn("SP secondary DB sync warning:", e); }
+        }
       } else if (userType === "tpsp") {
         const finalData = { ...tpspData, isVerified: isGstVerified, verificationStatus, verifiedBadge: verifiedGstBadge, gdprConsent, gdprConsentDate: new Date().toISOString(), registeredEmail: user.email || "", ...termsAudit };
         if (finalData.logo?.startsWith("data:")) finalData.logo = await uploadImage(finalData.logo, `profiles/${user.uid}/avatar.jpg`, idToken);
         if (finalData.banner?.startsWith("data:")) finalData.banner = await uploadImage(finalData.banner, `profiles/${user.uid}/banner.jpg`, idToken);
-        await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId);
+        await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, "default");
+        if (databaseId !== "default") {
+          try { await saveDocument("TPSP_Profile", user.uid, finalData as any, idToken, databaseId); } catch (e) { console.warn("TPSP secondary DB sync warning:", e); }
+        }
       }
 
       // Trigger Welcome Email (non-blocking, handled gracefully)
