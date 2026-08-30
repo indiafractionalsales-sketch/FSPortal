@@ -311,7 +311,7 @@ export default function QuickChatDockWidget() {
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
       {/* Expanded Quick Chat Window */}
       {isOpen && (
-        <div className="w-[340px] sm:w-[350px] h-[450px] sm:h-[470px] max-h-[80vh] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="w-[320px] sm:w-[335px] h-[360px] sm:h-[390px] max-h-[calc(100vh-140px)] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           
           {/* Header */}
           <div className="p-3 bg-gradient-to-r from-gray-900 via-slate-900 to-[#701010] text-white flex items-center justify-between shadow-xs">
