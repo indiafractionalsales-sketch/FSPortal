@@ -63,7 +63,10 @@ export default function MessagesWorkspacePage() {
           const list = await fetchUserInquiries(user.uid, idToken);
           setInquiries(list);
           if (list.length > 0) {
-            setSelectedInquiry(list[0]);
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetInquiryId = urlParams.get("inquiryId");
+            const matchedInquiry = list.find(i => (i.id || i.__id) === targetInquiryId);
+            setSelectedInquiry(matchedInquiry || list[0]);
           }
         } catch (err) {
           console.error("Error loading user inquiries in messages workspace:", err);

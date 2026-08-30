@@ -13,7 +13,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, Maximize2, Building2, User, ChevronRight, Star, RotateCcw } from "lucide-react";
+import { MessageSquare, X, Send, Maximize2, Building2, User, ChevronRight, Star, RotateCcw, Search } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import {
   fetchUserInquiries,
@@ -44,6 +44,10 @@ export default function QuickChatDockWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
+  // Multi-Thread Dock View State
+  const [viewMode, setViewMode] = useState<"list" | "chat">("chat");
+  const [threadSearchQuery, setThreadSearchQuery] = useState("");
+
   // Guided Chat Inquiry State
   const [guidedInquiry, setGuidedInquiry] = useState<GuidedInquiryState | null>(null);
 
@@ -58,6 +62,7 @@ export default function QuickChatDockWidget() {
 
       const targetAgency = customEvt.detail.agency;
       setIsOpen(true);
+      setViewMode("chat");
 
       // Check if user already has an inquiry thread with this agency
       const existingInq = inquiries.find((i) => i.agencyId === targetAgency.id);
@@ -243,6 +248,7 @@ export default function QuickChatDockWidget() {
         };
         setSelectedInquiry(createdInq);
         setGuidedInquiry(null);
+        setViewMode("chat");
       } catch (err) {
         console.error("Failed to complete guided inquiry:", err);
       } finally {
@@ -292,6 +298,15 @@ export default function QuickChatDockWidget() {
 
   if (!currentUser) return null;
 
+  const filteredInquiries = inquiries.filter((inq) => {
+    if (!threadSearchQuery.trim()) return true;
+    const q = threadSearchQuery.toLowerCase();
+    const matchAgency = inq.agencyName.toLowerCase().includes(q);
+    const matchBuyer = inq.buyerName.toLowerCase().includes(q);
+    const matchReq = inq.projectRequirements.toLowerCase().includes(q);
+    return matchAgency || matchBuyer || matchReq;
+  });
+
   return (
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
       {/* Expanded Quick Chat Window */}
@@ -306,16 +321,28 @@ export default function QuickChatDockWidget() {
               </div>
               <div className="min-w-0">
                 <h4 className="font-serif font-bold text-xs text-white leading-tight truncate">
-                  {guidedInquiry ? `Inquiry: ${guidedInquiry.agency.name}` : selectedInquiry ? selectedInquiry.agencyName : "Lead Messages"}
+                  {guidedInquiry
+                    ? `Inquiry: ${guidedInquiry.agency.name}`
+                    : viewMode === "list"
+                    ? "Active Conversations"
+                    : selectedInquiry
+                    ? selectedInquiry.agencyName
+                    : "Lead Messages"}
                 </h4>
                 <p className="text-[10px] text-gray-300 font-headline truncate">
-                  {guidedInquiry ? `Guided Chat Assistant (Step ${guidedInquiry.step}/4)` : selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
+                  {guidedInquiry
+                    ? `Guided Chat Assistant (Step ${guidedInquiry.step}/4)`
+                    : viewMode === "list"
+                    ? `${inquiries.length} Active Thread${inquiries.length === 1 ? "" : "s"}`
+                    : selectedInquiry
+                    ? `Ref: #${(selectedInquiry.id || "").slice(-6)}`
+                    : "Marketplace Quick Chat"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1">
-              {guidedInquiry && (
+              {guidedInquiry ? (
                 <div className="flex items-center gap-1 mr-1">
                   <button
                     onClick={handleStartOver}
@@ -331,12 +358,21 @@ export default function QuickChatDockWidget() {
                     Cancel
                   </button>
                 </div>
-              )}
+              ) : viewMode === "chat" && inquiries.length > 0 ? (
+                <button
+                  onClick={() => setViewMode("list")}
+                  className="px-2 py-1 text-[10px] font-headline font-bold text-sky-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors mr-1 cursor-pointer flex items-center gap-1"
+                  title="Switch to Conversations List View"
+                >
+                  <ChevronRight className="w-3 h-3 rotate-180" /> All Chats
+                </button>
+              ) : null}
+
               <Link
-                href="/messages"
+                href={selectedInquiry ? `/messages?inquiryId=${selectedInquiry.id || selectedInquiry.__id}` : "/messages"}
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                title="Expand to Full Messages Workspace"
+                title="Expand to Full Workspace (/messages)"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
               </Link>
@@ -508,6 +544,70 @@ export default function QuickChatDockWidget() {
                     >
                       <RotateCcw className="w-3 h-3" /> Start over from Step 1
                     </button>
+                  </div>
+                )}
+              </div>
+            ) : viewMode === "list" ? (
+              <div className="space-y-3">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search active conversations..."
+                    value={threadSearchQuery}
+                    onChange={(e) => setThreadSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] transition-all"
+                  />
+                </div>
+
+                {filteredInquiries.length === 0 ? (
+                  <div className="py-12 text-center space-y-1 text-gray-400">
+                    <p className="text-xs font-headline font-bold">No Matching Conversations</p>
+                    <p className="text-[10px]">Try clearing search keywords.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredInquiries.map((inq) => {
+                      const isSelected = (selectedInquiry?.id || selectedInquiry?.__id) === (inq.id || inq.__id);
+                      return (
+                        <div
+                          key={inq.id || inq.__id}
+                          onClick={() => {
+                            setSelectedInquiry(inq);
+                            setViewMode("chat");
+                          }}
+                          className={`p-3 bg-white border rounded-xl shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-start gap-3 group ${
+                            isSelected ? "border-[#701010] ring-1 ring-[#701010]/20" : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div className="w-9 h-9 rounded-lg bg-[#701010]/10 text-[#701010] flex-shrink-0 flex items-center justify-center font-bold text-xs">
+                            <Building2 className="w-4.5 h-4.5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <h5 className="font-serif font-bold text-xs text-gray-900 truncate group-hover:text-[#701010]">
+                                {inq.agencyName}
+                              </h5>
+                              <span className="text-[9px] font-headline text-gray-400 flex-shrink-0">
+                                {new Date(inq.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-500 truncate mt-0.5 font-sans">
+                              {inq.projectRequirements}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-[9px] font-headline font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-md border border-sky-150 uppercase tracking-wider">
+                                {inq.status}
+                              </span>
+                              <span className="text-[9px] font-headline text-gray-400">
+                                Ref: #{ (inq.id || "").slice(-5) }
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
