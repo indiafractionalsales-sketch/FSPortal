@@ -393,7 +393,7 @@ export default function QuickChatDockWidget() {
                         🤖 Inquiry Assistant
                       </span>
                       <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs">
-                        Got it! <strong>Step 2 of 4:</strong> Please describe your requirement details, key deliverables, product domain, or scope of work needed.
+                        Got it! <strong>Step 2 of 4:</strong> Could you tell me a bit about what you&apos;re looking for — the requirement, key deliverables, or product/scope of work?
                       </div>
                     </div>
                   </>
@@ -564,7 +564,7 @@ export default function QuickChatDockWidget() {
             <form onSubmit={handleSendMessage} className="p-2 bg-white border-t border-gray-150 flex items-center gap-2">
               <input
                 type="text"
-                placeholder={guidedInquiry ? (guidedInquiry.step === 1 ? "Type your project requirements..." : "Type custom response...") : "Type your message..."}
+                placeholder={guidedInquiry ? (guidedInquiry.step === 1 ? "Select or type target region..." : guidedInquiry.step === 2 ? "Tell us what you're looking for..." : "Type custom response...") : "Type your message..."}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
