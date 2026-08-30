@@ -15,24 +15,30 @@ export interface MarketplaceAgency {
   name: string;
   category: MarketplaceCategoryId;
   location: string;
-  country: string;
+  country?: string;
   region: "Asia Pacific" | "Europe" | "North America" | "Middle East" | "Latin America" | "Global";
   tag: string;
-  tagline: string;
+  tagline?: string;
   description: string;
   website: string;
   logoBg: string;
-  iconName: string;
+  iconName?: string;
   rating: number;
-  reviewCount: number;
+  reviewCount?: number;
   isVerified: boolean;
   specialties: string[];
+  ownerUid?: string;
+  ownerEmail?: string;
+  logoUrl?: string;
+  bookingUrl?: string;
   stats: {
     projectsDone: string;
     avgResponse: string;
-    teamSize: string;
+    teamSize?: string;
+    successRate?: string;
   };
 }
+
 
 export type MarketplaceCategoryId =
   | "biz_dev"

@@ -234,6 +234,17 @@ export default function LeftSidebar({
               </button>
             </li>
 
+            {/* Lead Inbox & Messages Link */}
+            <li>
+              <button 
+                onClick={() => router.push('/messages')} 
+                className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg text-left text-gray-700 cursor-pointer"
+              >
+                <span className="text-base">💬</span>
+                <span className="text-xs font-headline font-bold uppercase tracking-wider">Lead Messages Inbox</span>
+              </button>
+            </li>
+
             <li>
               <button 
                 onClick={() => router.push('/networking')} 

@@ -15,6 +15,8 @@
 import React, { useState } from "react";
 import { X, Send, ShieldCheck, CheckCircle2, Building2, MapPin, Globe, Sparkles } from "lucide-react";
 import { MarketplaceAgency } from "@/lib/marketplace-data";
+import { auth } from "@/lib/firebase";
+import { submitAgencyInquiry } from "@/lib/marketplace-service";
 
 interface AgencyInquiryDrawerProps {
   isOpen: boolean;
@@ -22,6 +24,7 @@ interface AgencyInquiryDrawerProps {
   agency: MarketplaceAgency | null;
   userEmail?: string;
   userName?: string;
+  userPersona?: string;
 }
 
 export default function AgencyInquiryDrawer({
@@ -29,7 +32,8 @@ export default function AgencyInquiryDrawer({
   onClose,
   agency,
   userEmail = "",
-  userName = ""
+  userName = "",
+  userPersona = "OBO"
 }: AgencyInquiryDrawerProps) {
   const [targetCountry, setTargetCountry] = useState("");
   const [budgetRange, setBudgetRange] = useState("$1,000 - $5,000");
@@ -41,14 +45,50 @@ export default function AgencyInquiryDrawer({
 
   if (!isOpen || !agency) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const idToken = await currentUser.getIdToken();
+        const inquiryId = await submitAgencyInquiry(
+          {
+            agencyId: (agency as any).id || (agency as any).__id || `agency_${agency.name}`,
+            agencyName: agency.name,
+            agencyOwnerUid: (agency as any).ownerUid || "system_owner",
+            buyerUid: currentUser.uid,
+            buyerName: userName || currentUser.displayName || "Marketplace Buyer",
+            buyerEmail: userEmail || currentUser.email || "",
+            buyerPersona: userPersona,
+            projectRequirements: projectDetails,
+            timeline: `${timeline} (${targetCountry ? `Country: ${targetCountry}` : "Global"})`,
+            estimatedBudget: budgetRange
+          },
+          idToken
+        );
+
+        // Send non-sensitive teaser email notification in background
+        fetch("/api/mailer/inquiry-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            agencyOwnerEmail: (agency as any).ownerEmail || "agency@fractionalsales.com",
+            agencyName: agency.name,
+            category: agency.category,
+            region: agency.region || "Global",
+            inquiryId
+          })
+        }).catch(err => console.warn("Background notification email failed:", err));
+      }
       setIsSuccess(true);
-    }, 900);
+    } catch (err) {
+      console.error("Failed to submit inquiry:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   const handleResetAndClose = () => {
     setIsSuccess(false);
