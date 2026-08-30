@@ -1131,7 +1131,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                     recipientUid: post.ownerUid,
                     recipientName: authorName || "Partner",
                     postTitle: post.eventName || post.expectedOutcomes || "Feed Post",
-                    postId: post.__id || post.id || ""
+                    postId: post.__id || ""
                   }
                 })
               );
