@@ -87,6 +87,73 @@ export default function QuickChatDockWidget() {
     return () => window.removeEventListener("open_inquiry_chat", handleOpenInquiryChat);
   }, [inquiries]);
 
+  // Listen for global open_direct_post_chat events from Feed Posts & Deals
+  useEffect(() => {
+    const handleOpenDirectPostChat = async (e: Event) => {
+      const customEvt = e as CustomEvent<{
+        recipientUid: string;
+        recipientName: string;
+        postTitle: string;
+        postId: string;
+      }>;
+      if (!customEvt.detail?.recipientUid || !currentUser) return;
+
+      const { recipientUid, recipientName, postTitle, postId } = customEvt.detail;
+
+      // Guard: self-chat
+      if (recipientUid === currentUser.uid) return;
+
+      setIsOpen(true);
+      setViewMode("chat");
+      setGuidedInquiry(null);
+
+      // Check if thread already exists between currentUser and recipientUid
+      const existingInq = inquiries.find(
+        (i) => i.agencyOwnerUid === recipientUid || i.buyerUid === recipientUid
+      );
+
+      if (existingInq) {
+        setSelectedInquiry(existingInq);
+      } else {
+        // Create a direct chat thread for this post
+        try {
+          const idToken = await currentUser.getIdToken();
+          const payload: MarketplaceInquiry = {
+            agencyId: postId || "post_direct",
+            agencyName: recipientName || "Partner",
+            agencyOwnerUid: recipientUid,
+            buyerUid: currentUser.uid,
+            buyerName: currentUser.displayName || "Marketplace User",
+            buyerEmail: currentUser.email || "",
+            buyerPersona: "User",
+            projectRequirements: `Hi! I'm reaching out regarding your post: "${postTitle}"`,
+            timeline: "Immediate",
+            channelType: "post_direct",
+            contextId: postId,
+            contextTitle: postTitle,
+            status: "new",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          const newInquiryId = await submitAgencyInquiry(payload, idToken);
+          const updated = await fetchUserInquiries(currentUser.uid, idToken);
+          setInquiries(updated);
+          const createdInq = updated.find(i => (i.id || i.__id) === newInquiryId) || {
+            ...payload,
+            id: newInquiryId
+          };
+          setSelectedInquiry(createdInq);
+        } catch (err) {
+          console.error("Failed to start direct post chat thread:", err);
+        }
+      }
+    };
+
+    window.addEventListener("open_direct_post_chat", handleOpenDirectPostChat);
+    return () => window.removeEventListener("open_direct_post_chat", handleOpenDirectPostChat);
+  }, [inquiries, currentUser]);
+
   // Load active user inquiries when dock is opened
   useEffect(() => {
     async function loadInquiries() {

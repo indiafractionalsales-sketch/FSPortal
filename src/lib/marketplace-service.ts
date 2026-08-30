@@ -60,6 +60,9 @@ export interface MarketplaceInquiry {
   timeline: string;
   estimatedBudget?: string;
   attachmentUrl?: string;
+  channelType?: "marketplace" | "post_direct" | "deal_direct";
+  contextId?: string;
+  contextTitle?: string;
   status: "new" | "viewed" | "in_discussion" | "completed" | "archived";
   firstAgencyReplyAt?: string;
   createdAt: string;
@@ -463,6 +466,9 @@ export async function fetchUserInquiries(
       timeline: (doc.timeline as string) || "Flexible",
       estimatedBudget: (doc.estimatedBudget as string) || "",
       attachmentUrl: (doc.attachmentUrl as string) || "",
+      channelType: (doc.channelType as any) || "marketplace",
+      contextId: doc.contextId as string,
+      contextTitle: doc.contextTitle as string,
       status: (doc.status as any) || "new",
       firstAgencyReplyAt: doc.firstAgencyReplyAt as string,
       createdAt: (doc.createdAt as string) || new Date().toISOString(),

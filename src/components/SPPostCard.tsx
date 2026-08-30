@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText } from "lucide-react";
+import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, MessageSquare, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
@@ -1120,6 +1120,27 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               Responses ({offerCount})
             </button>
           )
+        )}
+
+        {!isOwner && (
+          <button
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent("open_direct_post_chat", {
+                  detail: {
+                    recipientUid: post.ownerUid,
+                    recipientName: authorName || "Partner",
+                    postTitle: post.eventName || post.expectedOutcomes || "Feed Post",
+                    postId: post.__id || post.id || ""
+                  }
+                })
+              );
+            }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#701010] transition-all rounded-lg cursor-pointer"
+            title="Direct Chat with Publisher"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-[#701010]" /> Chat
+          </button>
         )}
 
         <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
