@@ -704,7 +704,29 @@ export default function QuickChatDockWidget() {
                   );
                 }
 
-                if (msg.text.includes("FORMAL BUSINESS INQUIRY") || msg.text.includes("📋")) {
+                if (msg.text.includes("reaching out regarding your post")) {
+                  const postTopic = msg.text.includes(":") ? msg.text.split(":")[1]?.replace(/"/g, "")?.trim() : "Feed Post";
+                  return (
+                    <div key={msg.id || msg.__id || i} className="w-full my-1 flex flex-col items-start">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="text-[9px] font-headline font-bold text-gray-400">{msg.senderName}</span>
+                        <span className="text-[8px] text-gray-300">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <div className="w-full bg-amber-50/80 border border-amber-200/80 rounded-xl p-2.5 shadow-2xs text-gray-800 space-y-1 font-sans">
+                        <div className="flex items-center gap-1.5 text-amber-900 font-headline font-bold text-[9px] uppercase tracking-wider">
+                          <span>📌 Feed Post Context</span>
+                        </div>
+                        <p className="text-xs font-semibold text-gray-900 leading-snug">
+                          {postTopic}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (msg.text.includes("FORMAL BUSINESS INQUIRY")) {
                   const lines = msg.text.split("\n").map(l => l.trim()).filter(Boolean);
                   const targetRegion = lines.find(l => l.includes("Target Country"))?.split(":")[1]?.trim() || "";
                   const scope = lines.find(l => l.includes("Scope of Work"))?.split(":")[1]?.trim() || "";

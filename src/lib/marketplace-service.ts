@@ -317,9 +317,11 @@ export async function submitAgencyInquiry(
   // 1. Create main inquiry document
   await saveDocument(COLLECTION_INQUIRIES, inquiryId, inquiryPayload as any, idToken);
 
-  // 2. Create Message #1 in Messages sub-collection as a Formal Structured RFP Card
+  // 2. Create Message #1 in Messages sub-collection
   const msgId = `msg_1_${Date.now()}`;
-  const formalRfpText = `📋 FORMAL BUSINESS INQUIRY & RFP SUMMARY
+  const firstMessageText = data.channelType === "post_direct"
+    ? (data.projectRequirements || `Hi! I'm reaching out regarding your post: "${data.contextTitle || "Feed Post"}"`)
+    : `📋 FORMAL BUSINESS INQUIRY & RFP SUMMARY
 
 • Target Country / Region: ${data.timeline?.includes("Target:") ? data.timeline.split("Target:")[1]?.replace(")", "")?.trim() : "Global"}
 • Scope of Work & Deliverables: ${data.projectRequirements}
@@ -334,7 +336,7 @@ Sent via Fractional Sales Partner Guided Assistant`;
     senderUid: data.buyerUid,
     senderName: data.buyerName,
     senderType: "buyer",
-    text: formalRfpText,
+    text: firstMessageText,
     attachmentUrl: data.attachmentUrl || "",
     createdAt: now
   };
