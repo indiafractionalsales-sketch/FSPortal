@@ -139,8 +139,9 @@ export default function MarketplaceHub({
 
   const categoryInfo = MARKETPLACE_CATEGORIES.find((cat) => cat.id === activeCategory) || MARKETPLACE_CATEGORIES[0];
 
-  // Prioritize live DB agencies for the active category; fallback to verified seed agencies if no live agency exists yet
+  // Prioritize live DB agencies; fallback to sample seed agencies when none registered yet
   const liveForCategory = liveAgencies.filter((agency) => agency.category === activeCategory);
+  const isSampleMode = !isLoadingLive && liveForCategory.length === 0;
   const combinedAgencies = liveForCategory.length > 0
     ? liveForCategory
     : MOCK_AGENCIES.filter((agency) => agency.category === activeCategory);
@@ -386,15 +387,40 @@ export default function MarketplaceHub({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+
+          {/* Sample Listings Banner — shown only when Firestore has no live agencies yet */}
+          {isSampleMode && (
+            <div className="flex items-start gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
+              <span className="text-lg leading-none mt-0.5">🔍</span>
+              <div>
+                <p className="text-xs font-headline font-bold uppercase tracking-wider text-amber-800">Sample Listings</p>
+                <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                  No verified agencies have been onboarded in this category yet. The cards below are <strong>sample listings</strong> to illustrate what the marketplace will look like. Inquiries are disabled on samples.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredAgencies.map((agency) => {
             const isSaved = savedAgencyIds.has(agency.id);
 
             return (
               <div
                 key={agency.id}
-                className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group hover:border-gray-200"
+                className={`bg-white rounded-2xl p-5 shadow-sm transition-all flex flex-col justify-between space-y-4 group ${
+                  isSampleMode
+                    ? "border border-dashed border-amber-300 hover:border-amber-400 opacity-85"
+                    : "border border-gray-100 hover:shadow-md hover:border-gray-200"
+                }`}
               >
+                {/* Sample badge ribbon */}
+                {isSampleMode && (
+                  <div className="-mt-5 -mx-5 mb-0 px-4 py-1.5 bg-amber-100 border-b border-dashed border-amber-300 flex items-center gap-1.5 rounded-t-2xl">
+                    <span className="text-[9px] font-headline font-bold uppercase tracking-widest text-amber-700">📋 Sample Listing — Not a real agency</span>
+                  </div>
+                )}
                 {/* Top Row: Logo, Info & Save Bookmark */}
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
@@ -478,10 +504,17 @@ export default function MarketplaceHub({
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setSelectedAgencyForInquiry(agency)}
-                      className="flex-1 py-2 px-3 bg-[#701010] hover:bg-[#580d0d] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow"
+                      onClick={() => !isSampleMode && setSelectedAgencyForInquiry(agency)}
+                      disabled={isSampleMode}
+                      title={isSampleMode ? "Inquiries are disabled on sample listings" : ""}
+                      className={`flex-1 py-2 px-3 font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                        isSampleMode
+                          ? "bg-gray-100 text-gray-400 border border-dashed border-gray-300 cursor-not-allowed"
+                          : "bg-[#701010] hover:bg-[#580d0d] text-white cursor-pointer hover:shadow"
+                      }`}
                     >
-                      <MessageSquare className="w-3.5 h-3.5" /> Request Quote / Connect
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      {isSampleMode ? "Sample — Inquiries Disabled" : "Request Quote / Connect"}
                     </button>
                     
                     <a
@@ -500,10 +533,12 @@ export default function MarketplaceHub({
               </div>
             );
           })}
+          </div>
         </div>
       )}
 
       {/* Proposal Inquiry Drawer */}
+
       <AgencyInquiryDrawer
         isOpen={!!selectedAgencyForInquiry}
         onClose={() => setSelectedAgencyForInquiry(null)}
