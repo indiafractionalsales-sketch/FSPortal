@@ -13,7 +13,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, Maximize2, Building2, User, ChevronRight, Star } from "lucide-react";
+import { MessageSquare, X, Send, Maximize2, Building2, User, ChevronRight, Star, RotateCcw } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import {
   fetchUserInquiries,
@@ -251,6 +251,19 @@ export default function QuickChatDockWidget() {
     }
   };
 
+  const handleStartOver = () => {
+    if (!guidedInquiry) return;
+    setGuidedInquiry({
+      agency: guidedInquiry.agency,
+      step: 1,
+      targetRegion: "",
+      requirements: "",
+      budget: "",
+      timeline: ""
+    });
+    setInputText("");
+  };
+
   const handleRequestReview = async () => {
     if (!selectedInquiry || !currentUser) return;
     try {
@@ -303,12 +316,21 @@ export default function QuickChatDockWidget() {
 
             <div className="flex items-center gap-1">
               {guidedInquiry && (
-                <button
-                  onClick={() => setGuidedInquiry(null)}
-                  className="px-2 py-1 text-[10px] font-headline font-bold text-amber-300 hover:text-white bg-white/10 rounded-md transition-colors mr-1 cursor-pointer"
-                >
-                  Cancel
-                </button>
+                <div className="flex items-center gap-1 mr-1">
+                  <button
+                    onClick={handleStartOver}
+                    className="px-2 py-1 text-[10px] font-headline font-bold text-sky-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Start over from Step 1"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Start Over
+                  </button>
+                  <button
+                    onClick={() => setGuidedInquiry(null)}
+                    className="px-2 py-1 text-[10px] font-headline font-bold text-amber-300 hover:text-white bg-white/10 rounded-md transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
               )}
               <Link
                 href="/messages"
@@ -473,6 +495,19 @@ export default function QuickChatDockWidget() {
                 {guidedInquiry.step === 5 && (
                   <div className="py-4 text-center text-xs font-headline font-bold text-[#701010] animate-pulse">
                     ⚡ Creating live inquiry thread & notifying {guidedInquiry.agency.name}...
+                  </div>
+                )}
+
+                {/* Inline Start Over Option */}
+                {guidedInquiry.step > 1 && guidedInquiry.step < 5 && (
+                  <div className="pt-1 text-right">
+                    <button
+                      type="button"
+                      onClick={handleStartOver}
+                      className="text-[10px] font-headline font-bold text-gray-400 hover:text-[#701010] underline transition-colors cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3 h-3" /> Start over from Step 1
+                    </button>
                   </div>
                 )}
               </div>
