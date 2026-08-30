@@ -64,7 +64,7 @@ export default function MarketplaceHub({
 }: MarketplaceHubProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("All");
-  const [onlyVerified, setOnlyVerified] = useState(false);
+  const [onlyVerified, setOnlyVerified] = useState(true);
   const [onlyShortlisted, setOnlyShortlisted] = useState(false);
   const [marketingSubFilter, setMarketingSubFilter] = useState<string>("all");
   const [selectedAgencyForInquiry, setSelectedAgencyForInquiry] = useState<MarketplaceAgency | null>(null);
@@ -135,14 +135,16 @@ export default function MarketplaceHub({
 
   const categoryInfo = MARKETPLACE_CATEGORIES.find((cat) => cat.id === activeCategory) || MARKETPLACE_CATEGORIES[0];
 
-  // Merge live agencies from DB with seed MOCK_AGENCIES fallback
-  const combinedAgencies = [
-    ...liveAgencies,
-    ...MOCK_AGENCIES.filter((agency) => !liveAgencies.some((live) => live.id === agency.id))
-  ];
+  // Prioritize live DB agencies for the active category; fallback to verified seed agencies if no live agency exists yet
+  const liveForCategory = liveAgencies.filter((agency) => agency.category === activeCategory);
+  const combinedAgencies = liveForCategory.length > 0
+    ? liveForCategory
+    : MOCK_AGENCIES.filter((agency) => agency.category === activeCategory);
 
   const filteredAgencies = combinedAgencies.filter((agency) => {
     if (agency.category !== activeCategory) return false;
+    // Strictly display ONLY verified agencies
+    if (!agency.isVerified) return false;
     if (onlyVerified && !agency.isVerified) return false;
     if (onlyShortlisted && !savedAgencyIds.has(agency.id)) return false;
     if (selectedRegion !== "All" && agency.region !== selectedRegion) return false;
