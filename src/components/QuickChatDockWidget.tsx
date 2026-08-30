@@ -26,14 +26,13 @@ import {
   MarketplaceAgency
 } from "@/lib/marketplace-service";
 import ReviewRequestCard from "@/components/ReviewRequestCard";
-import Link from "next/link";
-
-interface GuidedInquiryState {
+import Link from "next/link";interface GuidedInquiryState {
   agency: MarketplaceAgency;
-  step: 1 | 2 | 3 | 4;
+  step: 1 | 2 | 3 | 4 | 5;
+  targetRegion: string;
   requirements: string;
-  timeline: string;
   budget: string;
+  timeline: string;
 }
 
 export default function QuickChatDockWidget() {
@@ -71,9 +70,10 @@ export default function QuickChatDockWidget() {
         setGuidedInquiry({
           agency: targetAgency,
           step: 1,
+          targetRegion: "",
           requirements: "",
-          timeline: "",
-          budget: ""
+          budget: "",
+          timeline: ""
         });
       }
     };
@@ -102,7 +102,6 @@ export default function QuickChatDockWidget() {
     }
     loadInquiries();
   }, [isOpen, currentUser]);
-
 
   // Load messages for active thread
   useEffect(() => {
@@ -170,27 +169,35 @@ export default function QuickChatDockWidget() {
     if (guidedInquiry.step === 1) {
       setGuidedInquiry({
         ...guidedInquiry,
-        requirements: answerValue,
+        targetRegion: answerValue,
         step: 2
       });
       setInputText("");
     } else if (guidedInquiry.step === 2) {
       setGuidedInquiry({
         ...guidedInquiry,
-        timeline: answerValue,
+        requirements: answerValue,
         step: 3
       });
       setInputText("");
     } else if (guidedInquiry.step === 3) {
-      const finalBudget = answerValue;
+      setGuidedInquiry({
+        ...guidedInquiry,
+        budget: answerValue,
+        step: 4
+      });
+      setInputText("");
+    } else if (guidedInquiry.step === 4) {
+      const finalTimeline = answerValue;
+      const finalRegion = guidedInquiry.targetRegion;
       const finalRequirements = guidedInquiry.requirements;
-      const finalTimeline = guidedInquiry.timeline;
+      const finalBudget = guidedInquiry.budget;
       const targetAgency = guidedInquiry.agency;
 
       setGuidedInquiry({
         ...guidedInquiry,
-        budget: finalBudget,
-        step: 4
+        timeline: finalTimeline,
+        step: 5
       });
       setIsSending(true);
 
@@ -205,7 +212,7 @@ export default function QuickChatDockWidget() {
           buyerEmail: currentUser.email || "",
           buyerPersona: "buyer",
           projectRequirements: finalRequirements,
-          timeline: finalTimeline,
+          timeline: `${finalTimeline} (${finalRegion ? `Target: ${finalRegion}` : "Global"})`,
           estimatedBudget: finalBudget,
           status: "new",
           createdAt: new Date().toISOString(),
@@ -289,7 +296,7 @@ export default function QuickChatDockWidget() {
                   {guidedInquiry ? `Inquiry: ${guidedInquiry.agency.name}` : selectedInquiry ? selectedInquiry.agencyName : "Lead Messages"}
                 </h4>
                 <p className="text-[10px] text-gray-300 font-headline truncate">
-                  {guidedInquiry ? `Guided Chat Assistant (Step ${guidedInquiry.step}/3)` : selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
+                  {guidedInquiry ? `Guided Chat Assistant (Step ${guidedInquiry.step}/4)` : selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
                 </p>
               </div>
             </div>
@@ -346,15 +353,27 @@ export default function QuickChatDockWidget() {
           <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-slate-50/50 custom-scrollbar">
             {guidedInquiry ? (
               <div className="space-y-3">
-                {/* Bot Greeting & Step 1 Prompt */}
+                {/* Bot Greeting & Step 1 Prompt: Target Region */}
                 <div className="flex flex-col items-start">
                   <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
                     🤖 Inquiry Assistant
                   </span>
-                  <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs">
-                    Hello! 👋 I am the Fractional Sales Inquiry Assistant. Let&apos;s get your project inquiry directly to <strong>{guidedInquiry.agency.name}</strong>.
-                    <br /><br />
-                    <strong>Step 1:</strong> What are your key project requirements, required deliverables, or business goals?
+                  <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
+                    <p>Hello! 👋 Let&apos;s set up your inquiry for <strong>{guidedInquiry.agency.name}</strong>.</p>
+                    <p><strong>Step 1 of 4:</strong> What target country or region of operation are you looking to expand into?</p>
+                    {guidedInquiry.step === 1 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {["India", "United States", "United Kingdom", "Singapore", "GCC / Middle East", "Europe", "Global"].map((r) => (
+                          <button
+                            key={r}
+                            onClick={() => handleGuidedStepSubmit(r)}
+                            className="px-2 py-1 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
+                          >
+                            {r}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -364,30 +383,17 @@ export default function QuickChatDockWidget() {
                     <div className="flex flex-col items-end">
                       <span className="text-[9px] font-headline font-bold text-gray-400 mb-0.5">You</span>
                       <div className="max-w-[82%] px-3 py-2 bg-[#701010] text-white rounded-2xl rounded-br-none text-xs font-sans leading-relaxed shadow-2xs">
-                        {guidedInquiry.requirements}
+                        {guidedInquiry.targetRegion}
                       </div>
                     </div>
 
-                    {/* Step 2 Prompt */}
+                    {/* Step 2 Prompt: Requirement Details */}
                     <div className="flex flex-col items-start">
                       <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
                         🤖 Inquiry Assistant
                       </span>
-                      <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
-                        <p>Got it! <strong>Step 2:</strong> What is your expected project execution timeline?</p>
-                        {guidedInquiry.step === 2 && (
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {["Immediate / < 1 Month", "1 - 3 Months", "3+ Months", "Flexible"].map((t) => (
-                              <button
-                                key={t}
-                                onClick={() => handleGuidedStepSubmit(t)}
-                                className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
-                              >
-                                {t}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                      <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs">
+                        Got it! <strong>Step 2 of 4:</strong> Please describe your requirement details, key deliverables, product domain, or scope of work needed.
                       </div>
                     </div>
                   </>
@@ -399,24 +405,24 @@ export default function QuickChatDockWidget() {
                     <div className="flex flex-col items-end">
                       <span className="text-[9px] font-headline font-bold text-gray-400 mb-0.5">You</span>
                       <div className="max-w-[82%] px-3 py-2 bg-[#701010] text-white rounded-2xl rounded-br-none text-xs font-sans leading-relaxed shadow-2xs">
-                        {guidedInquiry.timeline}
+                        {guidedInquiry.requirements}
                       </div>
                     </div>
 
-                    {/* Step 3 Prompt */}
+                    {/* Step 3 Prompt: Est. Monthly Budget */}
                     <div className="flex flex-col items-start">
                       <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
                         🤖 Inquiry Assistant
                       </span>
                       <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
-                        <p>Great! <strong>Step 3:</strong> What is your estimated project budget range?</p>
+                        <p>Understood! <strong>Step 3 of 4:</strong> What is your estimated monthly budget for this engagement?</p>
                         {guidedInquiry.step === 3 && (
                           <div className="flex flex-wrap gap-1.5 pt-1">
-                            {["< $5,000", "$5,000 - $15,000", "$15,000 - $50,000", "$50,000+", "To be discussed"].map((b) => (
+                            {["Under $1,000", "$1,000 - $5,000", "$5,000 - $15,000", "$15,000+", "To Be Discussed"].map((b) => (
                               <button
                                 key={b}
                                 onClick={() => handleGuidedStepSubmit(b)}
-                                className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
+                                className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
                               >
                                 {b}
                               </button>
@@ -428,10 +434,45 @@ export default function QuickChatDockWidget() {
                   </>
                 )}
 
-                {/* Step 4 Submitting */}
-                {guidedInquiry.step === 4 && (
+                {/* Step 3 Answered */}
+                {guidedInquiry.step >= 4 && (
+                  <>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] font-headline font-bold text-gray-400 mb-0.5">You</span>
+                      <div className="max-w-[82%] px-3 py-2 bg-[#701010] text-white rounded-2xl rounded-br-none text-xs font-sans leading-relaxed shadow-2xs">
+                        {guidedInquiry.budget}
+                      </div>
+                    </div>
+
+                    {/* Step 4 Prompt: Project Timeline */}
+                    <div className="flex flex-col items-start">
+                      <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
+                        🤖 Inquiry Assistant
+                      </span>
+                      <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
+                        <p>Great! <strong>Step 4 of 4:</strong> What is your expected project execution timeline?</p>
+                        {guidedInquiry.step === 4 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {["Immediate (< 2 weeks)", "Within 1 Month", "1 - 3 Months", "Planning Phase"].map((t) => (
+                              <button
+                                key={t}
+                                onClick={() => handleGuidedStepSubmit(t)}
+                                className="px-2 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Step 5 Submitting */}
+                {guidedInquiry.step === 5 && (
                   <div className="py-4 text-center text-xs font-headline font-bold text-[#701010] animate-pulse">
-                    ⚡ Submitting inquiry & creating live chat thread with {guidedInquiry.agency.name}...
+                    ⚡ Creating live inquiry thread & notifying {guidedInquiry.agency.name}...
                   </div>
                 )}
               </div>
