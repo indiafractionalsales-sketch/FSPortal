@@ -311,103 +311,91 @@ export default function QuickChatDockWidget() {
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
       {/* Expanded Quick Chat Window */}
       {isOpen && (
-        <div className="w-[380px] h-[520px] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="w-[340px] sm:w-[350px] h-[450px] sm:h-[470px] max-h-[80vh] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           
           {/* Header */}
-          <div className="p-3.5 bg-gradient-to-r from-gray-900 via-slate-900 to-[#701010] text-white flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">
-                <MessageSquare className="w-4 h-4 text-white" />
+          <div className="p-3 bg-gradient-to-r from-gray-900 via-slate-900 to-[#701010] text-white flex items-center justify-between shadow-xs">
+            
+            {/* Left Header Section: Back Button (in Chat mode) + Title */}
+            <div className="flex items-center gap-2 min-w-0">
+              
+              {/* Screen 2 Back Button */}
+              {viewMode === "chat" && !guidedInquiry && (
+                <button
+                  onClick={() => setViewMode("list")}
+                  className="p-1 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
+                  title="Back to Conversations List"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-180 text-white" />
+                </button>
+              )}
+
+              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">
+                <MessageSquare className="w-3.5 h-3.5 text-white" />
               </div>
+
               <div className="min-w-0">
                 <h4 className="font-serif font-bold text-xs text-white leading-tight truncate">
                   {guidedInquiry
                     ? `Inquiry: ${guidedInquiry.agency.name}`
                     : viewMode === "list"
-                    ? "Active Conversations"
+                    ? "Conversations"
                     : selectedInquiry
-                    ? selectedInquiry.agencyName
+                    ? (currentUser?.uid === selectedInquiry.agencyOwnerUid ? selectedInquiry.buyerName : selectedInquiry.agencyName)
                     : "Lead Messages"}
                 </h4>
                 <p className="text-[10px] text-gray-300 font-headline truncate">
                   {guidedInquiry
-                    ? `Guided Chat Assistant (Step ${guidedInquiry.step}/4)`
+                    ? `Guided Assistant (Step ${guidedInquiry.step}/4)`
                     : viewMode === "list"
-                    ? `${inquiries.length} Active Thread${inquiries.length === 1 ? "" : "s"}`
+                    ? `${inquiries.length} Connected Lead${inquiries.length === 1 ? "" : "s"}`
                     : selectedInquiry
                     ? `Ref: #${(selectedInquiry.id || "").slice(-6)}`
-                    : "Marketplace Quick Chat"}
+                    : "Marketplace Chat"}
                 </p>
               </div>
             </div>
 
+            {/* Right Header Section: Actions (Start Over/Cancel, Expand, Close) */}
             <div className="flex items-center gap-1">
-              {guidedInquiry ? (
+              {guidedInquiry && (
                 <div className="flex items-center gap-1 mr-1">
-                  <button
-                    onClick={handleStartOver}
-                    className="px-2 py-1 text-[10px] font-headline font-bold text-sky-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
-                    title="Start over from Step 1"
-                  >
-                    <RotateCcw className="w-3 h-3" /> Start Over
-                  </button>
+                  {guidedInquiry.step > 1 && (
+                    <button
+                      onClick={handleStartOver}
+                      className="px-2 py-0.5 text-[10px] font-headline font-bold text-sky-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Start over from Step 1"
+                    >
+                      <RotateCcw className="w-2.5 h-2.5" /> Reset
+                    </button>
+                  )}
                   <button
                     onClick={() => setGuidedInquiry(null)}
-                    className="px-2 py-1 text-[10px] font-headline font-bold text-amber-300 hover:text-white bg-white/10 rounded-md transition-colors cursor-pointer"
+                    className="px-2 py-0.5 text-[10px] font-headline font-bold text-amber-300 hover:text-white bg-white/10 rounded-md transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                 </div>
-              ) : viewMode === "chat" && inquiries.length > 0 ? (
-                <button
-                  onClick={() => setViewMode("list")}
-                  className="px-2 py-1 text-[10px] font-headline font-bold text-sky-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-colors mr-1 cursor-pointer flex items-center gap-1"
-                  title="Switch to Conversations List View"
-                >
-                  <ChevronRight className="w-3 h-3 rotate-180" /> All Chats
-                </button>
-              ) : null}
+              )}
 
               <Link
                 href={selectedInquiry ? `/messages?inquiryId=${selectedInquiry.id || selectedInquiry.__id}` : "/messages"}
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="p-1 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 title="Expand to Full Workspace (/messages)"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
               </Link>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                className="p-1 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Conversation Switcher Strip (if multiple) */}
-          {!guidedInquiry && inquiries.length > 1 && (
-            <div className="flex items-center gap-1.5 p-2 bg-gray-50 border-b border-gray-150 overflow-x-auto no-scrollbar">
-              {inquiries.map((inq) => {
-                const isActive = (selectedInquiry?.id || selectedInquiry?.__id) === (inq.id || inq.__id);
-                return (
-                  <button
-                    key={inq.id || inq.__id}
-                    onClick={() => setSelectedInquiry(inq)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-headline font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-[#701010] text-white shadow-2xs"
-                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {inq.agencyName}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Message History Window / Guided Assistant Stream */}
+          {/* Message History Window / Guided Assistant Stream / Screen 1 Inbox List */}
           <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-slate-50/50 custom-scrollbar">
             {guidedInquiry ? (
               <div className="space-y-3">
@@ -570,6 +558,9 @@ export default function QuickChatDockWidget() {
                   <div className="space-y-2">
                     {filteredInquiries.map((inq) => {
                       const isSelected = (selectedInquiry?.id || selectedInquiry?.__id) === (inq.id || inq.__id);
+                      const isAgencyOwner = currentUser?.uid === inq.agencyOwnerUid;
+                      const contactName = isAgencyOwner ? inq.buyerName : inq.agencyName;
+
                       return (
                         <div
                           key={inq.id || inq.__id}
@@ -581,29 +572,24 @@ export default function QuickChatDockWidget() {
                             isSelected ? "border-[#701010] ring-1 ring-[#701010]/20" : "border-gray-200 hover:border-gray-300"
                           }`}
                         >
-                          <div className="w-9 h-9 rounded-lg bg-[#701010]/10 text-[#701010] flex-shrink-0 flex items-center justify-center font-bold text-xs">
-                            <Building2 className="w-4.5 h-4.5" />
+                          <div className="w-8 h-8 rounded-lg bg-[#701010]/10 text-[#701010] flex-shrink-0 flex items-center justify-center font-bold text-xs font-serif">
+                            {contactName.substring(0, 2).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-1">
                               <h5 className="font-serif font-bold text-xs text-gray-900 truncate group-hover:text-[#701010]">
-                                {inq.agencyName}
+                                {contactName}
                               </h5>
                               <span className="text-[9px] font-headline text-gray-400 flex-shrink-0">
                                 {new Date(inq.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                               </span>
                             </div>
-                            <p className="text-[11px] text-gray-500 truncate mt-0.5 font-sans">
+                            <p className="text-[10px] text-gray-400 font-headline truncate">
+                              {isAgencyOwner ? `Inquiry for ${inq.agencyName}` : `Partner: ${inq.agencyName}`}
+                            </p>
+                            <p className="text-[11px] text-gray-600 truncate mt-0.5 font-sans">
                               {inq.projectRequirements}
                             </p>
-                            <div className="flex items-center gap-2 mt-1.5">
-                              <span className="text-[9px] font-headline font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-md border border-sky-150 uppercase tracking-wider">
-                                {inq.status}
-                              </span>
-                              <span className="text-[9px] font-headline text-gray-400">
-                                Ref: #{ (inq.id || "").slice(-5) }
-                              </span>
-                            </div>
                           </div>
                         </div>
                       );
@@ -752,7 +738,7 @@ export default function QuickChatDockWidget() {
           )}
 
           {/* Input Footer */}
-          {(guidedInquiry || selectedInquiry) && (
+          {viewMode === "chat" && (guidedInquiry || selectedInquiry) && (
             <form onSubmit={handleSendMessage} className="p-2 bg-white border-t border-gray-150 flex items-center gap-2">
               <input
                 type="text"
@@ -776,7 +762,14 @@ export default function QuickChatDockWidget() {
 
       {/* Floating Toggle Dock Pill Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) {
+            if (!guidedInquiry && inquiries.length > 0) {
+              setViewMode("list");
+            }
+          }
+          setIsOpen(!isOpen);
+        }}
         className="px-4 py-3 bg-[#701010] hover:bg-[#580d0d] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-full shadow-xl transition-all flex items-center gap-2.5 hover:scale-105 cursor-pointer border border-white/20"
       >
         <MessageSquare className="w-4 h-4" />
