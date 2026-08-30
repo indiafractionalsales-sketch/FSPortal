@@ -309,8 +309,8 @@ export default function MarketplaceHub({
                           <h4 className="font-serif font-bold text-base text-gray-900 leading-snug group-hover:text-[#701010] transition-colors">
                             {agency.name}
                           </h4>
-                          {agency.isVerified && (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-headline font-bold uppercase tracking-wider text-sky-700 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded-full" title="Verified Partner">
+                          {agency.isVerified === true && (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] font-headline font-bold uppercase tracking-wider text-sky-700 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded-full" title="GST Verified Partner">
                               <ShieldCheck className="w-3 h-3 text-sky-600" /> Verified
                             </span>
                           )}
