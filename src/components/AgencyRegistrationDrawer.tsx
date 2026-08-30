@@ -13,7 +13,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Building2, CheckCircle2, PlusCircle, Globe, Shield, Sparkles } from "lucide-react";
+import { X, Building2, CheckCircle2, PlusCircle, Globe, Shield, Sparkles, Upload } from "lucide-react";
 import { MARKETPLACE_CATEGORIES, MarketplaceCategoryId } from "@/lib/marketplace-data";
 
 import BusinessVerificationWidget from "@/components/BusinessVerificationWidget";
@@ -32,6 +32,7 @@ export default function AgencyRegistrationDrawer({
   onSuccess
 }: AgencyRegistrationDrawerProps) {
   const [name, setName] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
   const [category, setCategory] = useState<MarketplaceCategoryId>("biz_dev");
   const [location, setLocation] = useState("");
   const [country, setCountry] = useState("");
@@ -212,6 +213,43 @@ export default function AgencyRegistrationDrawer({
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
                 />
+              </div>
+
+              {/* Agency Logo / Brand Icon Upload (UI Wireframe Provision) */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
+                  <span>Agency Logo / Brand Thumbnail</span>
+                  <span className="text-[10px] text-gray-400 font-normal normal-case">(Optional — distinct from Company logo)</span>
+                </label>
+                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+                  <div className="w-12 h-12 rounded-xl bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-500 overflow-hidden relative group">
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Agency Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <Building2 className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-100 rounded-lg text-xs font-headline font-bold text-gray-700 cursor-pointer transition-all shadow-xs">
+                      <Upload className="w-3.5 h-3.5 text-[#701010]" />
+                      <span>{logoPreview ? "Change Agency Logo" : "Upload Agency Logo"}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setLogoPreview(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                    <p className="text-[10px] text-gray-400 mt-1">PNG, JPG or WebP. Square 1:1 ratio recommended.</p>
+                  </div>
+                </div>
               </div>
 
               {/* Location & Region */}
