@@ -64,8 +64,10 @@ export default function QuickChatDockWidget() {
       setIsOpen(true);
       setViewMode("chat");
 
-      // Check if user already has an inquiry thread with this agency
-      const existingInq = inquiries.find((i) => i.agencyId === targetAgency.id);
+      // Check if user already has an inquiry thread with this agency owner / user
+      const existingInq = inquiries.find(
+        (i) => i.agencyOwnerUid === targetAgency.ownerUid || i.buyerUid === targetAgency.ownerUid || i.agencyId === targetAgency.id
+      );
       if (existingInq) {
         setSelectedInquiry(existingInq);
         setGuidedInquiry(null);
@@ -86,6 +88,73 @@ export default function QuickChatDockWidget() {
     window.addEventListener("open_inquiry_chat", handleOpenInquiryChat);
     return () => window.removeEventListener("open_inquiry_chat", handleOpenInquiryChat);
   }, [inquiries]);
+
+  // Listen for global open_direct_post_chat events from Feed Posts & Deals
+  useEffect(() => {
+    const handleOpenDirectPostChat = async (e: Event) => {
+      const customEvt = e as CustomEvent<{
+        recipientUid: string;
+        recipientName: string;
+        postTitle: string;
+        postId: string;
+      }>;
+      if (!customEvt.detail?.recipientUid || !currentUser) return;
+
+      const { recipientUid, recipientName, postTitle, postId } = customEvt.detail;
+
+      // Guard: self-chat
+      if (recipientUid === currentUser.uid) return;
+
+      setIsOpen(true);
+      setViewMode("chat");
+      setGuidedInquiry(null);
+
+      // Check if thread already exists between currentUser and recipientUid
+      const existingInq = inquiries.find(
+        (i) => i.agencyOwnerUid === recipientUid || i.buyerUid === recipientUid
+      );
+
+      if (existingInq) {
+        setSelectedInquiry(existingInq);
+      } else {
+        // Create a direct chat thread for this post
+        try {
+          const idToken = await currentUser.getIdToken();
+          const payload: MarketplaceInquiry = {
+            agencyId: postId || "post_direct",
+            agencyName: recipientName || "Partner",
+            agencyOwnerUid: recipientUid,
+            buyerUid: currentUser.uid,
+            buyerName: currentUser.displayName || "Marketplace User",
+            buyerEmail: currentUser.email || "",
+            buyerPersona: "User",
+            projectRequirements: `Hi! I'm reaching out regarding your post: "${postTitle}"`,
+            timeline: "Immediate",
+            channelType: "post_direct",
+            contextId: postId,
+            contextTitle: postTitle,
+            status: "new",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          const newInquiryId = await submitAgencyInquiry(payload, idToken);
+          const updated = await fetchUserInquiries(currentUser.uid, idToken);
+          setInquiries(updated);
+          const createdInq = updated.find(i => (i.id || i.__id) === newInquiryId) || {
+            ...payload,
+            id: newInquiryId
+          };
+          setSelectedInquiry(createdInq);
+        } catch (err) {
+          console.error("Failed to start direct post chat thread:", err);
+        }
+      }
+    };
+
+    window.addEventListener("open_direct_post_chat", handleOpenDirectPostChat);
+    return () => window.removeEventListener("open_direct_post_chat", handleOpenDirectPostChat);
+  }, [inquiries, currentUser]);
 
   // Load active user inquiries when dock is opened
   useEffect(() => {
@@ -637,7 +706,29 @@ export default function QuickChatDockWidget() {
                   );
                 }
 
-                if (msg.text.includes("FORMAL BUSINESS INQUIRY") || msg.text.includes("📋")) {
+                if (msg.text.includes("reaching out regarding your post")) {
+                  const postTopic = msg.text.includes(":") ? msg.text.split(":")[1]?.replace(/"/g, "")?.trim() : "Feed Post";
+                  return (
+                    <div key={msg.id || msg.__id || i} className="w-full my-1 flex flex-col items-start">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="text-[9px] font-headline font-bold text-gray-400">{msg.senderName}</span>
+                        <span className="text-[8px] text-gray-300">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <div className="w-full bg-amber-50/80 border border-amber-200/80 rounded-xl p-2.5 shadow-2xs text-gray-800 space-y-1 font-sans">
+                        <div className="flex items-center gap-1.5 text-amber-900 font-headline font-bold text-[9px] uppercase tracking-wider">
+                          <span>📌 Feed Post Context</span>
+                        </div>
+                        <p className="text-xs font-semibold text-gray-900 leading-snug">
+                          {postTopic}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (msg.text.includes("FORMAL BUSINESS INQUIRY")) {
                   const lines = msg.text.split("\n").map(l => l.trim()).filter(Boolean);
                   const targetRegion = lines.find(l => l.includes("Target Country"))?.split(":")[1]?.trim() || "";
                   const scope = lines.find(l => l.includes("Scope of Work"))?.split(":")[1]?.trim() || "";

@@ -590,9 +590,6 @@ export default function MarketplaceHub({
         }}
       />
 
-      {/* Quick Chat Floating Dock */}
-      <QuickChatDockWidget />
-
     </div>
   );
 }

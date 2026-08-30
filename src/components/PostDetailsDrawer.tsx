@@ -14,7 +14,8 @@
  */
 
 import { useState } from "react";
-import { X, MapPin, Briefcase, Globe, Target, CheckSquare, DollarSign, Package, Info, Calendar, Clock, ExternalLink, FileText, Share2, Check } from "lucide-react";
+import { X, MapPin, Briefcase, Globe, Target, CheckSquare, DollarSign, Package, Info, Calendar, Clock, ExternalLink, FileText, Share2, Check, MessageSquare } from "lucide-react";
+import { auth } from "@/lib/firebase";
 
 interface PostDetailsDrawerProps {
   isOpen: boolean;
@@ -249,11 +250,31 @@ export default function PostDetailsDrawer({ isOpen, onClose, post, postId }: Pos
           )}
         </div>
 
-        {/* Drawer Footer — Share Button */}
+        {/* Drawer Footer — Share & Direct Message Buttons */}
         <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-center gap-3">
+          {auth.currentUser?.uid !== post.ownerUid && (
+            <button
+              onClick={() => {
+                onClose();
+                window.dispatchEvent(
+                  new CustomEvent("open_direct_post_chat", {
+                    detail: {
+                      recipientUid: post.ownerUid,
+                      recipientName: post.authorName || "Publisher",
+                      postTitle: post.eventName || post.expectedOutcomes || "Feed Post",
+                      postId: resolvedId
+                    }
+                  })
+                );
+              }}
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-[#701010] hover:bg-[#5a0c0c] transition-colors cursor-pointer"
+            >
+              <MessageSquare className="w-4 h-4" /> Message Publisher
+            </button>
+          )}
           <button
             onClick={handleShare}
-            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#701010] bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#701010] bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
             {copied ? "Link Copied!" : "Share Post"}

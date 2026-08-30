@@ -60,6 +60,9 @@ export interface MarketplaceInquiry {
   timeline: string;
   estimatedBudget?: string;
   attachmentUrl?: string;
+  channelType?: "marketplace" | "post_direct" | "deal_direct";
+  contextId?: string;
+  contextTitle?: string;
   status: "new" | "viewed" | "in_discussion" | "completed" | "archived";
   firstAgencyReplyAt?: string;
   createdAt: string;
@@ -314,9 +317,11 @@ export async function submitAgencyInquiry(
   // 1. Create main inquiry document
   await saveDocument(COLLECTION_INQUIRIES, inquiryId, inquiryPayload as any, idToken);
 
-  // 2. Create Message #1 in Messages sub-collection as a Formal Structured RFP Card
+  // 2. Create Message #1 in Messages sub-collection
   const msgId = `msg_1_${Date.now()}`;
-  const formalRfpText = `📋 FORMAL BUSINESS INQUIRY & RFP SUMMARY
+  const firstMessageText = data.channelType === "post_direct"
+    ? (data.projectRequirements || `Hi! I'm reaching out regarding your post: "${data.contextTitle || "Feed Post"}"`)
+    : `📋 FORMAL BUSINESS INQUIRY & RFP SUMMARY
 
 • Target Country / Region: ${data.timeline?.includes("Target:") ? data.timeline.split("Target:")[1]?.replace(")", "")?.trim() : "Global"}
 • Scope of Work & Deliverables: ${data.projectRequirements}
@@ -331,7 +336,7 @@ Sent via Fractional Sales Partner Guided Assistant`;
     senderUid: data.buyerUid,
     senderName: data.buyerName,
     senderType: "buyer",
-    text: formalRfpText,
+    text: firstMessageText,
     attachmentUrl: data.attachmentUrl || "",
     createdAt: now
   };
@@ -449,7 +454,7 @@ export async function fetchUserInquiries(
       if (docId) combinedMap.set(docId, doc);
     });
 
-    return Array.from(combinedMap.values()).map(doc => ({
+    const allInquiries = Array.from(combinedMap.values()).map(doc => ({
       id: (doc.__id as string) || (doc.id as string),
       __id: doc.__id as string,
       agencyId: (doc.agencyId as string) || "",
@@ -463,11 +468,25 @@ export async function fetchUserInquiries(
       timeline: (doc.timeline as string) || "Flexible",
       estimatedBudget: (doc.estimatedBudget as string) || "",
       attachmentUrl: (doc.attachmentUrl as string) || "",
+      channelType: (doc.channelType as any) || "marketplace",
+      contextId: doc.contextId as string,
+      contextTitle: doc.contextTitle as string,
       status: (doc.status as any) || "new",
       firstAgencyReplyAt: doc.firstAgencyReplyAt as string,
       createdAt: (doc.createdAt as string) || new Date().toISOString(),
       updatedAt: (doc.updatedAt as string) || new Date().toISOString()
     })).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+    // Deduplicate by counterpart user UID (keep most recently updated thread per user pair)
+    const dedupedMap = new Map<string, MarketplaceInquiry>();
+    allInquiries.forEach(inq => {
+      const counterpartUid = inq.buyerUid === userId ? inq.agencyOwnerUid : inq.buyerUid;
+      if (counterpartUid && !dedupedMap.has(counterpartUid)) {
+        dedupedMap.set(counterpartUid, inq);
+      }
+    });
+
+    return Array.from(dedupedMap.values());
   } catch (err) {
     console.error("Error fetching user inquiries:", err);
     return [];

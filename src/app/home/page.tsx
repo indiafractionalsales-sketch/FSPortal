@@ -34,6 +34,7 @@ import PostDetailsDrawer from "@/components/PostDetailsDrawer";
 import LeftSidebar from "@/components/LeftSidebar";
 import MarketplaceHub from "@/components/MarketplaceHub";
 import AgencyRegistrationDrawer from "@/components/AgencyRegistrationDrawer";
+import QuickChatDockWidget from "@/components/QuickChatDockWidget";
 import { MarketplaceCategoryId } from "@/lib/marketplace-data";
 
 export default function HomePage() {
@@ -818,6 +819,9 @@ export default function HomePage() {
           <span className="text-[10px] font-headline font-bold uppercase tracking-wider">Discover</span>
         </button>
       </div>
+
+      {/* Quick Chat Floating Dock */}
+      <QuickChatDockWidget />
     </main>
   );
 }
