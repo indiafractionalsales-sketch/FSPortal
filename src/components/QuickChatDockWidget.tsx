@@ -20,11 +20,21 @@ import {
   fetchInquiryMessages,
   sendChatMessage,
   submitReview,
+  submitAgencyInquiry,
   MarketplaceInquiry,
-  ChatMessage
+  ChatMessage,
+  MarketplaceAgency
 } from "@/lib/marketplace-service";
 import ReviewRequestCard from "@/components/ReviewRequestCard";
 import Link from "next/link";
+
+interface GuidedInquiryState {
+  agency: MarketplaceAgency;
+  step: 1 | 2 | 3 | 4;
+  requirements: string;
+  timeline: string;
+  budget: string;
+}
 
 export default function QuickChatDockWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +45,42 @@ export default function QuickChatDockWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Guided Chat Inquiry State
+  const [guidedInquiry, setGuidedInquiry] = useState<GuidedInquiryState | null>(null);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUser = auth.currentUser;
+
+  // Listen for global open_inquiry_chat events from Marketplace cards
+  useEffect(() => {
+    const handleOpenInquiryChat = (e: Event) => {
+      const customEvt = e as CustomEvent<{ agency: MarketplaceAgency }>;
+      if (!customEvt.detail?.agency) return;
+
+      const targetAgency = customEvt.detail.agency;
+      setIsOpen(true);
+
+      // Check if user already has an inquiry thread with this agency
+      const existingInq = inquiries.find((i) => i.agencyId === targetAgency.id);
+      if (existingInq) {
+        setSelectedInquiry(existingInq);
+        setGuidedInquiry(null);
+      } else {
+        // Start Guided Conversational Assistant
+        setSelectedInquiry(null);
+        setGuidedInquiry({
+          agency: targetAgency,
+          step: 1,
+          requirements: "",
+          timeline: "",
+          budget: ""
+        });
+      }
+    };
+
+    window.addEventListener("open_inquiry_chat", handleOpenInquiryChat);
+    return () => window.removeEventListener("open_inquiry_chat", handleOpenInquiryChat);
+  }, [inquiries]);
 
   // Load active user inquiries when dock is opened
   useEffect(() => {
@@ -48,7 +91,7 @@ export default function QuickChatDockWidget() {
         const idToken = await currentUser.getIdToken();
         const data = await fetchUserInquiries(currentUser.uid, idToken);
         setInquiries(data);
-        if (data.length > 0 && !selectedInquiry) {
+        if (data.length > 0 && !selectedInquiry && !guidedInquiry) {
           setSelectedInquiry(data[0]);
         }
       } catch (err) {
@@ -59,6 +102,7 @@ export default function QuickChatDockWidget() {
     }
     loadInquiries();
   }, [isOpen, currentUser]);
+
 
   // Load messages for active thread
   useEffect(() => {
@@ -80,7 +124,14 @@ export default function QuickChatDockWidget() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || !selectedInquiry || !currentUser) return;
+    if (!inputText.trim() || !currentUser) return;
+
+    if (guidedInquiry) {
+      handleGuidedStepSubmit(inputText.trim());
+      return;
+    }
+
+    if (!selectedInquiry) return;
 
     setIsSending(true);
     try {
@@ -110,6 +161,86 @@ export default function QuickChatDockWidget() {
       console.error("Failed to send message in quick chat:", err);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleGuidedStepSubmit = async (answerValue: string) => {
+    if (!guidedInquiry || !currentUser) return;
+
+    if (guidedInquiry.step === 1) {
+      setGuidedInquiry({
+        ...guidedInquiry,
+        requirements: answerValue,
+        step: 2
+      });
+      setInputText("");
+    } else if (guidedInquiry.step === 2) {
+      setGuidedInquiry({
+        ...guidedInquiry,
+        timeline: answerValue,
+        step: 3
+      });
+      setInputText("");
+    } else if (guidedInquiry.step === 3) {
+      const finalBudget = answerValue;
+      const finalRequirements = guidedInquiry.requirements;
+      const finalTimeline = guidedInquiry.timeline;
+      const targetAgency = guidedInquiry.agency;
+
+      setGuidedInquiry({
+        ...guidedInquiry,
+        budget: finalBudget,
+        step: 4
+      });
+      setIsSending(true);
+
+      try {
+        const idToken = await currentUser.getIdToken();
+        const payload: MarketplaceInquiry = {
+          agencyId: targetAgency.id || targetAgency.__id || "agency_demo",
+          agencyName: targetAgency.name,
+          agencyOwnerUid: targetAgency.ownerUid || "owner_demo",
+          buyerUid: currentUser.uid,
+          buyerName: currentUser.displayName || "Marketplace Buyer",
+          buyerEmail: currentUser.email || "",
+          buyerPersona: "buyer",
+          projectRequirements: finalRequirements,
+          timeline: finalTimeline,
+          estimatedBudget: finalBudget,
+          status: "new",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        const newInquiryId = await submitAgencyInquiry(payload, idToken);
+
+        // Background executive teaser email notification
+        fetch("/api/mailer/inquiry-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            agencyOwnerEmail: targetAgency.ownerEmail || "partner@fractionalsales.com",
+            agencyName: targetAgency.name,
+            category: targetAgency.category,
+            region: targetAgency.region,
+            inquiryId: newInquiryId
+          })
+        }).catch(err => console.warn("Failed background inquiry email:", err));
+
+        // Refresh user inquiries & select new thread
+        const updatedInquiries = await fetchUserInquiries(currentUser.uid, idToken);
+        setInquiries(updatedInquiries);
+        const createdInq = updatedInquiries.find(i => (i.id || i.__id) === newInquiryId) || {
+          ...payload,
+          id: newInquiryId
+        };
+        setSelectedInquiry(createdInq);
+        setGuidedInquiry(null);
+      } catch (err) {
+        console.error("Failed to complete guided inquiry:", err);
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
@@ -155,15 +286,23 @@ export default function QuickChatDockWidget() {
               </div>
               <div className="min-w-0">
                 <h4 className="font-serif font-bold text-xs text-white leading-tight truncate">
-                  {selectedInquiry ? selectedInquiry.agencyName : "Lead Messages"}
+                  {guidedInquiry ? `Inquiry: ${guidedInquiry.agency.name}` : selectedInquiry ? selectedInquiry.agencyName : "Lead Messages"}
                 </h4>
                 <p className="text-[10px] text-gray-300 font-headline truncate">
-                  {selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
+                  {guidedInquiry ? `Guided Chat Assistant (Step ${guidedInquiry.step}/3)` : selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1">
+              {guidedInquiry && (
+                <button
+                  onClick={() => setGuidedInquiry(null)}
+                  className="px-2 py-1 text-[10px] font-headline font-bold text-amber-300 hover:text-white bg-white/10 rounded-md transition-colors mr-1 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              )}
               <Link
                 href="/messages"
                 onClick={() => setIsOpen(false)}
@@ -182,7 +321,7 @@ export default function QuickChatDockWidget() {
           </div>
 
           {/* Conversation Switcher Strip (if multiple) */}
-          {inquiries.length > 1 && (
+          {!guidedInquiry && inquiries.length > 1 && (
             <div className="flex items-center gap-1.5 p-2 bg-gray-50 border-b border-gray-150 overflow-x-auto no-scrollbar">
               {inquiries.map((inq) => {
                 const isActive = (selectedInquiry?.id || selectedInquiry?.__id) === (inq.id || inq.__id);
@@ -203,15 +342,106 @@ export default function QuickChatDockWidget() {
             </div>
           )}
 
-          {/* Message History Window */}
+          {/* Message History Window / Guided Assistant Stream */}
           <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-slate-50/50 custom-scrollbar">
-            {isLoading ? (
+            {guidedInquiry ? (
+              <div className="space-y-3">
+                {/* Bot Greeting & Step 1 Prompt */}
+                <div className="flex flex-col items-start">
+                  <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
+                    🤖 Inquiry Assistant
+                  </span>
+                  <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs">
+                    Hello! 👋 I am the Fractional Sales Inquiry Assistant. Let&apos;s get your project inquiry directly to <strong>{guidedInquiry.agency.name}</strong>.
+                    <br /><br />
+                    <strong>Step 1:</strong> What are your key project requirements, required deliverables, or business goals?
+                  </div>
+                </div>
+
+                {/* Step 1 Answered */}
+                {guidedInquiry.step >= 2 && (
+                  <>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] font-headline font-bold text-gray-400 mb-0.5">You</span>
+                      <div className="max-w-[82%] px-3 py-2 bg-[#701010] text-white rounded-2xl rounded-br-none text-xs font-sans leading-relaxed shadow-2xs">
+                        {guidedInquiry.requirements}
+                      </div>
+                    </div>
+
+                    {/* Step 2 Prompt */}
+                    <div className="flex flex-col items-start">
+                      <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
+                        🤖 Inquiry Assistant
+                      </span>
+                      <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
+                        <p>Got it! <strong>Step 2:</strong> What is your expected project execution timeline?</p>
+                        {guidedInquiry.step === 2 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {["Immediate / < 1 Month", "1 - 3 Months", "3+ Months", "Flexible"].map((t) => (
+                              <button
+                                key={t}
+                                onClick={() => handleGuidedStepSubmit(t)}
+                                className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Step 2 Answered */}
+                {guidedInquiry.step >= 3 && (
+                  <>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] font-headline font-bold text-gray-400 mb-0.5">You</span>
+                      <div className="max-w-[82%] px-3 py-2 bg-[#701010] text-white rounded-2xl rounded-br-none text-xs font-sans leading-relaxed shadow-2xs">
+                        {guidedInquiry.timeline}
+                      </div>
+                    </div>
+
+                    {/* Step 3 Prompt */}
+                    <div className="flex flex-col items-start">
+                      <span className="text-[9px] font-headline font-bold text-[#701010] mb-0.5">
+                        🤖 Inquiry Assistant
+                      </span>
+                      <div className="max-w-[88%] px-3 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-2xl rounded-bl-none text-xs font-sans leading-relaxed shadow-2xs space-y-2">
+                        <p>Great! <strong>Step 3:</strong> What is your estimated project budget range?</p>
+                        {guidedInquiry.step === 3 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {["< $5,000", "$5,000 - $15,000", "$15,000 - $50,000", "$50,000+", "To be discussed"].map((b) => (
+                              <button
+                                key={b}
+                                onClick={() => handleGuidedStepSubmit(b)}
+                                className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-headline font-bold text-[10px] rounded-lg transition-colors cursor-pointer"
+                              >
+                                {b}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Step 4 Submitting */}
+                {guidedInquiry.step === 4 && (
+                  <div className="py-4 text-center text-xs font-headline font-bold text-[#701010] animate-pulse">
+                    ⚡ Submitting inquiry & creating live chat thread with {guidedInquiry.agency.name}...
+                  </div>
+                )}
+              </div>
+            ) : isLoading ? (
               <div className="py-12 text-center text-xs text-gray-400">Loading messages...</div>
             ) : inquiries.length === 0 ? (
               <div className="py-12 text-center space-y-2">
                 <p className="text-xs font-headline text-gray-500 font-bold">No Active Lead Messages</p>
                 <p className="text-[11px] text-gray-400 max-w-[240px] mx-auto">
-                  Submit an inquiry on any marketplace agency listing to start a conversation.
+                  Click &quot;Request Quote / Connect&quot; on any agency card to start an inquiry chat!
                 </p>
               </div>
             ) : (
@@ -275,7 +505,7 @@ export default function QuickChatDockWidget() {
           </div>
 
           {/* Action Bar (Agency can request review) */}
-          {selectedInquiry && currentUser.uid === selectedInquiry.agencyOwnerUid && (
+          {!guidedInquiry && selectedInquiry && currentUser.uid === selectedInquiry.agencyOwnerUid && (
             <div className="px-3 py-1.5 bg-amber-50/60 border-t border-amber-150 flex items-center justify-between text-[10px] font-headline text-amber-900">
               <span>Deal Wrapped Up?</span>
               <button
@@ -289,18 +519,18 @@ export default function QuickChatDockWidget() {
           )}
 
           {/* Input Footer */}
-          {selectedInquiry && (
+          {(guidedInquiry || selectedInquiry) && (
             <form onSubmit={handleSendMessage} className="p-2 bg-white border-t border-gray-150 flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Type your message..."
+                placeholder={guidedInquiry ? (guidedInquiry.step === 1 ? "Type your project requirements..." : "Type custom response...") : "Type your message..."}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
               />
               <button
                 type="submit"
-                disabled={isSending || !inputText.trim()}
+                disabled={isSending || (!guidedInquiry && !inputText.trim())}
                 className="p-2 bg-[#701010] hover:bg-[#580d0d] text-white rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-40"
               >
                 <Send className="w-3.5 h-3.5" />

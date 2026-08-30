@@ -33,6 +33,7 @@ import {
   fetchLiveMarketplaceAgencies,
   toggleSaveAgency as toggleSaveAgencyService,
   getDocument,
+  flattenSpecialties,
   MarketplaceAgency as LiveMarketplaceAgency
 } from "@/lib/marketplace-service";
 
@@ -469,7 +470,7 @@ export default function MarketplaceHub({
 
                   {/* Specialties Pills */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    {agency.specialties.map((spec, i) => (
+                    {flattenSpecialties(agency.specialties).map((spec, i) => (
                       <span
                         key={i}
                         className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-600 bg-gray-50 border border-gray-150 px-2 py-0.5 rounded-md"
@@ -504,9 +505,13 @@ export default function MarketplaceHub({
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => !isSampleMode && setSelectedAgencyForInquiry(agency)}
+                      onClick={() => {
+                        if (!isSampleMode) {
+                          window.dispatchEvent(new CustomEvent("open_inquiry_chat", { detail: { agency } }));
+                        }
+                      }}
                       disabled={isSampleMode}
-                      title={isSampleMode ? "Inquiries are disabled on sample listings" : ""}
+                      title={isSampleMode ? "Inquiries are disabled on sample listings" : "Start Guided Chat Inquiry"}
                       className={`flex-1 py-2 px-3 font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 ${
                         isSampleMode
                           ? "bg-gray-100 text-gray-400 border border-dashed border-gray-300 cursor-not-allowed"
@@ -514,7 +519,7 @@ export default function MarketplaceHub({
                       }`}
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
-                      {isSampleMode ? "Sample — Inquiries Disabled" : "Request Quote / Connect"}
+                      {isSampleMode ? "Sample — Inquiries Disabled" : "Start Inquiry Chat"}
                     </button>
                     
                     <a

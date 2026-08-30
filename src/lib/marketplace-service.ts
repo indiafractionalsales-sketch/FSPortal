@@ -98,6 +98,19 @@ const COLLECTION_AGENCIES = "Marketplace_Agencies";
 const COLLECTION_INQUIRIES = "Marketplace_Inquiries";
 const COLLECTION_REVIEWS = "Reviews";
 
+export function flattenSpecialties(input?: string[] | string): string[] {
+  if (!input) return [];
+  const rawList = Array.isArray(input) ? input : [input];
+  const result: string[] = [];
+  rawList.forEach(item => {
+    if (typeof item === "string") {
+      const parts = item.split(/[;,]/).map(s => s.trim()).filter(Boolean);
+      result.push(...parts);
+    }
+  });
+  return Array.from(new Set(result));
+}
+
 /**
  * Fetch live approved agency listings from Firestore.
  * Queries both fsindiadb and default database instances.
@@ -156,7 +169,7 @@ export async function fetchLiveMarketplaceAgencies(
       tagline: (doc.tagline as string) || "",
       description: (doc.description as string) || "",
       website: (doc.website as string) || "",
-      specialties: Array.isArray(doc.specialties) ? (doc.specialties as string[]) : [],
+      specialties: flattenSpecialties(doc.specialties as any),
       ownerUid: (doc.ownerUid as string) || "",
       ownerEmail: (doc.ownerEmail as string) || "",
       logoUrl: (doc.logoUrl as string) || "",
@@ -165,6 +178,7 @@ export async function fetchLiveMarketplaceAgencies(
       createdAt: (doc.createdAt as string) || new Date().toISOString(),
       updatedAt: (doc.updatedAt as string) || new Date().toISOString(),
     }));
+
   } catch (err) {
     console.error("Error fetching live marketplace agencies:", err);
     return [];

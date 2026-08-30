@@ -126,7 +126,7 @@ export default function AgencyRegistrationDrawer({
           tagline,
           description,
           website,
-          specialties: specialties.split(",").map(s => s.trim()).filter(Boolean),
+          specialties: specialties.split(/[;,]/).map(s => s.trim()).filter(Boolean),
           completedProjects: Number(completedProjects) || 10,
           ownerUid: currentUser.uid,
           ownerEmail: currentUser.email || "",
@@ -432,7 +432,7 @@ export default function AgencyRegistrationDrawer({
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-1.5">
                   <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
-                    Key Specialties (Comma Separated)
+                    Key Specialties (Semicolon or Comma Separated)
                   </label>
                   <input
                     type="text"
