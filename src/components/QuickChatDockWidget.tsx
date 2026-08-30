@@ -64,8 +64,10 @@ export default function QuickChatDockWidget() {
       setIsOpen(true);
       setViewMode("chat");
 
-      // Check if user already has an inquiry thread with this agency
-      const existingInq = inquiries.find((i) => i.agencyId === targetAgency.id);
+      // Check if user already has an inquiry thread with this agency owner / user
+      const existingInq = inquiries.find(
+        (i) => i.agencyOwnerUid === targetAgency.ownerUid || i.buyerUid === targetAgency.ownerUid || i.agencyId === targetAgency.id
+      );
       if (existingInq) {
         setSelectedInquiry(existingInq);
         setGuidedInquiry(null);

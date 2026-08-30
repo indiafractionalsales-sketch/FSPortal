@@ -454,7 +454,7 @@ export async function fetchUserInquiries(
       if (docId) combinedMap.set(docId, doc);
     });
 
-    return Array.from(combinedMap.values()).map(doc => ({
+    const allInquiries = Array.from(combinedMap.values()).map(doc => ({
       id: (doc.__id as string) || (doc.id as string),
       __id: doc.__id as string,
       agencyId: (doc.agencyId as string) || "",
@@ -476,6 +476,17 @@ export async function fetchUserInquiries(
       createdAt: (doc.createdAt as string) || new Date().toISOString(),
       updatedAt: (doc.updatedAt as string) || new Date().toISOString()
     })).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+    // Deduplicate by counterpart user UID (keep most recently updated thread per user pair)
+    const dedupedMap = new Map<string, MarketplaceInquiry>();
+    allInquiries.forEach(inq => {
+      const counterpartUid = inq.buyerUid === userId ? inq.agencyOwnerUid : inq.buyerUid;
+      if (counterpartUid && !dedupedMap.has(counterpartUid)) {
+        dedupedMap.set(counterpartUid, inq);
+      }
+    });
+
+    return Array.from(dedupedMap.values());
   } catch (err) {
     console.error("Error fetching user inquiries:", err);
     return [];
