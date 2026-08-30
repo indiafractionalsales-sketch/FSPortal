@@ -28,6 +28,7 @@ import AgencyInquiryDrawer from "@/components/AgencyInquiryDrawer";
 import AgencyRegistrationDrawer from "@/components/AgencyRegistrationDrawer";
 import QuickChatDockWidget from "@/components/QuickChatDockWidget";
 import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   fetchLiveMarketplaceAgencies,
   toggleSaveAgency as toggleSaveAgencyService,
@@ -71,60 +72,63 @@ export default function MarketplaceHub({
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [savedAgencyIds, setSavedAgencyIds] = useState<Set<string>>(new Set());
   const [liveAgencies, setLiveAgencies] = useState<MarketplaceAgency[]>([]);
+  const [isLoadingLive, setIsLoadingLive] = useState(true);
 
   const scrollChipsRef = useRef<HTMLDivElement>(null);
 
-  // Load live DB agencies & saved bookmarks from Firestore
+  // Subscribe to onAuthStateChanged to fetch live DB agencies with valid token as soon as Auth hydrates
   useEffect(() => {
-    async function loadData() {
-      const currentUser = auth.currentUser;
-      let idToken = "";
+    const unsub = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        idToken = await currentUser.getIdToken();
         try {
+          const idToken = await currentUser.getIdToken();
+          
+          // 1. Fetch user bookmarks
           const userDoc = (await getDocument("users", currentUser.uid, idToken)) as any;
           if (userDoc && Array.isArray(userDoc.savedAgencies)) {
             setSavedAgencyIds(new Set(userDoc.savedAgencies));
           }
+
+          // 2. Fetch live DB agencies from both fsindiadb and default databases
+          const dbAgencies = await fetchLiveMarketplaceAgencies(activeCategory, idToken);
+          const mappedDbAgencies: MarketplaceAgency[] = dbAgencies.map((agency) => ({
+            id: agency.id || agency.__id || `agency_${Math.random()}`,
+            name: agency.name,
+            category: agency.category as MarketplaceCategoryId,
+            location: agency.location,
+            region: agency.region as any,
+            tag: agency.tagline || agency.category,
+            rating: agency.rating || 5.0,
+            isVerified: agency.isVerified,
+            description: agency.description,
+            specialties: agency.specialties || [],
+            logoBg: "bg-[#701010]",
+            stats: {
+              projectsDone: `${agency.completedProjects || 10}+`,
+              avgResponse: agency.responseSla || "< 2 hrs",
+              successRate: "98%"
+            },
+            website: agency.website || "fractionalsales.com",
+            ownerUid: agency.ownerUid,
+            ownerEmail: agency.ownerEmail,
+            logoUrl: agency.logoUrl,
+            bookingUrl: agency.bookingUrl
+          }));
+
+          setLiveAgencies(mappedDbAgencies);
         } catch (err) {
-          console.warn("Failed to load user savedAgencies:", err);
+          console.warn("Error fetching live DB agencies:", err);
+        } finally {
+          setIsLoadingLive(false);
         }
+      } else {
+        setIsLoadingLive(false);
       }
+    });
 
-      try {
-        const dbAgencies = await fetchLiveMarketplaceAgencies(activeCategory, idToken);
-        const mappedDbAgencies: MarketplaceAgency[] = dbAgencies.map((agency) => ({
-          id: agency.id || agency.__id || `agency_${Math.random()}`,
-          name: agency.name,
-          category: agency.category as MarketplaceCategoryId,
-          location: agency.location,
-          region: agency.region as any,
-          tag: agency.tagline || agency.category,
-          rating: agency.rating || 5.0,
-          isVerified: agency.isVerified,
-          description: agency.description,
-          specialties: agency.specialties || [],
-          logoBg: "bg-[#701010]",
-          stats: {
-            projectsDone: `${agency.completedProjects || 10}+`,
-            avgResponse: agency.responseSla || "< 2 hrs",
-            successRate: "98%"
-          },
-          website: agency.website || "fractionalsales.com",
-          ownerUid: agency.ownerUid,
-          ownerEmail: agency.ownerEmail,
-          logoUrl: agency.logoUrl,
-          bookingUrl: agency.bookingUrl
-        }));
-
-        setLiveAgencies(mappedDbAgencies);
-      } catch (err) {
-        console.warn("Error fetching live DB agencies:", err);
-      }
-    }
-
-    loadData();
+    return () => unsub();
   }, [activeCategory]);
+
 
   const handleScrollChips = (direction: "left" | "right") => {
     if (scrollChipsRef.current) {

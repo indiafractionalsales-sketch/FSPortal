@@ -100,6 +100,7 @@ const COLLECTION_REVIEWS = "Reviews";
 
 /**
  * Fetch live approved agency listings from Firestore.
+ * Queries both fsindiadb and default database instances.
  */
 export async function fetchLiveMarketplaceAgencies(
   category?: string,
@@ -116,14 +117,31 @@ export async function fetchLiveMarketplaceAgencies(
       whereFilters.push({ field: "category", op: "EQUAL", value: category });
     }
 
-    const { docs } = await queryCollection(COLLECTION_AGENCIES, idToken, {
-      where: whereFilters,
-      limit: 50,
-      orderByField: "createdAt",
-      orderDirection: "DESCENDING"
+    const [indiaRes, globalRes] = await Promise.all([
+      queryCollection(COLLECTION_AGENCIES, idToken, {
+        where: whereFilters,
+        limit: 50,
+        orderByField: "createdAt",
+        orderDirection: "DESCENDING",
+        databaseId: "fsindiadb"
+      }).catch(() => ({ docs: [] })),
+      queryCollection(COLLECTION_AGENCIES, idToken, {
+        where: whereFilters,
+        limit: 50,
+        orderByField: "createdAt",
+        orderDirection: "DESCENDING",
+        databaseId: "default"
+      }).catch(() => ({ docs: [] }))
+    ]);
+
+    const combinedDocs = [...(indiaRes.docs || []), ...(globalRes.docs || [])];
+    const uniqueMap = new Map<string, Record<string, unknown>>();
+    combinedDocs.forEach(doc => {
+      const docId = (doc.__id as string) || (doc.id as string);
+      if (docId) uniqueMap.set(docId, doc);
     });
 
-    return docs.map(doc => ({
+    return Array.from(uniqueMap.values()).map(doc => ({
       id: (doc.__id as string) || (doc.id as string),
       __id: doc.__id as string,
       name: (doc.name as string) || "Unnamed Agency",
@@ -134,7 +152,7 @@ export async function fetchLiveMarketplaceAgencies(
       reviewsCount: typeof doc.reviewsCount === "number" ? doc.reviewsCount : 0,
       responseSla: (doc.responseSla as string) || "< 2 hrs",
       completedProjects: typeof doc.completedProjects === "number" ? doc.completedProjects : 10,
-      isVerified: Boolean(doc.isVerified),
+      isVerified: doc.isVerified !== undefined ? Boolean(doc.isVerified) : Boolean(doc.verified),
       tagline: (doc.tagline as string) || "",
       description: (doc.description as string) || "",
       website: (doc.website as string) || "",
@@ -152,6 +170,7 @@ export async function fetchLiveMarketplaceAgencies(
     return [];
   }
 }
+
 
 /**
  * Check if the user already has an existing listing in a specific category.
