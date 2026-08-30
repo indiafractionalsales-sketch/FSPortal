@@ -12,7 +12,7 @@
 
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search, ShieldCheck, MapPin, ExternalLink, Star, Filter,
   Building2, ArrowRight, MessageSquare, Plus, Sparkles, CheckCircle2, Bookmark,
@@ -26,6 +26,14 @@ import {
 } from "@/lib/marketplace-data";
 import AgencyInquiryDrawer from "@/components/AgencyInquiryDrawer";
 import AgencyRegistrationDrawer from "@/components/AgencyRegistrationDrawer";
+import QuickChatDockWidget from "@/components/QuickChatDockWidget";
+import { auth } from "@/lib/firebase";
+import {
+  fetchLiveMarketplaceAgencies,
+  toggleSaveAgency as toggleSaveAgencyService,
+  getDocument,
+  MarketplaceAgency as LiveMarketplaceAgency
+} from "@/lib/marketplace-service";
 
 interface MarketplaceHubProps {
   activeCategory: MarketplaceCategoryId;
@@ -57,12 +65,66 @@ export default function MarketplaceHub({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("All");
   const [onlyVerified, setOnlyVerified] = useState(false);
+  const [onlyShortlisted, setOnlyShortlisted] = useState(false);
   const [marketingSubFilter, setMarketingSubFilter] = useState<string>("all");
   const [selectedAgencyForInquiry, setSelectedAgencyForInquiry] = useState<MarketplaceAgency | null>(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [savedAgencyIds, setSavedAgencyIds] = useState<Set<string>>(new Set());
+  const [liveAgencies, setLiveAgencies] = useState<MarketplaceAgency[]>([]);
 
   const scrollChipsRef = useRef<HTMLDivElement>(null);
+
+  // Load live DB agencies & saved bookmarks from Firestore
+  useEffect(() => {
+    async function loadData() {
+      const currentUser = auth.currentUser;
+      let idToken = "";
+      if (currentUser) {
+        idToken = await currentUser.getIdToken();
+        try {
+          const userDoc = (await getDocument("users", currentUser.uid, idToken)) as any;
+          if (userDoc && Array.isArray(userDoc.savedAgencies)) {
+            setSavedAgencyIds(new Set(userDoc.savedAgencies));
+          }
+        } catch (err) {
+          console.warn("Failed to load user savedAgencies:", err);
+        }
+      }
+
+      try {
+        const dbAgencies = await fetchLiveMarketplaceAgencies(activeCategory, idToken);
+        const mappedDbAgencies: MarketplaceAgency[] = dbAgencies.map((agency) => ({
+          id: agency.id || agency.__id || `agency_${Math.random()}`,
+          name: agency.name,
+          category: agency.category as MarketplaceCategoryId,
+          location: agency.location,
+          region: agency.region as any,
+          tag: agency.tagline || agency.category,
+          rating: agency.rating || 5.0,
+          isVerified: agency.isVerified,
+          description: agency.description,
+          specialties: agency.specialties || [],
+          logoBg: "bg-[#701010]",
+          stats: {
+            projectsDone: `${agency.completedProjects || 10}+`,
+            avgResponse: agency.responseSla || "< 2 hrs",
+            successRate: "98%"
+          },
+          website: agency.website || "fractionalsales.com",
+          ownerUid: agency.ownerUid,
+          ownerEmail: agency.ownerEmail,
+          logoUrl: agency.logoUrl,
+          bookingUrl: agency.bookingUrl
+        }));
+
+        setLiveAgencies(mappedDbAgencies);
+      } catch (err) {
+        console.warn("Error fetching live DB agencies:", err);
+      }
+    }
+
+    loadData();
+  }, [activeCategory]);
 
   const handleScrollChips = (direction: "left" | "right") => {
     if (scrollChipsRef.current) {
@@ -73,9 +135,16 @@ export default function MarketplaceHub({
 
   const categoryInfo = MARKETPLACE_CATEGORIES.find((cat) => cat.id === activeCategory) || MARKETPLACE_CATEGORIES[0];
 
-  const filteredAgencies = MOCK_AGENCIES.filter((agency) => {
+  // Merge live agencies from DB with seed MOCK_AGENCIES fallback
+  const combinedAgencies = [
+    ...liveAgencies,
+    ...MOCK_AGENCIES.filter((agency) => !liveAgencies.some((live) => live.id === agency.id))
+  ];
+
+  const filteredAgencies = combinedAgencies.filter((agency) => {
     if (agency.category !== activeCategory) return false;
     if (onlyVerified && !agency.isVerified) return false;
+    if (onlyShortlisted && !savedAgencyIds.has(agency.id)) return false;
     if (selectedRegion !== "All" && agency.region !== selectedRegion) return false;
 
     if (activeCategory === "marketing" && marketingSubFilter !== "all") {
@@ -98,14 +167,23 @@ export default function MarketplaceHub({
     return true;
   });
 
-  const toggleSaveAgency = (agencyId: string) => {
-    setSavedAgencyIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(agencyId)) next.delete(agencyId);
-      else next.add(agencyId);
-      return next;
-    });
+  const handleToggleSaveAgency = async (agencyId: string) => {
+    const nextSet = new Set(savedAgencyIds);
+    if (nextSet.has(agencyId)) nextSet.delete(agencyId);
+    else nextSet.add(agencyId);
+    setSavedAgencyIds(nextSet);
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        const idToken = await currentUser.getIdToken();
+        await toggleSaveAgencyService(agencyId, currentUser.uid, idToken);
+      } catch (err) {
+        console.warn("Failed to persist bookmark to Firestore:", err);
+      }
+    }
   };
+
 
   return (
     <div className="w-full space-y-5">
@@ -222,6 +300,19 @@ export default function MarketplaceHub({
               </select>
             </div>
 
+            {/* Shortlisted Only Switch */}
+            <button
+              onClick={() => setOnlyShortlisted(!onlyShortlisted)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-headline font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                onlyShortlisted
+                  ? "bg-amber-50 border-amber-300 text-amber-900"
+                  : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <Bookmark className={`w-3.5 h-3.5 ${onlyShortlisted ? "fill-amber-500 text-amber-500" : "text-gray-400"}`} />
+              <span>Saved Shortlist ({savedAgencyIds.size})</span>
+            </button>
+
             {/* Verified Switch */}
             <button
               onClick={() => setOnlyVerified(!onlyVerified)}
@@ -281,8 +372,9 @@ export default function MarketplaceHub({
               setSearchQuery("");
               setSelectedRegion("All");
               setOnlyVerified(false);
+              setOnlyShortlisted(false);
             }}
-            className="px-4 py-2 bg-[#701010]/10 text-[#701010] font-headline font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#701010]/15 transition-all"
+            className="px-4 py-2 bg-[#701010]/10 text-[#701010] font-headline font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#701010]/15 transition-all cursor-pointer"
           >
             Clear Filters
           </button>
@@ -301,8 +393,12 @@ export default function MarketplaceHub({
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className={`w-12 h-12 rounded-xl ${agency.logoBg} flex-shrink-0 flex items-center justify-center text-white font-bold shadow-sm`}>
-                        <Building2 className="w-6 h-6" />
+                      <div className={`w-12 h-12 rounded-xl ${agency.logoBg} flex-shrink-0 flex items-center justify-center text-white font-bold shadow-sm overflow-hidden`}>
+                        {agency.logoUrl ? (
+                          <img src={agency.logoUrl} alt={agency.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Building2 className="w-6 h-6" />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -324,7 +420,7 @@ export default function MarketplaceHub({
                     </div>
 
                     <button
-                      onClick={() => toggleSaveAgency(agency.id)}
+                      onClick={() => handleToggleSaveAgency(agency.id)}
                       className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                         isSaved ? "text-amber-500 bg-amber-50" : "text-gray-300 hover:text-gray-600 hover:bg-gray-50"
                       }`}
@@ -383,7 +479,7 @@ export default function MarketplaceHub({
                     </button>
                     
                     <a
-                      href={`https://${agency.website}`}
+                      href={agency.website?.startsWith("http") ? agency.website : `https://${agency.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 border border-gray-200 text-gray-700 hover:text-[#701010] hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-center"
@@ -408,14 +504,50 @@ export default function MarketplaceHub({
         agency={selectedAgencyForInquiry}
         userEmail={userEmail}
         userName={userName}
+        userPersona={userType}
       />
 
       {/* Registration Drawer */}
       <AgencyRegistrationDrawer
         isOpen={isRegistrationOpen}
         onClose={() => setIsRegistrationOpen(false)}
+        onSuccess={() => {
+          // Re-trigger live agencies fetch
+          auth.currentUser?.getIdToken().then((token) => {
+            fetchLiveMarketplaceAgencies(activeCategory, token).then((dbAgencies) => {
+              const mappedDbAgencies: MarketplaceAgency[] = dbAgencies.map((agency) => ({
+                id: agency.id || agency.__id || `agency_${Math.random()}`,
+                name: agency.name,
+                category: agency.category as MarketplaceCategoryId,
+                location: agency.location,
+                region: agency.region as any,
+                tag: agency.tagline || agency.category,
+                rating: agency.rating || 5.0,
+                isVerified: agency.isVerified,
+                description: agency.description,
+                specialties: agency.specialties || [],
+                logoBg: "bg-[#701010]",
+                stats: {
+                  projectsDone: `${agency.completedProjects || 10}+`,
+                  avgResponse: agency.responseSla || "< 2 hrs",
+                  successRate: "98%"
+                },
+                website: agency.website || "fractionalsales.com",
+                ownerUid: agency.ownerUid,
+                ownerEmail: agency.ownerEmail,
+                logoUrl: agency.logoUrl,
+                bookingUrl: agency.bookingUrl
+              }));
+              setLiveAgencies(mappedDbAgencies);
+            });
+          });
+        }}
       />
+
+      {/* Quick Chat Floating Dock */}
+      <QuickChatDockWidget />
 
     </div>
   );
 }
+

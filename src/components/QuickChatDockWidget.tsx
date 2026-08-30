@@ -1,0 +1,329 @@
+/**
+ * Copyright (c) 2026 Biztribe Trading & Consultancy India Private Limited.
+ * All rights reserved.
+ *
+ * This file is part of the Fractional Sales Partner platform.
+ * CONFIDENTIAL AND PROPRIETARY — Unauthorised copying, redistribution,
+ * modification, or use of this file, via any medium, is strictly prohibited.
+ * Violation will result in civil and criminal prosecution under the
+ * Copyright Act 1957, Information Technology Act 2000, and applicable
+ * Indian and international intellectual property laws.
+ */
+
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { MessageSquare, X, Send, Maximize2, Building2, User, ChevronRight, Star } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import {
+  fetchUserInquiries,
+  fetchInquiryMessages,
+  sendChatMessage,
+  submitReview,
+  MarketplaceInquiry,
+  ChatMessage
+} from "@/lib/marketplace-service";
+import ReviewRequestCard from "@/components/ReviewRequestCard";
+import Link from "next/link";
+
+export default function QuickChatDockWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inquiries, setInquiries] = useState<MarketplaceInquiry[]>([]);
+  const [selectedInquiry, setSelectedInquiry] = useState<MarketplaceInquiry | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputText, setInputText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const currentUser = auth.currentUser;
+
+  // Load active user inquiries when dock is opened
+  useEffect(() => {
+    async function loadInquiries() {
+      if (!currentUser || !isOpen) return;
+      setIsLoading(true);
+      try {
+        const idToken = await currentUser.getIdToken();
+        const data = await fetchUserInquiries(currentUser.uid, idToken);
+        setInquiries(data);
+        if (data.length > 0 && !selectedInquiry) {
+          setSelectedInquiry(data[0]);
+        }
+      } catch (err) {
+        console.warn("Failed to load inquiries for quick dock:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadInquiries();
+  }, [isOpen, currentUser]);
+
+  // Load messages for active thread
+  useEffect(() => {
+    async function loadMessages() {
+      if (!currentUser || !selectedInquiry) return;
+      try {
+        const idToken = await currentUser.getIdToken();
+        const msgs = await fetchInquiryMessages(selectedInquiry.id || selectedInquiry.__id || "", idToken);
+        setMessages(msgs);
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      } catch (err) {
+        console.warn("Failed to load thread messages:", err);
+      }
+    }
+    loadMessages();
+  }, [selectedInquiry, currentUser]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || !selectedInquiry || !currentUser) return;
+
+    setIsSending(true);
+    try {
+      const idToken = await currentUser.getIdToken();
+      const isAgency = currentUser.uid === selectedInquiry.agencyOwnerUid;
+      const textToSend = inputText;
+      setInputText("");
+
+      await sendChatMessage(
+        selectedInquiry.id || selectedInquiry.__id || "",
+        {
+          senderUid: currentUser.uid,
+          senderName: currentUser.displayName || (isAgency ? selectedInquiry.agencyName : selectedInquiry.buyerName),
+          senderType: isAgency ? "agency" : "buyer",
+          text: textToSend
+        },
+        idToken
+      );
+
+      // Refresh messages
+      const updatedMsgs = await fetchInquiryMessages(selectedInquiry.id || selectedInquiry.__id || "", idToken);
+      setMessages(updatedMsgs);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (err) {
+      console.error("Failed to send message in quick chat:", err);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleRequestReview = async () => {
+    if (!selectedInquiry || !currentUser) return;
+    try {
+      const idToken = await currentUser.getIdToken();
+      await sendChatMessage(
+        selectedInquiry.id || selectedInquiry.__id || "",
+        {
+          senderUid: currentUser.uid,
+          senderName: selectedInquiry.agencyName,
+          senderType: "agency",
+          text: "Review requested for this engagement.",
+          cardType: "review_request",
+          cardData: {
+            agencyId: selectedInquiry.agencyId,
+            agencyName: selectedInquiry.agencyName
+          }
+        },
+        idToken
+      );
+      const updatedMsgs = await fetchInquiryMessages(selectedInquiry.id || selectedInquiry.__id || "", idToken);
+      setMessages(updatedMsgs);
+    } catch (err) {
+      console.error("Error sending review request card:", err);
+    }
+  };
+
+  if (!currentUser) return null;
+
+  return (
+    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+      {/* Expanded Quick Chat Window */}
+      {isOpen && (
+        <div className="w-[380px] h-[520px] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
+          
+          {/* Header */}
+          <div className="p-3.5 bg-gradient-to-r from-gray-900 via-slate-900 to-[#701010] text-white flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold flex-shrink-0">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-serif font-bold text-xs text-white leading-tight truncate">
+                  {selectedInquiry ? selectedInquiry.agencyName : "Lead Messages"}
+                </h4>
+                <p className="text-[10px] text-gray-300 font-headline truncate">
+                  {selectedInquiry ? `Ref: #${(selectedInquiry.id || "").slice(-6)}` : "Marketplace Quick Chat"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Link
+                href="/messages"
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                title="Expand to Full Messages Workspace"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </Link>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Conversation Switcher Strip (if multiple) */}
+          {inquiries.length > 1 && (
+            <div className="flex items-center gap-1.5 p-2 bg-gray-50 border-b border-gray-150 overflow-x-auto no-scrollbar">
+              {inquiries.map((inq) => {
+                const isActive = (selectedInquiry?.id || selectedInquiry?.__id) === (inq.id || inq.__id);
+                return (
+                  <button
+                    key={inq.id || inq.__id}
+                    onClick={() => setSelectedInquiry(inq)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-headline font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-[#701010] text-white shadow-2xs"
+                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {inq.agencyName}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Message History Window */}
+          <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-slate-50/50 custom-scrollbar">
+            {isLoading ? (
+              <div className="py-12 text-center text-xs text-gray-400">Loading messages...</div>
+            ) : inquiries.length === 0 ? (
+              <div className="py-12 text-center space-y-2">
+                <p className="text-xs font-headline text-gray-500 font-bold">No Active Lead Messages</p>
+                <p className="text-[11px] text-gray-400 max-w-[240px] mx-auto">
+                  Submit an inquiry on any marketplace agency listing to start a conversation.
+                </p>
+              </div>
+            ) : (
+              messages.map((msg, i) => {
+                const isMe = msg.senderUid === currentUser.uid;
+
+                if (msg.cardType === "review_request") {
+                  return (
+                    <ReviewRequestCard
+                      key={msg.id || msg.__id || i}
+                      inquiryId={selectedInquiry?.id || ""}
+                      agencyId={selectedInquiry?.agencyId || ""}
+                      agencyName={selectedInquiry?.agencyName || ""}
+                      agencyOwnerUid={selectedInquiry?.agencyOwnerUid || ""}
+                      buyerUid={selectedInquiry?.buyerUid || ""}
+                      currentUserUid={currentUser.uid}
+                      onSubmitReview={async (rating, comment) => {
+                        const idToken = await currentUser.getIdToken();
+                        await submitReview(
+                          selectedInquiry?.id || "",
+                          selectedInquiry?.agencyId || "",
+                          currentUser.uid,
+                          currentUser.displayName || selectedInquiry?.buyerName || "Buyer",
+                          selectedInquiry?.agencyOwnerUid || "",
+                          rating,
+                          comment,
+                          idToken
+                        );
+                      }}
+                    />
+                  );
+                }
+
+                return (
+                  <div
+                    key={msg.id || msg.__id || i}
+                    className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                  >
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <span className="text-[9px] font-headline font-bold text-gray-400">
+                        {msg.senderName}
+                      </span>
+                      <span className="text-[8px] text-gray-300">
+                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div
+                      className={`max-w-[82%] px-3 py-2 rounded-2xl text-xs font-sans leading-relaxed shadow-2xs ${
+                        isMe
+                          ? "bg-[#701010] text-white rounded-br-none"
+                          : "bg-white text-gray-900 border border-gray-150 rounded-bl-none"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Action Bar (Agency can request review) */}
+          {selectedInquiry && currentUser.uid === selectedInquiry.agencyOwnerUid && (
+            <div className="px-3 py-1.5 bg-amber-50/60 border-t border-amber-150 flex items-center justify-between text-[10px] font-headline text-amber-900">
+              <span>Deal Wrapped Up?</span>
+              <button
+                type="button"
+                onClick={handleRequestReview}
+                className="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-md transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <Star className="w-2.5 h-2.5 fill-current" /> Request Review Card
+              </button>
+            </div>
+          )}
+
+          {/* Input Footer */}
+          {selectedInquiry && (
+            <form onSubmit={handleSendMessage} className="p-2 bg-white border-t border-gray-150 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+              />
+              <button
+                type="submit"
+                disabled={isSending || !inputText.trim()}
+                className="p-2 bg-[#701010] hover:bg-[#580d0d] text-white rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-40"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          )}
+
+        </div>
+      )}
+
+      {/* Floating Toggle Dock Pill Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="px-4 py-3 bg-[#701010] hover:bg-[#580d0d] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-full shadow-xl transition-all flex items-center gap-2.5 hover:scale-105 cursor-pointer border border-white/20"
+      >
+        <MessageSquare className="w-4 h-4" />
+        <span>Inquiries & Chat</span>
+        {inquiries.length > 0 && (
+          <span className="w-5 h-5 bg-white text-[#701010] text-[10px] font-extrabold rounded-full flex items-center justify-center shadow-2xs">
+            {inquiries.length}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+}

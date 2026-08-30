@@ -13,12 +13,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Building2, CheckCircle2, PlusCircle, Globe, Shield, Sparkles, Upload } from "lucide-react";
+import { X, Building2, CheckCircle2, PlusCircle, Globe, Shield, Sparkles, Upload, Calendar, EyeOff, Edit3 } from "lucide-react";
 import { MARKETPLACE_CATEGORIES, MarketplaceCategoryId } from "@/lib/marketplace-data";
 
 import BusinessVerificationWidget from "@/components/BusinessVerificationWidget";
 import { auth } from "@/lib/firebase";
-import { getDocument, setDocument } from "@/lib/firestore-rest";
+import { getDocument } from "@/lib/firestore-rest";
+import {
+  registerAgencyListing,
+  updateAgencyListing,
+  checkDuplicateListing,
+  MarketplaceAgency
+} from "@/lib/marketplace-service";
 
 interface AgencyRegistrationDrawerProps {
   isOpen: boolean;
@@ -31,16 +37,21 @@ export default function AgencyRegistrationDrawer({
   onClose,
   onSuccess
 }: AgencyRegistrationDrawerProps) {
+  const [existingListingId, setExistingListingId] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const [name, setName] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
   const [category, setCategory] = useState<MarketplaceCategoryId>("biz_dev");
   const [location, setLocation] = useState("");
-  const [country, setCountry] = useState("");
   const [region, setRegion] = useState<"Asia Pacific" | "Europe" | "North America" | "Middle East" | "Latin America" | "Global">("Asia Pacific");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [specialties, setSpecialties] = useState("");
+  const [completedProjects, setCompletedProjects] = useState<number>(10);
+  const [bookingUrl, setBookingUrl] = useState("");
+  const [status, setStatus] = useState<"approved" | "pending_admin_approval" | "inactive">("approved");
   
   const [isVerified, setIsVerified] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState("");
@@ -48,29 +59,53 @@ export default function AgencyRegistrationDrawer({
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isDelisting, setIsDelisting] = useState(false);
 
-  // Load current user verification status
+  // Load current user verification status & check for existing agency listing
   useEffect(() => {
-    async function loadUserVerification() {
+    async function loadUserDataAndCheckExisting() {
       const currentUser = auth.currentUser;
       if (currentUser) {
         try {
           const idToken = await currentUser.getIdToken();
-          const userDoc = (await getDocument("users", currentUser.uid, idToken, "default")) as any;
+          
+          // 1. User verification status
+          const userDoc = (await getDocument("users", currentUser.uid, idToken)) as any;
           if (userDoc) {
             setIsVerified(userDoc.isVerified === true);
             setVerificationStatus(userDoc.verificationStatus || "");
             setVerifiedBadge(userDoc.verifiedBadge || "");
           }
+
+          // 2. Check for duplicate listing in the selected category
+          const existing = await checkDuplicateListing(currentUser.uid, category, idToken);
+          if (existing) {
+            setExistingListingId(existing.id || existing.__id || null);
+            setIsEditMode(true);
+            setName(existing.name || "");
+            setLocation(existing.location || "");
+            setRegion(existing.region as any || "Asia Pacific");
+            setTagline(existing.tagline || "");
+            setDescription(existing.description || "");
+            setWebsite(existing.website || "");
+            setSpecialties((existing.specialties || []).join(", "));
+            setCompletedProjects(existing.completedProjects || 10);
+            setLogoPreview(existing.logoUrl || "");
+            setBookingUrl(existing.bookingUrl || "");
+            setStatus(existing.status as any || "approved");
+          } else {
+            setExistingListingId(null);
+            setIsEditMode(false);
+          }
         } catch (err) {
-          console.warn("Failed to load user verification status:", err);
+          console.warn("Failed to load user verification or check existing agency:", err);
         }
       }
     }
     if (isOpen) {
-      loadUserVerification();
+      loadUserDataAndCheckExisting();
     }
-  }, [isOpen]);
+  }, [isOpen, category]);
 
   if (!isOpen) return null;
 
@@ -81,41 +116,57 @@ export default function AgencyRegistrationDrawer({
       const currentUser = auth.currentUser;
       if (currentUser) {
         const idToken = await currentUser.getIdToken();
-        const agencyId = `agency_${currentUser.uid}_${Date.now()}`;
-        const newStatus = isVerified ? "approved" : "pending_admin_approval";
+        const finalStatus = isVerified ? "approved" : "pending_admin_approval";
 
-        const newAgencyRecord = {
-          id: agencyId,
-          ownerUid: currentUser.uid,
+        const agencyPayload: Partial<MarketplaceAgency> = {
           name,
           category,
           location,
-          country: country || "India",
           region,
           tagline,
           description,
           website,
           specialties: specialties.split(",").map(s => s.trim()).filter(Boolean),
-          rating: 5.0,
-          reviewCount: 1,
-          completedProjects: 0,
-          verified: isVerified,
-          status: newStatus, // "approved" if GST verified, else "pending_admin_approval"
-          createdAt: new Date().toISOString()
+          completedProjects: Number(completedProjects) || 10,
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          logoUrl: logoPreview,
+          bookingUrl,
+          isVerified,
+          status: finalStatus
         };
 
-        const targetDb = (country === "India" || !country) ? "fsindiadb" : "default";
-        await setDocument("Marketplace_Agencies", agencyId, newAgencyRecord, idToken, targetDb);
-        if (targetDb !== "default") {
-          await setDocument("Marketplace_Agencies", agencyId, newAgencyRecord, idToken, "default");
+        if (existingListingId) {
+          await updateAgencyListing(existingListingId, agencyPayload, idToken);
+        } else {
+          await registerAgencyListing(agencyPayload, idToken);
         }
       }
     } catch (err) {
-      console.warn("Error saving agency registration to Firestore:", err);
+      console.warn("Error saving agency registration:", err);
     } finally {
       setIsSubmitting(false);
       setIsSubmitted(true);
       if (onSuccess) onSuccess();
+    }
+  };
+
+  const handleToggleDelist = async () => {
+    if (!existingListingId) return;
+    setIsDelisting(true);
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const idToken = await currentUser.getIdToken();
+        const newStatus = status === "inactive" ? (isVerified ? "approved" : "pending_admin_approval") : "inactive";
+        await updateAgencyListing(existingListingId, { status: newStatus }, idToken);
+        setStatus(newStatus);
+        if (onSuccess) onSuccess();
+      }
+    } catch (err) {
+      console.warn("Error toggling delist status:", err);
+    } finally {
+      setIsDelisting(false);
     }
   };
 
@@ -132,16 +183,20 @@ export default function AgencyRegistrationDrawer({
         <div className="p-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#701010] flex items-center justify-center text-white font-bold shadow-sm">
-              <PlusCircle className="w-5 h-5" />
+              {isEditMode ? <Edit3 className="w-5 h-5" /> : <PlusCircle className="w-5 h-5" />}
             </div>
             <div>
-              <h3 className="font-serif font-bold text-base text-gray-900 leading-tight">Register Your Agency</h3>
-              <p className="text-xs text-gray-500 font-headline">List your service on the Global Fractional Marketplace</p>
+              <h3 className="font-serif font-bold text-base text-gray-900 leading-tight">
+                {isEditMode ? "Edit Agency Listing" : "Register Your Agency"}
+              </h3>
+              <p className="text-xs text-gray-500 font-headline">
+                {isEditMode ? "Update your agency profile & settings" : "List your service on the Global Fractional Marketplace"}
+              </p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,19 +210,41 @@ export default function AgencyRegistrationDrawer({
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
-              <h4 className="font-serif font-bold text-xl text-gray-900">Listing Submitted for Verification</h4>
+              <h4 className="font-serif font-bold text-xl text-gray-900">
+                {isEditMode ? "Listing Updated Successfully" : "Listing Submitted for Verification"}
+              </h4>
               <p className="text-xs text-gray-600 max-w-sm mx-auto leading-relaxed">
-                Thank you! Your agency listing for <strong>{name}</strong> has been submitted. Our marketplace verification team will review your business credentials within 24 hours.
+                {isEditMode
+                  ? `Your changes to ${name} have been saved.`
+                  : `Thank you! Your agency listing for ${name} has been submitted. Our marketplace verification team will review your business credentials.`}
               </p>
               <button
                 onClick={handleClose}
-                className="w-full py-2.5 bg-[#701010] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md hover:bg-[#580d0d] transition-all"
+                className="w-full py-2.5 bg-[#701010] text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-md hover:bg-[#580d0d] transition-all cursor-pointer"
               >
                 Close & Return
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {isEditMode && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-headline text-amber-900">
+                    <Edit3 className="w-4 h-4 text-amber-700" />
+                    <span>Existing listing found for this category. You are in <strong>Edit Mode</strong>.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleDelist}
+                    disabled={isDelisting}
+                    className="px-2.5 py-1 bg-white border border-amber-300 hover:bg-amber-100 rounded-lg text-[11px] font-headline font-bold text-amber-800 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <EyeOff className="w-3 h-3" />
+                    {status === "inactive" ? "Re-publish" : "Unpublish"}
+                  </button>
+                </div>
+              )}
               
               {/* Business KYC Verification Section */}
               <BusinessVerificationWidget
@@ -215,7 +292,7 @@ export default function AgencyRegistrationDrawer({
                 />
               </div>
 
-              {/* Agency Logo / Brand Icon Upload (UI Wireframe Provision) */}
+              {/* Agency Logo Upload */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
                   <span>Agency Logo / Brand Thumbnail</span>
@@ -317,33 +394,67 @@ export default function AgencyRegistrationDrawer({
                 />
               </div>
 
-              {/* Website */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
-                  Official Website Domain *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. apexcustoms.in"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
-                />
+              {/* Website & Booking Link */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
+                    Official Website Domain *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. apexcustoms.in"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider flex items-center justify-between">
+                    <span>Discovery Call Link</span>
+                    <span className="text-[10px] text-gray-400 font-normal normal-case">(Optional)</span>
+                  </label>
+                  <div className="relative">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="url"
+                      placeholder="Calendly / Google Meet link"
+                      value={bookingUrl}
+                      onChange={(e) => setBookingUrl(e.target.value)}
+                      className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Core Specialties */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
-                  Key Specialties (Comma Separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Duty Drawback, Tariff Advisory, Port Clearance"
-                  value={specialties}
-                  onChange={(e) => setSpecialties(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
-                />
+              {/* Core Specialties & Completed Projects Track Record */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2 space-y-1.5">
+                  <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
+                    Key Specialties (Comma Separated)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Duty Drawback, Tariff Advisory"
+                    value={specialties}
+                    onChange={(e) => setSpecialties(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-headline font-bold text-gray-900 uppercase tracking-wider">
+                    Projects Done
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={completedProjects}
+                    onChange={(e) => setCompletedProjects(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-[#701010] focus:bg-white transition-all"
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -355,7 +466,7 @@ export default function AgencyRegistrationDrawer({
                 {isSubmitting ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>Submit Agency for Verification</>
+                  <>{isEditMode ? "Save Changes" : "Submit Agency for Verification"}</>
                 )}
               </button>
 
@@ -368,3 +479,4 @@ export default function AgencyRegistrationDrawer({
     </div>
   );
 }
+
