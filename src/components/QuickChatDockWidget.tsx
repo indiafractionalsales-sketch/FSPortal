@@ -651,6 +651,63 @@ export default function QuickChatDockWidget() {
                   );
                 }
 
+                if (msg.text.includes("FORMAL BUSINESS INQUIRY") || msg.text.includes("📋")) {
+                  const lines = msg.text.split("\n").map(l => l.trim()).filter(Boolean);
+                  const targetRegion = lines.find(l => l.includes("Target Country"))?.split(":")[1]?.trim() || "";
+                  const scope = lines.find(l => l.includes("Scope of Work"))?.split(":")[1]?.trim() || "";
+                  const budget = lines.find(l => l.includes("Monthly Budget"))?.split(":")[1]?.trim() || "";
+                  const timeline = lines.find(l => l.includes("Execution Timeline"))?.split(":")[1]?.trim() || "";
+
+                  return (
+                    <div key={msg.id || msg.__id || i} className="w-full my-1.5 flex flex-col items-start">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-[9px] font-headline font-bold text-gray-400">{msg.senderName}</span>
+                        <span className="text-[8px] text-gray-300">
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white border border-slate-200 rounded-2xl p-3 shadow-xs text-gray-900 space-y-2 font-sans">
+                        <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                          <span className="text-sm">📋</span>
+                          <div>
+                            <h5 className="font-serif font-bold text-xs text-gray-900 leading-tight">
+                              Formal Business Inquiry & RFP
+                            </h5>
+                            <p className="text-[9px] text-gray-400 font-headline">Verified Marketplace Lead Summary</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5 text-[11px]">
+                          {targetRegion && (
+                            <div className="flex items-start gap-1.5 bg-gray-50 p-1.5 rounded-lg border border-gray-150">
+                              <span className="text-gray-400 font-headline font-bold text-[9px] uppercase w-20 flex-shrink-0">Target:</span>
+                              <span className="font-semibold text-gray-800">{targetRegion}</span>
+                            </div>
+                          )}
+                          {scope && (
+                            <div className="flex items-start gap-1.5 bg-gray-50 p-1.5 rounded-lg border border-gray-150">
+                              <span className="text-gray-400 font-headline font-bold text-[9px] uppercase w-20 flex-shrink-0">Scope:</span>
+                              <span className="font-sans text-gray-800 leading-snug">{scope}</span>
+                            </div>
+                          )}
+                          {budget && (
+                            <div className="flex items-start gap-1.5 bg-gray-50 p-1.5 rounded-lg border border-gray-150">
+                              <span className="text-gray-400 font-headline font-bold text-[9px] uppercase w-20 flex-shrink-0">Est. Budget:</span>
+                              <span className="font-semibold text-emerald-700">{budget}</span>
+                            </div>
+                          )}
+                          {timeline && (
+                            <div className="flex items-start gap-1.5 bg-gray-50 p-1.5 rounded-lg border border-gray-150">
+                              <span className="text-gray-400 font-headline font-bold text-[9px] uppercase w-20 flex-shrink-0">Timeline:</span>
+                              <span className="font-semibold text-amber-800">{timeline}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={msg.id || msg.__id || i}
@@ -665,7 +722,7 @@ export default function QuickChatDockWidget() {
                       </span>
                     </div>
                     <div
-                      className={`max-w-[82%] px-3 py-2 rounded-2xl text-xs font-sans leading-relaxed shadow-2xs ${
+                      className={`max-w-[82%] px-3 py-2 rounded-2xl text-xs font-sans leading-relaxed shadow-2xs whitespace-pre-wrap ${
                         isMe
                           ? "bg-[#701010] text-white rounded-br-none"
                           : "bg-white text-gray-900 border border-gray-150 rounded-bl-none"

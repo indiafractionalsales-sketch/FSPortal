@@ -345,6 +345,70 @@ export default function MessagesWorkspacePage() {
                     );
                   }
 
+                  if (msg.text.includes("FORMAL BUSINESS INQUIRY") || msg.text.includes("📋")) {
+                    const lines = msg.text.split("\n").map(l => l.trim()).filter(Boolean);
+                    const targetRegion = lines.find(l => l.includes("Target Country"))?.split(":")[1]?.trim() || "";
+                    const scope = lines.find(l => l.includes("Scope of Work"))?.split(":")[1]?.trim() || "";
+                    const budget = lines.find(l => l.includes("Monthly Budget"))?.split(":")[1]?.trim() || "";
+                    const timeline = lines.find(l => l.includes("Execution Timeline"))?.split(":")[1]?.trim() || "";
+
+                    return (
+                      <div key={msg.id || msg.__id || i} className="w-full my-2 flex flex-col items-start">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] font-headline font-bold text-gray-500">{msg.senderName} ({msg.senderType})</span>
+                          <span className="text-[9px] text-gray-400">
+                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-xs text-gray-900 space-y-3 font-sans">
+                          <div className="flex items-center gap-2.5 pb-2.5 border-b border-gray-150">
+                            <div className="w-8 h-8 rounded-lg bg-[#701010]/10 text-[#701010] flex items-center justify-center font-bold text-sm">
+                              📋
+                            </div>
+                            <div>
+                              <h5 className="font-serif font-bold text-sm text-gray-900 leading-tight">
+                                Formal Business Inquiry & RFP
+                              </h5>
+                              <p className="text-[10px] text-gray-400 font-headline">Verified Marketplace Lead Summary</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 text-xs">
+                            {targetRegion && (
+                              <div className="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span className="text-gray-400 font-headline font-bold text-[10px] uppercase w-24 flex-shrink-0">Target Region:</span>
+                                <span className="font-semibold text-gray-900">{targetRegion}</span>
+                              </div>
+                            )}
+                            {scope && (
+                              <div className="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span className="text-gray-400 font-headline font-bold text-[10px] uppercase w-24 flex-shrink-0">Scope / Details:</span>
+                                <span className="font-sans text-gray-800 leading-relaxed">{scope}</span>
+                              </div>
+                            )}
+                            {budget && (
+                              <div className="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span className="text-gray-400 font-headline font-bold text-[10px] uppercase w-24 flex-shrink-0">Est. Budget:</span>
+                                <span className="font-semibold text-emerald-700">{budget}</span>
+                              </div>
+                            )}
+                            {timeline && (
+                              <div className="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span className="text-gray-400 font-headline font-bold text-[10px] uppercase w-24 flex-shrink-0">Timeline:</span>
+                                <span className="font-semibold text-amber-800">{timeline}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] font-headline text-gray-400">
+                            <span>Response Portal: Real-Time Partner Chat</span>
+                            <span className="text-[#701010] font-bold">Action Required</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={msg.id || msg.__id || i}
@@ -359,7 +423,7 @@ export default function MessagesWorkspacePage() {
                         </span>
                       </div>
                       <div
-                        className={`max-w-[70%] px-4 py-3 rounded-2xl text-xs font-sans leading-relaxed shadow-2xs ${
+                        className={`max-w-[70%] px-4 py-3 rounded-2xl text-xs font-sans leading-relaxed shadow-2xs whitespace-pre-wrap ${
                           isMe
                             ? "bg-[#701010] text-white rounded-br-none"
                             : "bg-white text-gray-900 border border-gray-200 rounded-bl-none"
