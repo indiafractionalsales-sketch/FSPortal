@@ -422,6 +422,18 @@ export default function SPCreatePostDrawer({
 
       await saveDocument("Posts", postId, postPayload as any, idToken);
 
+      // Trigger post activity mailer notification (Hook 3: SP Post Trigger)
+      fetch("/api/mailer/post-activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "sp_post_created",
+          authorName: baseFields.authorName,
+          postTitle: spPostSubType === "event" ? eventForm.eventName : consultancyForm.serviceTitle,
+          postUrl: `https://fractionalsalespartner.com/post/${postId}`
+        })
+      }).catch(err => console.error("Mailer trigger error:", err));
+
       // Reset
       setEventForm({
         eventName: "", eventUrl: "", date: "", time: "", country: "", city: "",

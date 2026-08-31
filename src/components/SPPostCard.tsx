@@ -292,6 +292,21 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       });
 
       if (!res.ok) throw new Error("Failed to like post");
+
+      // Trigger post_liked mailer notification (Hook 3: Post Liked Trigger)
+      if (action === 'like') {
+        fetch("/api/mailer/post-activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "post_liked",
+            authorName: authorName || "Partner",
+            actorName: auth.currentUser?.displayName || "A Partner",
+            postTitle: post.eventName || post.expectedOutcomes || "Opportunity Post",
+            postUrl: `https://fractionalsalespartner.com/post/${post.__id}`
+          })
+        }).catch(() => {});
+      }
     } catch (e) {
       console.error(e);
       // Revert optimistic UI on error
@@ -391,6 +406,21 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       
       const { data } = await res.json();
       setComments([...comments, data]);
+
+      // Trigger post_commented mailer notification (Hook 3: Post Commented Trigger)
+      fetch("/api/mailer/post-activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "post_commented",
+          authorName: authorName || "Partner",
+          actorName: auth.currentUser?.displayName || "A Partner",
+          commentText: newCommentText || "Image attachment",
+          postTitle: post.eventName || post.expectedOutcomes || "Opportunity Post",
+          postUrl: `https://fractionalsalespartner.com/post/${post.__id}`
+        })
+      }).catch(() => {});
+
       setNewCommentText("");
       setSelectedImage(null);
 
@@ -544,8 +574,17 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                 </span>
               )}
             </h3>
-            <p className="text-[9px] font-headline text-gray-500 mt-1 uppercase tracking-wider">
-              {post.postType === "obo" ? "Business Owner" : "Sales Partner"} · {post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""}
+            <p className="text-[9px] font-headline text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+              <span>{post.postType === "obo" ? "Business Owner" : "Sales Partner"}</span>
+              <span>·</span>
+              <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""}</span>
+              <span className="inline-flex items-center gap-0.5 bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.5 rounded-full font-bold text-[8px]">
+                <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                4.9 (12)
+              </span>
+              <span className="inline-flex items-center gap-0.5 text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold text-[8px]">
+                🔒 Verified
+              </span>
             </p>
           </div>
         </Link>

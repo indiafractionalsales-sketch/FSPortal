@@ -93,6 +93,13 @@ export default function HomePage() {
   const isFetchingRef = useRef(false);
   const PAGE_SIZE = 10;
 
+  // Faceted Search & Discovery Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterRegion, setFilterRegion] = useState("");
+  const [filterIndustry, setFilterIndustry] = useState("");
+  const [filterCommission, setFilterCommission] = useState("");
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
   // Core profile identity states (for displaying avatar/names)
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
   const [oboData, setOboData] = useState({
@@ -372,6 +379,20 @@ export default function HomePage() {
         isMarketplaceActive={isMarketplaceActive}
         onHomeClick={() => setIsMarketplaceActive(false)}
         onMarketplaceClick={() => setIsMarketplaceActive(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterRegion={filterRegion}
+        onFilterRegionChange={setFilterRegion}
+        filterIndustry={filterIndustry}
+        onFilterIndustryChange={setFilterIndustry}
+        filterCommission={filterCommission}
+        onFilterCommissionChange={setFilterCommission}
+        onClearFilters={() => {
+          setSearchQuery("");
+          setFilterRegion("");
+          setFilterIndustry("");
+          setFilterCommission("");
+        }}
       />
 
       {/* Main Content Area */}
@@ -446,8 +467,53 @@ export default function HomePage() {
                 {/* Dynamic Posts Feed */}
                 {(() => {
                   const displayedPosts = posts.filter((post) => {
-                    if (feedTab === "mine") return post.paymentStatus !== "sold";
-                    if (feedTab === "deals") return post.paymentStatus === "sold";
+                    if (feedTab === "mine") {
+                      if (post.paymentStatus === "sold") return false;
+                    }
+                    if (feedTab === "deals") {
+                      if (post.paymentStatus !== "sold") return false;
+                    }
+
+                    // Faceted Search Query Filter
+                    if (searchQuery.trim()) {
+                      const q = searchQuery.toLowerCase();
+                      const matchText = [
+                        post.eventName,
+                        post.description,
+                        post.expectedOutcomes,
+                        post.targetCountry,
+                        post.targetCity,
+                        post.targetIndustry,
+                        post.authorName
+                      ].filter(Boolean).join(" ").toLowerCase();
+                      if (!matchText.includes(q)) return false;
+                    }
+
+                    // Faceted Region Filter
+                    if (filterRegion) {
+                      const regionMatch = [post.targetCountry, post.targetCity, post.country, post.city]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+                      if (!regionMatch.includes(filterRegion.toLowerCase())) return false;
+                    }
+
+                    // Faceted Industry Filter
+                    if (filterIndustry) {
+                      const indMatch = [post.targetIndustry, post.category, post.description]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+                      if (!indMatch.includes(filterIndustry.toLowerCase())) return false;
+                    }
+
+                    // Faceted Commission / Mode Filter
+                    if (filterCommission) {
+                      if (filterCommission === "obo" && post.postType !== "obo") return false;
+                      if (filterCommission === "consultancy" && post.spPostSubType !== "consultancy") return false;
+                      if (filterCommission === "event" && (post.postType === "obo" || post.spPostSubType === "consultancy")) return false;
+                    }
+
                     return true;
                   });
 

@@ -310,6 +310,18 @@ export default function OBOCreatePostDrawer({ isOpen, onClose, onSuccess, editPo
       const postId = editPostData?.__id || `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       await saveDocument("Posts", postId, postPayload as any, idToken);
 
+      // Trigger post activity mailer notification (Hook 3: OBO Detailed Post Trigger)
+      fetch("/api/mailer/post-activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "obo_post_created",
+          authorName: postPayload.authorName,
+          postTitle: formData.expectedOutcomes || formData.targetIndustry || "Business Opportunity",
+          postUrl: `https://fractionalsalespartner.com/post/${postId}`
+        })
+      }).catch(err => console.error("Mailer trigger error:", err));
+
       setFormData({
         targetCountry: "", targetCity: "", targetCustomerType: "", targetIndustry: "", b2bChannels: "", b2cChannels: "", expectedOutcomes: "",
         languageRequired: "", culturalFamiliarity: "", repLocation: "", minExperience: "", industryExperience: "",

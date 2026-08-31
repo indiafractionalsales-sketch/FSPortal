@@ -38,15 +38,14 @@ const Input = ({ label, value, onChange, type = "text", placeholder = "", requir
           </span>
         )}
       </div>
-      <input 
-        type={type} 
-        value={value} 
+      <input
+        type={type}
+        value={value}
         readOnly={readOnly}
-        onChange={(e) => !readOnly && onChange(e.target.value)} 
-        placeholder={placeholder} 
-        className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${
-          readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
-        }`} 
+        onChange={(e) => !readOnly && onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-full border rounded-md px-3 py-2 text-sm text-gray-900 outline-none transition-all ${readOnly ? 'bg-gray-100/80 border-blue-200 cursor-not-allowed text-gray-700 font-medium' : 'bg-white border-gray-300 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600'
+          }`}
       />
     </div>
   );
@@ -57,15 +56,15 @@ const Select = ({ label, value, onChange, options, required = false }: any) => {
   return (
     <div className="flex flex-col gap-1.5 mb-4 w-full">
       <label className="text-sm font-semibold text-gray-700">{cleanLabel}{required && <span className="text-red-500 ml-1">*</span>}</label>
-      <select 
-        value={value} 
-        onChange={(e) => onChange(e.target.value)} 
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none bg-white"
       >
-      <option value="">Select option</option>
-      {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-    </select>
-  </div>
+        <option value="">Select option</option>
+        {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+      </select>
+    </div>
   );
 };
 
@@ -73,7 +72,7 @@ export default function OnboardingWizard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Wizard State
   const [currentStep, setCurrentStep] = useState(0); // 0 = Role Selection, 1+ = Details
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
@@ -344,7 +343,7 @@ export default function OnboardingWizard() {
       {/* Right side: Wizard */}
       <div className="w-full md:w-1/2 flex flex-col h-screen overflow-y-auto bg-gray-50/30">
         <div className="max-w-xl w-full mx-auto p-8 lg:p-12 flex-1 flex flex-col">
-          
+
           <div className="mb-10">
             {currentStep > 0 && (
               <div className="mb-8">
@@ -366,18 +365,17 @@ export default function OnboardingWizard() {
             {currentStep === 0 && (
               <div className="space-y-4">
                 <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">How will you use the portal?</h1>
-                
+
                 {[
                   { id: "obo", title: "Brand / Business Owner", desc: "I want to list my products/services and find sales partners.", icon: Building },
-                  { id: "sp", title: "Sales Partner", desc: "I want to find products to sell and earn commissions.", icon: Briefcase },
-                  { id: "tpsp", title: "Third Party Provider", desc: "I provide supporting services like marketing or legal.", icon: Settings }
+                  { id: "sp", title: "Sales Partner", desc: "I want to find Brands to represent, Capture Leads for them and earn commissions.", icon: Briefcase },
+                  { id: "tpsp", title: "Business Partners", desc: "Market Entry & Compliance Consultants, Linguistic Support, CHA & Customs, Export Agencies, Marketing & Legal.", icon: Settings }
                 ].map((role) => (
                   <button
                     key={role.id}
                     onClick={() => setUserType(role.id as any)}
-                    className={`w-full text-left p-6 rounded-xl border-2 transition-all flex items-start gap-4 ${
-                      userType === role.id ? 'border-indigo-600 bg-indigo-50/50 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
+                    className={`w-full text-left p-6 rounded-xl border-2 transition-all flex items-start gap-4 ${userType === role.id ? 'border-indigo-600 bg-indigo-50/50 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
                   >
                     <div className={`p-3 rounded-lg ${userType === role.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
                       <role.icon className="w-6 h-6" />
@@ -394,7 +392,7 @@ export default function OnboardingWizard() {
             {/* OBO Forms */}
             {userType === "obo" && currentStep === 1 && (
               <div className="space-y-4">
-                <Select label="Country *" required value={oboData.country} onChange={(v: string) => setOboData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Select label="Country *" required value={oboData.country} onChange={(v: string) => setOboData(p => ({ ...p, country: v }))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
 
                 {oboData.country === "India" && (
                   <div className="mb-4">
@@ -433,80 +431,80 @@ export default function OnboardingWizard() {
                 {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
                 {oboData.country && (oboData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                    <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({...p, legalName: v}))} />
-                    <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({...p, brandName: v}))} />
+                    <Input label="Legal Company Name" required readOnly={isGstVerified} value={oboData.legalName} onChange={(v: string) => setOboData(p => ({ ...p, legalName: v }))} />
+                    <Input label="Brand Name" required value={oboData.brandName} onChange={(v: string) => setOboData(p => ({ ...p, brandName: v }))} />
                     {oboData.country === "India" ? (
-                      <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                      <Input label="GST/TAX Number" value={oboData.gstNumber} readOnly={isGstVerified} onChange={(v: string) => setOboData(p => ({ ...p, gstNumber: v }))} />
                     ) : (
-                      <Input label="Tax ID / Registration Number" value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({...p, gstNumber: v}))} />
+                      <Input label="Tax ID / Registration Number" value={oboData.gstNumber} onChange={(v: string) => setOboData(p => ({ ...p, gstNumber: v }))} />
                     )}
-                    <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({...p, incorporationDate: v}))} />
-                    <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({...p, revenueRange: v}))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
+                    <Input label="Incorporation Date" type="date" value={oboData.incorporationDate} onChange={(v: string) => setOboData(p => ({ ...p, incorporationDate: v }))} />
+                    <Select label="Revenue Range" value={oboData.revenueRange} onChange={(v: string) => setOboData(p => ({ ...p, revenueRange: v }))} options={["Pre-revenue", "$0-$1M", "$1M-$5M", "$5M+"]} />
                   </div>
                 )}
               </div>
             )}
             {userType === "obo" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Phone Number" required value={oboData.phone} onChange={(v: string) => setOboData(p => ({...p, phone: v}))} />
-                <Input label="Website" required value={oboData.website} onChange={(v: string) => setOboData(p => ({...p, website: v}))} />
-                <Input label="LinkedIn Profile" value={oboData.linkedinHandle} onChange={(v: string) => setOboData(p => ({...p, linkedinHandle: v}))} />
-                <Input label="Instagram Handle" value={oboData.instaHandle} onChange={(v: string) => setOboData(p => ({...p, instaHandle: v}))} />
-                <Input label="Facebook Page" value={oboData.fbHandle} onChange={(v: string) => setOboData(p => ({...p, fbHandle: v}))} />
+                <Input label="Phone Number" required value={oboData.phone} onChange={(v: string) => setOboData(p => ({ ...p, phone: v }))} />
+                <Input label="Website" required value={oboData.website} onChange={(v: string) => setOboData(p => ({ ...p, website: v }))} />
+                <Input label="LinkedIn Profile" value={oboData.linkedinHandle} onChange={(v: string) => setOboData(p => ({ ...p, linkedinHandle: v }))} />
+                <Input label="Instagram Handle" value={oboData.instaHandle} onChange={(v: string) => setOboData(p => ({ ...p, instaHandle: v }))} />
+                <Input label="Facebook Page" value={oboData.fbHandle} onChange={(v: string) => setOboData(p => ({ ...p, fbHandle: v }))} />
               </div>
             )}
 
             {/* SP Forms */}
             {userType === "sp" && currentStep === 1 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Full Name" required value={spData.fullName} onChange={(v: string) => setSpData(p => ({...p, fullName: v}))} />
-                <Input label="Preferred Name" value={spData.preferredName} onChange={(v: string) => setSpData(p => ({...p, preferredName: v}))} />
-                <Select label="Gender" value={spData.gender} onChange={(v: string) => setSpData(p => ({...p, gender: v}))} options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
-                <Input label="Date of Birth" type="date" value={spData.dob} onChange={(v: string) => setSpData(p => ({...p, dob: v}))} />
-                <Input label="Nationality" value={spData.nationality} onChange={(v: string) => setSpData(p => ({...p, nationality: v}))} />
-                <Select label="Primary Language" value={spData.primaryLanguage} onChange={(v: string) => setSpData(p => ({...p, primaryLanguage: v}))} options={["English", "Spanish", "French", "German", "Mandarin", "Hindi", "Other"]} />
+                <Input label="Full Name" required value={spData.fullName} onChange={(v: string) => setSpData(p => ({ ...p, fullName: v }))} />
+                <Input label="Preferred Name" value={spData.preferredName} onChange={(v: string) => setSpData(p => ({ ...p, preferredName: v }))} />
+                <Select label="Gender" value={spData.gender} onChange={(v: string) => setSpData(p => ({ ...p, gender: v }))} options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
+                <Input label="Date of Birth" type="date" value={spData.dob} onChange={(v: string) => setSpData(p => ({ ...p, dob: v }))} />
+                <Input label="Nationality" value={spData.nationality} onChange={(v: string) => setSpData(p => ({ ...p, nationality: v }))} />
+                <Select label="Primary Language" value={spData.primaryLanguage} onChange={(v: string) => setSpData(p => ({ ...p, primaryLanguage: v }))} options={["English", "Spanish", "French", "German", "Mandarin", "Hindi", "Other"]} />
               </div>
             )}
             {userType === "sp" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Mobile (Primary)" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({...p, mobilePrimary: v}))} />
-                <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({...p, mobileWhatsapp: v}))} />
-                <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
-                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({...p, city: v}))} />
-                <Input label="State / Region / County" value={spData.regionCounty} onChange={(v: string) => setSpData(p => ({...p, regionCounty: v}))} />
-                <Input label="Postal Code" value={spData.postcode} onChange={(v: string) => setSpData(p => ({...p, postcode: v}))} />
+                <Input label="Mobile (Primary)" required value={spData.mobilePrimary} onChange={(v: string) => setSpData(p => ({ ...p, mobilePrimary: v }))} />
+                <Input label="WhatsApp Number" value={spData.mobileWhatsapp} onChange={(v: string) => setSpData(p => ({ ...p, mobileWhatsapp: v }))} />
+                <Select label="Country" required value={spData.country} onChange={(v: string) => setSpData(p => ({ ...p, country: v }))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Input label="City" required value={spData.city} onChange={(v: string) => setSpData(p => ({ ...p, city: v }))} />
+                <Input label="State / Region / County" value={spData.regionCounty} onChange={(v: string) => setSpData(p => ({ ...p, regionCounty: v }))} />
+                <Input label="Postal Code" value={spData.postcode} onChange={(v: string) => setSpData(p => ({ ...p, postcode: v }))} />
               </div>
             )}
             {userType === "sp" && currentStep === 3 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({...p, employmentStatus: v}))} options={["Employed", "Self-Employed / Freelancer", "Seeking Opportunities"]} />
-                <Input label="Current / Last Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({...p, jobTitle: v}))} />
-                <Input label="Industry Experience" value={spData.industryExperience} onChange={(v: string) => setSpData(p => ({...p, industryExperience: v}))} placeholder="e.g. SaaS, Fintech, Retail" />
-                <Select label="Years of Experience" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({...p, yearsExperience: v}))} options={["0-2 years", "3-5 years", "6-10 years", "10+ years"]} />
-                <Select label="Target Market" value={spData.targetMarket} onChange={(v: string) => setSpData(p => ({...p, targetMarket: v}))} options={["B2B", "B2C", "Both B2B & B2C"]} />
+                <Select label="Employment Status" value={spData.employmentStatus} onChange={(v: string) => setSpData(p => ({ ...p, employmentStatus: v }))} options={["Employed", "Self-Employed / Freelancer", "Seeking Opportunities"]} />
+                <Input label="Current / Last Job Title" value={spData.jobTitle} onChange={(v: string) => setSpData(p => ({ ...p, jobTitle: v }))} />
+                <Input label="Industry Experience" value={spData.industryExperience} onChange={(v: string) => setSpData(p => ({ ...p, industryExperience: v }))} placeholder="e.g. SaaS, Fintech, Retail" />
+                <Select label="Years of Experience" required value={spData.yearsExperience} onChange={(v: string) => setSpData(p => ({ ...p, yearsExperience: v }))} options={["0-2 years", "3-5 years", "6-10 years", "10+ years"]} />
+                <Select label="Target Market" value={spData.targetMarket} onChange={(v: string) => setSpData(p => ({ ...p, targetMarket: v }))} options={["B2B", "B2C", "Both B2B & B2C"]} />
               </div>
             )}
             {userType === "sp" && currentStep === 4 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({...p, linkedinProfile: v}))} />
-                <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({...p, socialFollowing: v}))} />
-                <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({...p, avgDealSize: v}))} />
-                <Select label="Preferred Currency" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({...p, preferredCurrency: v}))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
-                <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({...p, pastBrands: v}))} />
+                <Input label="LinkedIn Profile" value={spData.linkedinProfile} onChange={(v: string) => setSpData(p => ({ ...p, linkedinProfile: v }))} />
+                <Input label="Social Following (Approx)" value={spData.socialFollowing} onChange={(v: string) => setSpData(p => ({ ...p, socialFollowing: v }))} />
+                <Input label="Average Deal Size" value={spData.avgDealSize} onChange={(v: string) => setSpData(p => ({ ...p, avgDealSize: v }))} />
+                <Select label="Preferred Currency" required value={spData.preferredCurrency} onChange={(v: string) => setSpData(p => ({ ...p, preferredCurrency: v }))} options={["USD", "EUR", "GBP", "INR", "AUD", "CAD"]} />
+                <Input label="Past Brands Worked With" value={spData.pastBrands} onChange={(v: string) => setSpData(p => ({ ...p, pastBrands: v }))} />
               </div>
             )}
             {userType === "sp" && currentStep === 5 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Select label="Right to Work" value={spData.rightToWork} onChange={(v: string) => setSpData(p => ({...p, rightToWork: v}))} options={["Citizen", "Visa", "No Work Rights"]} />
-                <Input label="Company Name (if applicable)" value={spData.companyName} onChange={(v: string) => setSpData(p => ({...p, companyName: v}))} />
-                <Input label="Company Reg No." value={spData.companyRegNo} onChange={(v: string) => setSpData(p => ({...p, companyRegNo: v}))} />
+                <Select label="Right to Work" value={spData.rightToWork} onChange={(v: string) => setSpData(p => ({ ...p, rightToWork: v }))} options={["Citizen", "Visa", "No Work Rights"]} />
+                <Input label="Company Name (if applicable)" value={spData.companyName} onChange={(v: string) => setSpData(p => ({ ...p, companyName: v }))} />
+                <Input label="Company Reg No." value={spData.companyRegNo} onChange={(v: string) => setSpData(p => ({ ...p, companyRegNo: v }))} />
               </div>
             )}
 
             {/* TPSP Forms */}
             {userType === "tpsp" && currentStep === 1 && (
               <div className="space-y-4">
-                <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({...p, country: v}))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
+                <Select label="Country" required value={tpspData.country} onChange={(v: string) => setTpspData(p => ({ ...p, country: v }))} options={["United States", "United Kingdom", "India", "Australia", "Canada", "Other"]} />
 
                 {tpspData.country === "India" && (
                   <div className="mb-4">
@@ -545,26 +543,26 @@ export default function OnboardingWizard() {
                 {/* Show fields only AFTER country is selected AND (if India, after GST verification or in manual mode) */}
                 {tpspData.country && (tpspData.country !== "India" || isGstVerified || verificationMode === "manual_admin") && (
                   <div className="grid grid-cols-1 gap-x-4">
-                    <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({...p, companyName: v}))} />
-                    <Input 
-                      label={tpspData.country === "India" && isGstVerified ? "Registered Business Address (GST)" : "Registered Business Address"} 
-                      readOnly={isGstVerified} 
-                      value={tpspData.registeredAddress} 
-                      onChange={(v: string) => setTpspData(p => ({...p, registeredAddress: v}))} 
-                      placeholder="e.g. Unit 401, Tech Park, City, Country" 
+                    <Input label="Company Name" required readOnly={isGstVerified} value={tpspData.companyName} onChange={(v: string) => setTpspData(p => ({ ...p, companyName: v }))} />
+                    <Input
+                      label={tpspData.country === "India" && isGstVerified ? "Registered Business Address (GST)" : "Registered Business Address"}
+                      readOnly={isGstVerified}
+                      value={tpspData.registeredAddress}
+                      onChange={(v: string) => setTpspData(p => ({ ...p, registeredAddress: v }))}
+                      placeholder="e.g. Unit 401, Tech Park, City, Country"
                     />
-                    <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({...p, services: v}))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
-                    <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({...p, contactPerson: v}))} />
+                    <Input label="Primary Services Provided" required value={tpspData.services} onChange={(v: string) => setTpspData(p => ({ ...p, services: v }))} placeholder="e.g. Legal Consulting, Marketing, Financial Services..." />
+                    <Input label="Contact Person" required value={tpspData.contactPerson} onChange={(v: string) => setTpspData(p => ({ ...p, contactPerson: v }))} />
                   </div>
                 )}
               </div>
             )}
             {userType === "tpsp" && currentStep === 2 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                <Input label="Phone Number" required value={tpspData.phone} onChange={(v: string) => setTpspData(p => ({...p, phone: v}))} />
-                <Input label="Email Address" type="email" value={tpspData.email} onChange={(v: string) => setTpspData(p => ({...p, email: v}))} />
-                <Input label="Website" required value={tpspData.website} onChange={(v: string) => setTpspData(p => ({...p, website: v}))} />
-                <Input label="Location / City" value={tpspData.location} onChange={(v: string) => setTpspData(p => ({...p, location: v}))} />
+                <Input label="Phone Number" required value={tpspData.phone} onChange={(v: string) => setTpspData(p => ({ ...p, phone: v }))} />
+                <Input label="Email Address" type="email" value={tpspData.email} onChange={(v: string) => setTpspData(p => ({ ...p, email: v }))} />
+                <Input label="Website" required value={tpspData.website} onChange={(v: string) => setTpspData(p => ({ ...p, website: v }))} />
+                <Input label="Location / City" value={tpspData.location} onChange={(v: string) => setTpspData(p => ({ ...p, location: v }))} />
               </div>
             )}
 
@@ -593,19 +591,19 @@ export default function OnboardingWizard() {
                     )}
                   </label>
                 </div>
-                
+
                 {/* GDPR Consent */}
                 <div className="pt-6 mt-6 border-t border-gray-200">
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        checked={gdprConsent} 
+                      <input
+                        type="checkbox"
+                        checked={gdprConsent}
                         onChange={(e) => setGdprConsent(e.target.checked)}
                         className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-600 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer"
                       />
                       <svg className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" viewBox="0 0 14 10" fill="none">
-                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="text-sm text-gray-600 leading-relaxed">
@@ -618,14 +616,14 @@ export default function OnboardingWizard() {
                 <div className="mt-3">
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        checked={termsConsent} 
+                      <input
+                        type="checkbox"
+                        checked={termsConsent}
                         onChange={(e) => setTermsConsent(e.target.checked)}
                         className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-600 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer"
                       />
                       <svg className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" viewBox="0 0 14 10" fill="none">
-                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="text-xs text-gray-500 leading-relaxed">
