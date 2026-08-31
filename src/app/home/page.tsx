@@ -27,7 +27,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getDocument, queryCollection } from "@/lib/firestore-rest";
 import Navbar from "@/components/Navbar";
-import SPPostCard, { SkeletonPostCard } from "@/components/SPPostCard";
+import SPPostCard from "@/components/SPPostCard";
 import SPCreatePostDrawer from "@/components/SPCreatePostDrawer";
 import OBOCreatePostDrawer from "@/components/OBOCreatePostDrawer";
 import PostDetailsDrawer from "@/components/PostDetailsDrawer";
@@ -238,7 +238,7 @@ export default function HomePage() {
         setHasMore(false);
       } else {
         const whereClause = feedTab === "mine" ? [{ field: "ownerUid", op: "EQUAL" as const, value: currentUser.uid }] : [];
-        
+
         const { docs, lastDoc } = await queryCollection("Posts", idToken, {
           orderByField: "createdAt",
           orderDirection: "DESCENDING",
@@ -328,7 +328,7 @@ export default function HomePage() {
       lastDocRef.current = null;
       refreshFeed();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedTab, user, loading]);
 
   // IntersectionObserver for infinite scroll sentinel
@@ -372,9 +372,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#faf8f5] text-[#0d0e12] font-body antialiased overflow-hidden h-screen flex flex-col text-sm">
       {/* Top Navbar */}
-      <Navbar 
-        user={user} 
-        userType={userType} 
+      <Navbar
+        user={user}
+        userType={userType}
         profileData={{ spData, oboData, tpspData }}
         isMarketplaceActive={isMarketplaceActive}
         onHomeClick={() => setIsMarketplaceActive(false)}
@@ -439,7 +439,7 @@ export default function HomePage() {
                         {user?.email?.charAt(0).toUpperCase() ?? "P"}
                       </div>
                     )}
-                    <button 
+                    <button
                       onClick={() => {
                         if (userType === "sp") setIsCreatePostOpen(true);
                         else if (userType === "obo" || userType === "tpsp") setIsOBOCreatePostOpen(true);
@@ -451,7 +451,7 @@ export default function HomePage() {
                     </button>
                   </div>
                   <div className="flex items-center justify-center border-t border-gray-100 pt-3">
-                    <button 
+                    <button
                       onClick={() => {
                         if (userType === "sp") setIsCreatePostOpen(true);
                         else if (userType === "obo") setIsOBOCreatePostOpen(true);
@@ -525,8 +525,8 @@ export default function HomePage() {
                             {feedTab === "deals" ? "No deals yet" : "No posts yet"}
                           </p>
                           <p className="text-xs mt-1">
-                            {feedTab === "deals" 
-                              ? "Your completed business transactions will appear here." 
+                            {feedTab === "deals"
+                              ? "Your completed business transactions will appear here."
                               : "Be the first to post an event!"}
                           </p>
                         </div>
@@ -553,11 +553,10 @@ export default function HomePage() {
                   );
                 })()}
 
-                {/* Modern Pulse Skeleton Card Loader */}
+                {/* Loading spinner */}
                 {feedLoading && hasMore && (
-                  <div className="space-y-4 py-2">
-                    <SkeletonPostCard />
-                    <SkeletonPostCard />
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 border-2 border-[#701010] border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
 
@@ -579,247 +578,247 @@ export default function HomePage() {
         {!isMarketplaceActive && (
           <div className={`w-full lg:w-[300px] 2xl:w-[400px] flex-shrink-0 ${mobileTab === 'discover' ? 'flex' : 'hidden'} lg:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 border-l border-gray-100 space-y-6`}>
 
-          {/* Section 1: Market Entry & Compliances */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Market Entry & Compliances</h4>
-              <div className="flex items-center gap-1 text-gray-400">
-                <button
-                  onClick={() => setActiveMarketEntryIndex(prev => (prev === 0 ? marketEntryAgencies.length - 1 : prev - 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
-                  {activeMarketEntryIndex + 1}/{marketEntryAgencies.length}
-                </span>
-                <button
-                  onClick={() => setActiveMarketEntryIndex(prev => (prev === marketEntryAgencies.length - 1 ? 0 : prev + 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+            {/* Section 1: Market Entry & Compliances */}
+            <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
+              <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Market Entry & Compliances</h4>
+                <div className="flex items-center gap-1 text-gray-400">
+                  <button
+                    onClick={() => setActiveMarketEntryIndex(prev => (prev === 0 ? marketEntryAgencies.length - 1 : prev - 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
+                    {activeMarketEntryIndex + 1}/{marketEntryAgencies.length}
+                  </span>
+                  <button
+                    onClick={() => setActiveMarketEntryIndex(prev => (prev === marketEntryAgencies.length - 1 ? 0 : prev + 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Logo & Header Info */}
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${marketEntryAgencies[activeMarketEntryIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
+                    <FileCheck className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
+                      {marketEntryAgencies[activeMarketEntryIndex].tag}
+                    </span>
+                    <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
+                      {marketEntryAgencies[activeMarketEntryIndex].name}
+                    </h5>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
+                      📍 {marketEntryAgencies[activeMarketEntryIndex].location}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed font-sans">
+                  {marketEntryAgencies[activeMarketEntryIndex].desc}
+                </p>
+                <div className="pt-1.5 border-t border-gray-50">
+                  <button
+                    onClick={() => {
+                      setActiveMarketplaceCategory("market_entry_compliance");
+                      setIsMarketplaceActive(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
+                  >
+                    <ArrowRight className="w-3 h-3" /> Explore
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {/* Logo & Header Info */}
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg ${marketEntryAgencies[activeMarketEntryIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
-                  <FileCheck className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
-                    {marketEntryAgencies[activeMarketEntryIndex].tag}
+            {/* Section 2: Overseas Marketing Agencies */}
+            <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
+              <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Marketing Agencies</h4>
+                <div className="flex items-center gap-1 text-gray-400">
+                  <button
+                    onClick={() => setActiveMarketingIndex(prev => (prev === 0 ? marketingAgencies.length - 1 : prev - 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
+                    {activeMarketingIndex + 1}/{marketingAgencies.length}
                   </span>
-                  <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
-                    {marketEntryAgencies[activeMarketEntryIndex].name}
-                  </h5>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
-                    📍 {marketEntryAgencies[activeMarketEntryIndex].location}
-                  </p>
+                  <button
+                    onClick={() => setActiveMarketingIndex(prev => (prev === marketingAgencies.length - 1 ? 0 : prev + 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-sans">
-                {marketEntryAgencies[activeMarketEntryIndex].desc}
-              </p>
-              <div className="pt-1.5 border-t border-gray-50">
-                <button
-                  onClick={() => {
-                    setActiveMarketplaceCategory("market_entry_compliance");
-                    setIsMarketplaceActive(true);
-                  }}
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
-                >
-                  <ArrowRight className="w-3 h-3" /> Explore
-                </button>
+
+              <div className="space-y-3">
+                {/* Logo & Header Info */}
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${marketingAgencies[activeMarketingIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
+                    {(() => {
+                      const IconComp = { TrendingUp, Compass, Globe }[marketingAgencies[activeMarketingIndex].icon];
+                      return IconComp ? <IconComp className="w-5 h-5" /> : null;
+                    })()}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
+                      {marketingAgencies[activeMarketingIndex].tag}
+                    </span>
+                    <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
+                      {marketingAgencies[activeMarketingIndex].name}
+                    </h5>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
+                      📍 {marketingAgencies[activeMarketingIndex].location}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed font-sans">
+                  {marketingAgencies[activeMarketingIndex].desc}
+                </p>
+                <div className="pt-1.5 border-t border-gray-50">
+                  <button
+                    onClick={() => {
+                      setActiveMarketplaceCategory("marketing");
+                      setIsMarketplaceActive(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
+                  >
+                    <ArrowRight className="w-3 h-3" /> Explore
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Deal Closure Agencies */}
+            <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
+              <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Deal Closure Partners</h4>
+                <div className="flex items-center gap-1 text-gray-400">
+                  <button
+                    onClick={() => setActiveBizDevIndex(prev => (prev === 0 ? bizDevAgencies.length - 1 : prev - 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
+                    {activeBizDevIndex + 1}/{bizDevAgencies.length}
+                  </span>
+                  <button
+                    onClick={() => setActiveBizDevIndex(prev => (prev === bizDevAgencies.length - 1 ? 0 : prev + 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Logo & Header Info */}
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${bizDevAgencies[activeBizDevIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
+                    {(() => {
+                      const IconComp = { Award, Briefcase, Users }[bizDevAgencies[activeBizDevIndex].icon];
+                      return IconComp ? <IconComp className="w-5 h-5" /> : null;
+                    })()}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
+                      {bizDevAgencies[activeBizDevIndex].tag}
+                    </span>
+                    <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
+                      {bizDevAgencies[activeBizDevIndex].name}
+                    </h5>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
+                      📍 {bizDevAgencies[activeBizDevIndex].location}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed font-sans">
+                  {bizDevAgencies[activeBizDevIndex].desc}
+                </p>
+                <div className="pt-1.5 border-t border-gray-50">
+                  <button
+                    onClick={() => {
+                      setActiveMarketplaceCategory("biz_dev");
+                      setIsMarketplaceActive(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
+                  >
+                    <ArrowRight className="w-3 h-3" /> Explore
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Overseas Legal Help */}
+            <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
+              <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Legal Advisors</h4>
+                <div className="flex items-center gap-1 text-gray-400">
+                  <button
+                    onClick={() => setActiveLegalIndex(prev => (prev === 0 ? legalAgencies.length - 1 : prev - 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
+                    {activeLegalIndex + 1}/{legalAgencies.length}
+                  </span>
+                  <button
+                    onClick={() => setActiveLegalIndex(prev => (prev === legalAgencies.length - 1 ? 0 : prev + 1))}
+                    className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Logo & Header Info */}
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${legalAgencies[activeLegalIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
+                    {(() => {
+                      const IconComp = { Shield, FileText, GraduationCap }[legalAgencies[activeLegalIndex].icon];
+                      return IconComp ? <IconComp className="w-5 h-5" /> : null;
+                    })()}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
+                      {legalAgencies[activeLegalIndex].tag}
+                    </span>
+                    <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
+                      {legalAgencies[activeLegalIndex].name}
+                    </h5>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
+                      📍 {legalAgencies[activeLegalIndex].location}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed font-sans">
+                  {legalAgencies[activeLegalIndex].desc}
+                </p>
+                <div className="pt-1.5 border-t border-gray-50">
+                  <button
+                    onClick={() => {
+                      setActiveMarketplaceCategory("legal");
+                      setIsMarketplaceActive(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
+                  >
+                    <ArrowRight className="w-3 h-3" /> Explore
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Section 2: Overseas Marketing Agencies */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Marketing Agencies</h4>
-              <div className="flex items-center gap-1 text-gray-400">
-                <button
-                  onClick={() => setActiveMarketingIndex(prev => (prev === 0 ? marketingAgencies.length - 1 : prev - 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
-                  {activeMarketingIndex + 1}/{marketingAgencies.length}
-                </span>
-                <button
-                  onClick={() => setActiveMarketingIndex(prev => (prev === marketingAgencies.length - 1 ? 0 : prev + 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {/* Logo & Header Info */}
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg ${marketingAgencies[activeMarketingIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
-                  {(() => {
-                    const IconComp = { TrendingUp, Compass, Globe }[marketingAgencies[activeMarketingIndex].icon];
-                    return IconComp ? <IconComp className="w-5 h-5" /> : null;
-                  })()}
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
-                    {marketingAgencies[activeMarketingIndex].tag}
-                  </span>
-                  <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
-                    {marketingAgencies[activeMarketingIndex].name}
-                  </h5>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
-                    📍 {marketingAgencies[activeMarketingIndex].location}
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-sans">
-                {marketingAgencies[activeMarketingIndex].desc}
-              </p>
-              <div className="pt-1.5 border-t border-gray-50">
-                <button
-                  onClick={() => {
-                    setActiveMarketplaceCategory("marketing");
-                    setIsMarketplaceActive(true);
-                  }}
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
-                >
-                  <ArrowRight className="w-3 h-3" /> Explore
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Deal Closure Agencies */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Deal Closure Partners</h4>
-              <div className="flex items-center gap-1 text-gray-400">
-                <button
-                  onClick={() => setActiveBizDevIndex(prev => (prev === 0 ? bizDevAgencies.length - 1 : prev - 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
-                  {activeBizDevIndex + 1}/{bizDevAgencies.length}
-                </span>
-                <button
-                  onClick={() => setActiveBizDevIndex(prev => (prev === bizDevAgencies.length - 1 ? 0 : prev + 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {/* Logo & Header Info */}
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg ${bizDevAgencies[activeBizDevIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
-                  {(() => {
-                    const IconComp = { Award, Briefcase, Users }[bizDevAgencies[activeBizDevIndex].icon];
-                    return IconComp ? <IconComp className="w-5 h-5" /> : null;
-                  })()}
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
-                    {bizDevAgencies[activeBizDevIndex].tag}
-                  </span>
-                  <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
-                    {bizDevAgencies[activeBizDevIndex].name}
-                  </h5>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
-                    📍 {bizDevAgencies[activeBizDevIndex].location}
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-sans">
-                {bizDevAgencies[activeBizDevIndex].desc}
-              </p>
-              <div className="pt-1.5 border-t border-gray-50">
-                <button
-                  onClick={() => {
-                    setActiveMarketplaceCategory("biz_dev");
-                    setIsMarketplaceActive(true);
-                  }}
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
-                >
-                  <ArrowRight className="w-3 h-3" /> Explore
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Overseas Legal Help */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-              <h4 className="text-[10px] font-headline font-bold text-gray-900 uppercase tracking-widest leading-none">Legal Advisors</h4>
-              <div className="flex items-center gap-1 text-gray-400">
-                <button
-                  onClick={() => setActiveLegalIndex(prev => (prev === 0 ? legalAgencies.length - 1 : prev - 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-[10px] font-headline font-bold text-gray-700 min-w-[24px] text-center">
-                  {activeLegalIndex + 1}/{legalAgencies.length}
-                </span>
-                <button
-                  onClick={() => setActiveLegalIndex(prev => (prev === legalAgencies.length - 1 ? 0 : prev + 1))}
-                  className="p-1 hover:text-[#701010] hover:bg-gray-55 rounded transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {/* Logo & Header Info */}
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-lg ${legalAgencies[activeLegalIndex].bg} flex-shrink-0 flex items-center justify-center text-white shadow-sm`}>
-                  {(() => {
-                    const IconComp = { Shield, FileText, GraduationCap }[legalAgencies[activeLegalIndex].icon];
-                    return IconComp ? <IconComp className="w-5 h-5" /> : null;
-                  })()}
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50/50 border border-red-100/30 px-1.5 py-0.5 rounded">
-                    {legalAgencies[activeLegalIndex].tag}
-                  </span>
-                  <h5 className="font-serif font-bold text-sm text-gray-900 mt-1 leading-snug">
-                    {legalAgencies[activeLegalIndex].name}
-                  </h5>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-450 mt-0.5">
-                    📍 {legalAgencies[activeLegalIndex].location}
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-sans">
-                {legalAgencies[activeLegalIndex].desc}
-              </p>
-              <div className="pt-1.5 border-t border-gray-50">
-                <button
-                  onClick={() => {
-                    setActiveMarketplaceCategory("legal");
-                    setIsMarketplaceActive(true);
-                  }}
-                  className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline cursor-pointer"
-                >
-                  <ArrowRight className="w-3 h-3" /> Explore
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
         )}
 
       </div>
@@ -827,18 +826,18 @@ export default function HomePage() {
 
 
       {/* SP Post Creation Drawer */}
-      <SPCreatePostDrawer 
-        isOpen={isCreatePostOpen} 
+      <SPCreatePostDrawer
+        isOpen={isCreatePostOpen}
         editPostData={editingPost}
         onClose={() => {
           setIsCreatePostOpen(false);
           setEditingPost(null);
-        }} 
+        }}
         onSuccess={() => {
           setIsCreatePostOpen(false);
           setEditingPost(null);
           refreshFeed();
-        }} 
+        }}
         authorName={spData.fullName || user?.displayName || user?.email || undefined}
         authorAvatar={spData.profilePhoto || user?.photoURL || undefined}
         preferredCurrency={spData.preferredCurrency || "USD"}
@@ -859,7 +858,7 @@ export default function HomePage() {
       />
 
       {/* Post Details Drawer */}
-      <PostDetailsDrawer 
+      <PostDetailsDrawer
         isOpen={!!viewingPost}
         onClose={() => setViewingPost(null)}
         post={viewingPost}
