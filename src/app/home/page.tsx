@@ -442,7 +442,6 @@ export default function HomePage() {
                     <button
                       onClick={() => {
                         if (userType === "sp") setIsCreatePostOpen(true);
-                        else if (userType === "obo" || userType === "tpsp") setIsOBOCreatePostOpen(true);
                         else setIsOBOCreatePostOpen(true);
                       }}
                       className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full px-4 text-left text-gray-500 text-xs transition-colors flex items-center"
@@ -454,8 +453,7 @@ export default function HomePage() {
                     <button
                       onClick={() => {
                         if (userType === "sp") setIsCreatePostOpen(true);
-                        else if (userType === "obo") setIsOBOCreatePostOpen(true);
-                        else alert("Post creation is currently available for Sales Partners and Brand Owners only.");
+                        else setIsOBOCreatePostOpen(true);
                       }}
                       className="flex items-center justify-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-[#701010] hover:bg-[#701010]/5 border border-[#701010]/15 rounded-lg py-2 transition-all w-full bg-[#701010]/3 shadow-sm hover:shadow-md hover:scale-[1.01] duration-200"
                     >
@@ -467,11 +465,16 @@ export default function HomePage() {
                 {/* Dynamic Posts Feed */}
                 {(() => {
                   const displayedPosts = posts.filter((post) => {
-                    if (feedTab === "mine") {
+                    // Global Feed & My Posts: Exclude finalized/sold deals from public market feed
+                    if (feedTab === "global" || feedTab === "mine") {
                       if (post.paymentStatus === "sold") return false;
                     }
+
+                    // My Deals Tab: Only show finalized deals associated with the logged-in user
                     if (feedTab === "deals") {
                       if (post.paymentStatus !== "sold") return false;
+                      const isAssociated = post.ownerUid === user?.uid || post.paymentLockedBy === user?.uid;
+                      if (!isAssociated) return false;
                     }
 
                     // Faceted Search Query Filter
