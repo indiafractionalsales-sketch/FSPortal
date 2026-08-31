@@ -324,6 +324,7 @@ export default function SPCreatePostDrawer({
       if (!consultancyForm.domain.trim()) return setError("Domain / Industry is required.");
       if (!consultancyForm.specialisation.trim()) return setError("Specialisation Statement is required.");
       if (!consultancyForm.targetMarkets.trim()) return setError("Target Markets are required.");
+      if (!imageFile && !imagePreview) return setError("Cover Image is required for Business Consultancy posts.");
     }
     if (!agreedToTerms) return setError("Please accept the Sales Partner Representation & Listing Agreement to proceed.");
     if (packages.length === 0) addPackage();
@@ -736,7 +737,7 @@ export default function SPCreatePostDrawer({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">Cover Image</label>
+                        <label className="text-[10px] font-bold text-gray-700 uppercase tracking-wider font-headline">Cover Image *</label>
                         <label className="flex flex-col items-center justify-center w-full h-[76px] rounded-lg border-2 border-dashed border-teal-200 cursor-pointer hover:bg-teal-50/50 bg-white/30 overflow-hidden relative transition-colors group">
                           <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                           {imagePreview ? (
