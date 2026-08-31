@@ -27,7 +27,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getDocument, queryCollection } from "@/lib/firestore-rest";
 import Navbar from "@/components/Navbar";
-import SPPostCard from "@/components/SPPostCard";
+import SPPostCard, { SkeletonPostCard } from "@/components/SPPostCard";
 import SPCreatePostDrawer from "@/components/SPCreatePostDrawer";
 import OBOCreatePostDrawer from "@/components/OBOCreatePostDrawer";
 import PostDetailsDrawer from "@/components/PostDetailsDrawer";
@@ -553,10 +553,11 @@ export default function HomePage() {
                   );
                 })()}
 
-                {/* Loading spinner */}
+                {/* Modern Pulse Skeleton Card Loader */}
                 {feedLoading && hasMore && (
-                  <div className="flex justify-center py-6">
-                    <div className="w-6 h-6 border-2 border-[#701010] border-t-transparent rounded-full animate-spin" />
+                  <div className="space-y-4 py-2">
+                    <SkeletonPostCard />
+                    <SkeletonPostCard />
                   </div>
                 )}
 

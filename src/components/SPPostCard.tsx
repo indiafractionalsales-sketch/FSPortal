@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, MessageSquare, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText } from "lucide-react";
+import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, MessageSquare, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText, Building2, DollarSign } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
@@ -133,6 +133,38 @@ function ExpandableText({ text, limit = 180, className = "" }: { text: string; l
         {isExpanded ? "Show less" : "Read more"}
       </button>
     </p>
+  );
+}
+
+export function SkeletonPostCard() {
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm animate-pulse space-y-3 font-sans">
+      {/* Header Skeleton */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-3.5 bg-gray-200 rounded w-1/3" />
+          <div className="h-2.5 bg-gray-150 rounded w-1/4" />
+        </div>
+      </div>
+      {/* Title & Body Skeleton */}
+      <div className="space-y-2 pt-1">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-150 rounded w-full" />
+        <div className="h-3 bg-gray-150 rounded w-5/6" />
+      </div>
+      {/* Deal Chips Skeleton */}
+      <div className="flex flex-wrap gap-2 pt-2">
+        <div className="h-6 w-20 bg-gray-200 rounded-full" />
+        <div className="h-6 w-24 bg-gray-200 rounded-full" />
+        <div className="h-6 w-16 bg-gray-200 rounded-full" />
+      </div>
+      {/* Action Footer Skeleton */}
+      <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+        <div className="h-4 w-12 bg-gray-200 rounded" />
+        <div className="h-7 w-28 bg-gray-200 rounded-lg" />
+      </div>
+    </div>
   );
 }
 
@@ -774,88 +806,62 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
               </div>
             </div>
           ) : (
-            <div className="px-4 pb-3 border-t border-gray-50 pt-4 grid grid-cols-2 gap-x-4 gap-y-4">
-              <div className="flex items-start gap-2.5">
-                <span className="text-[14px] leading-none flex-shrink-0 mt-0.5">🎯</span>
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Targeting</p>
-                  <p className="text-xs font-bold text-[#701010] font-sans line-clamp-1 mt-1">{post.targetIndustry}</p>
-                  <p className="text-[10px] text-gray-600 font-sans line-clamp-1 mt-0.5">{post.targetCustomerType}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Globe className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Channels</p>
-                  <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.b2bChannels || post.b2cChannels}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Location</p>
-                  <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.repLocation}</p>
-                </div>
-              </div>
-              {post.commissionRate && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Commission</p>
-                    <p className="text-sm font-bold text-[#701010] font-sans mt-1">{post.commissionRate}</p>
-                  </div>
-                </div>
+            /* Visual Deal Pill Chips Layout */
+            <div className="px-4 pb-3 border-t border-gray-100 pt-3 flex flex-wrap gap-2">
+              {post.targetIndustry && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-[#701010] border border-red-200/60 shadow-2xs">
+                  <Building2 className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                  {post.targetIndustry}
+                </span>
               )}
+
+              {post.repLocation && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-900 border border-blue-200/60 shadow-2xs">
+                  <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                  {post.repLocation}
+                </span>
+              )}
+
+              {(post.b2bChannels || post.b2cChannels) && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-900 border border-purple-200/60 shadow-2xs">
+                  <Globe className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
+                  {post.b2bChannels || post.b2cChannels}
+                </span>
+              )}
+
+              {post.commissionRate && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/60 shadow-2xs">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                  {post.commissionRate}
+                </span>
+              )}
+
               {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
-                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget Range</p>
-                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
-                      {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
-                    </p>
-                  </div>
-                </div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/60 shadow-2xs">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                  Budget: {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()}
+                </span>
               )}
 
               {post.pricingType === "open" && (
-                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget</p>
-                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
-                      Open to Pitch ({post.budgetCurrency || "USD"})
-                    </p>
-                  </div>
-                </div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/60 shadow-2xs">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                  Open to Pitch ({post.budgetCurrency || "USD"})
+                </span>
               )}
 
-              {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💵</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Currency</p>
-                    <p className="text-sm font-bold text-gray-800 font-sans mt-1">{post.currency}</p>
-                  </div>
-                </div>
-              )}
-              {post.engagementType && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">🤝</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Engagement</p>
-                    <p className="text-sm text-gray-800 font-sans mt-1">{post.engagementType}</p>
-                  </div>
-                </div>
-              )}
               {post.minExperience && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💼</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Experience</p>
-                    <p className="text-sm text-gray-800 font-sans mt-1">{post.minExperience}</p>
-                  </div>
-                </div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/60 shadow-2xs">
+                  <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                  Exp: {post.minExperience}
+                </span>
+              )}
+
+              {post.engagementType && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-gray-800 border border-gray-200 shadow-2xs">
+                  <Tag className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
+                  {post.engagementType}
+                </span>
               )}
             </div>
           )}
