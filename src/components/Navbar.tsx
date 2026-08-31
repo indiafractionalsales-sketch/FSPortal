@@ -108,7 +108,7 @@ export default function Navbar({
 
   return (
     <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
-      {/* Left: Logo & Integrated Search Bar */}
+      {/* Left: Logo */}
       <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
         <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-col items-start hover:opacity-80 transition-opacity flex-shrink-0">
           <div className="flex items-center gap-1">
@@ -119,15 +119,73 @@ export default function Navbar({
           </div>
           <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
         </Link>
+      </div>
 
-        {/* Global Navbar Search Bar & Filter Popover */}
+      {/* Center: Nav icons */}
+      <div className="flex items-center justify-center gap-1 flex-shrink-0 h-full">
+        {/* 1. Home Feed */}
+        <button 
+          onClick={() => {
+            if (onHomeClick) {
+              onHomeClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            !isMarketplaceActive && pathname === "/home" 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Home Feed"
+        >
+          <Home className="w-5 h-5" />
+        </button>
+
+        {/* 2. Scan Visiting Card */}
+        <button 
+          onClick={() => setIsScanOpen(true)}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            isScanOpen 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-55"
+          }`}
+          title="Scan Visiting Card"
+        >
+          <Scan className="w-5 h-5" />
+        </button>
+
+        {/* 3. Marketplace Directory */}
+        <button 
+          onClick={() => {
+            if (onMarketplaceClick) {
+              onMarketplaceClick();
+            } else {
+              router.push("/home");
+            }
+          }}
+          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
+            isMarketplaceActive 
+              ? "border-[#701010] text-[#701010]" 
+              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
+          }`}
+          title="Marketplace Directory"
+        >
+          <Store className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Right: Search Bar, Filter, Alert Bell & Profile */}
+      <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
+
+        {/* Global Search Bar & Filter Popover — Positioned between Marketplace & Alert Bell */}
         {onSearchChange && (
-          <div className="relative hidden md:flex items-center gap-2 max-w-md w-full ml-2">
+          <div className="relative hidden md:flex items-center gap-2 max-w-xs xl:max-w-sm w-full">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               <input
                 type="text"
-                placeholder="Search opportunities by title, region, author..."
+                placeholder="Search opportunities..."
                 value={searchQuery || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="w-full pl-9 pr-7 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#701010] text-gray-900 transition-all font-sans"
@@ -141,7 +199,7 @@ export default function Navbar({
 
             <button
               onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
                 isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
                   ? "bg-red-50 text-[#701010] border-red-200 shadow-2xs"
                   : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
@@ -226,64 +284,7 @@ export default function Navbar({
             )}
           </div>
         )}
-      </div>
 
-      {/* Center: Nav icons */}
-      <div className="flex items-center justify-center gap-1 flex-shrink-0 h-full">
-        {/* 1. Home Feed */}
-        <button 
-          onClick={() => {
-            if (onHomeClick) {
-              onHomeClick();
-            } else {
-              router.push("/home");
-            }
-          }}
-          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
-            !isMarketplaceActive && pathname === "/home" 
-              ? "border-[#701010] text-[#701010]" 
-              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
-          }`}
-          title="Home Feed"
-        >
-          <Home className="w-5 h-5" />
-        </button>
-
-        {/* 2. Scan Visiting Card */}
-        <button 
-          onClick={() => setIsScanOpen(true)}
-          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
-            isScanOpen 
-              ? "border-[#701010] text-[#701010]" 
-              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-55"
-          }`}
-          title="Scan Visiting Card"
-        >
-          <Scan className="w-5 h-5" />
-        </button>
-
-        {/* 3. Marketplace Directory */}
-        <button 
-          onClick={() => {
-            if (onMarketplaceClick) {
-              onMarketplaceClick();
-            } else {
-              router.push("/home");
-            }
-          }}
-          className={`px-4 md:px-7 h-full border-b-2 transition-colors flex items-center justify-center cursor-pointer ${
-            isMarketplaceActive 
-              ? "border-[#701010] text-[#701010]" 
-              : "border-transparent text-gray-500 hover:text-[#701010] hover:bg-gray-50"
-          }`}
-          title="Marketplace Directory"
-        >
-          <Store className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Right: Profile & Actions */}
-      <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
         <button className="hidden md:flex w-9 h-9 hover:bg-gray-100 rounded-full items-center justify-center transition-colors relative">
           <Bell className="w-4 h-4 text-gray-700" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>
