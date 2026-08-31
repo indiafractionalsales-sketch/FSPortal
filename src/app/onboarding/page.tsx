@@ -370,7 +370,7 @@ export default function OnboardingWizard() {
                 {[
                   { id: "obo", title: "Brand / Business Owner", desc: "I want to list my products/services and find sales partners.", icon: Building },
                   { id: "sp", title: "Sales Partner", desc: "I want to find products to sell and earn commissions.", icon: Briefcase },
-                  { id: "tpsp", title: "Third Party Provider", desc: "I provide supporting services like marketing or legal.", icon: Settings }
+                  { id: "tpsp", title: "Business Partners", desc: "Market Entry & Compliance Consultants, Linguistic Support, CHA & Customs, Export Agencies, Marketing & Legal.", icon: Settings }
                 ].map((role) => (
                   <button
                     key={role.id}
