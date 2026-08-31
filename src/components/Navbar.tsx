@@ -16,7 +16,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store, Search, Compass, X } from "lucide-react";
+import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store, Search, Compass, X, SlidersHorizontal } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
@@ -178,38 +178,50 @@ export default function Navbar({
       {/* Right: Search Bar, Filter, Alert Bell & Profile */}
       <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
 
-        {/* Global Search Bar & Filter Popover — Positioned between Marketplace & Alert Bell */}
+        {/* Global Embedded Search Bar & Filter Button — Positioned between Marketplace & Alert Bell */}
         {onSearchChange && (
-          <div className="relative hidden md:flex items-center gap-2 max-w-xs xl:max-w-sm w-full">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+          <div className="relative hidden md:flex items-center max-w-xs xl:max-w-sm w-full font-sans">
+            <div className="relative w-full flex items-center bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#701010] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#701010]/20 transition-all shadow-2xs">
+              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 flex-shrink-0" />
+              
               <input
                 type="text"
                 placeholder="Search opportunities..."
                 value={searchQuery || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-9 pr-7 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#701010] text-gray-900 transition-all font-sans"
+                className="w-full pl-8 pr-14 py-1.5 text-xs text-gray-900 bg-transparent outline-none font-sans"
               />
-              {searchQuery && (
-                <button onClick={() => onSearchChange("")} className="absolute right-2 top-2 text-gray-400 hover:text-gray-700">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
 
-            <button
-              onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
-                isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
-                  ? "bg-red-50 text-[#701010] border-red-200 shadow-2xs"
-                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5" /> Filter
-              {(filterRegion || filterIndustry || filterCommission) && (
-                <span className="w-2 h-2 rounded-full bg-[#701010] animate-pulse" />
-              )}
-            </button>
+              {/* Embedded Clear & Filter Icon Buttons inside search pill */}
+              <div className="absolute right-1.5 flex items-center gap-1">
+                {searchQuery && (
+                  <button
+                    onClick={() => onSearchChange("")}
+                    className="p-1 text-gray-400 hover:text-gray-700 rounded-md transition-colors"
+                    title="Clear search"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+
+                <div className="h-3.5 w-[1px] bg-gray-200" />
+
+                <button
+                  onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
+                  className={`p-1 rounded-md transition-all cursor-pointer relative flex items-center justify-center ${
+                    isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
+                      ? "text-[#701010] bg-red-50"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60"
+                  }`}
+                  title="Filter Opportunities"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  {(filterRegion || filterIndustry || filterCommission) && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#701010] ring-2 ring-white animate-pulse" />
+                  )}
+                </button>
+              </div>
+            </div>
 
             {/* Floating Filter Popover */}
             {isFilterPopoverOpen && (
