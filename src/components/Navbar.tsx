@@ -13,7 +13,7 @@
  * Indian and international intellectual property laws.
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store, Search, Compass, X, SlidersHorizontal } from "lucide-react";
@@ -65,6 +65,8 @@ export default function Navbar({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isScanOpen, setIsScanOpen] = useState(false);
   const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   const { spData, oboData, tpspData } = profileData || {};
 
@@ -178,50 +180,77 @@ export default function Navbar({
       {/* Right: Search Bar, Filter, Alert Bell & Profile */}
       <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
 
-        {/* Global Embedded Search Bar & Filter Button — Positioned between Marketplace & Alert Bell */}
+        {/* Global Expandable Search Lens & Filter Button — Collapsed by default for maximum space savings */}
         {onSearchChange && (
-          <div className="relative hidden md:flex items-center max-w-xs xl:max-w-sm w-full font-sans">
-            <div className="relative w-full flex items-center bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#701010] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#701010]/20 transition-all shadow-2xs">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 flex-shrink-0" />
-              
-              <input
-                type="text"
-                placeholder="Search opportunities..."
-                value={searchQuery || ""}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-8 pr-14 py-1.5 text-xs text-gray-900 bg-transparent outline-none font-sans"
-              />
-
-              {/* Embedded Clear & Filter Icon Buttons inside search pill */}
-              <div className="absolute right-1.5 flex items-center gap-1">
-                {searchQuery && (
-                  <button
-                    onClick={() => onSearchChange("")}
-                    className="p-1 text-gray-400 hover:text-gray-700 rounded-md transition-colors"
-                    title="Clear search"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
+          <div className="relative hidden md:flex items-center font-sans">
+            {!(isSearchExpanded || searchQuery || filterRegion || filterIndustry || filterCommission) ? (
+              /* Collapsed State: Sleek Circular Search Lens Button */
+              <button
+                onClick={() => {
+                  setIsSearchExpanded(true);
+                  setTimeout(() => searchInputRef.current?.focus(), 50);
+                }}
+                className="w-9 h-9 hover:bg-gray-100 rounded-full flex items-center justify-center transition-all text-gray-700 cursor-pointer relative"
+                title="Search & Filter Opportunities"
+              >
+                <Search className="w-4 h-4 text-gray-700" />
+                {(filterRegion || filterIndustry || filterCommission) && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#701010] ring-2 ring-white animate-pulse" />
                 )}
+              </button>
+            ) : (
+              /* Expanded State: Smooth Animated Pill Container */
+              <div className="relative w-64 xl:w-72 flex items-center bg-gray-50 border border-gray-200 rounded-xl focus-within:border-[#701010] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#701010]/20 transition-all duration-300 shadow-2xs">
+                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 flex-shrink-0" />
+                
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search opportunities..."
+                  value={searchQuery || ""}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="w-full pl-8 pr-16 py-1.5 text-xs text-gray-900 bg-transparent outline-none font-sans"
+                />
 
-                <div className="h-3.5 w-[1px] bg-gray-200" />
-
-                <button
-                  onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
-                  className={`p-1 rounded-md transition-all cursor-pointer relative flex items-center justify-center ${
-                    isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
-                      ? "text-[#701010] bg-red-50"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60"
-                  }`}
-                  title="Filter Opportunities"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  {(filterRegion || filterIndustry || filterCommission) && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#701010] ring-2 ring-white animate-pulse" />
+                {/* Embedded Clear & Filter Icon Buttons inside search pill */}
+                <div className="absolute right-1.5 flex items-center gap-1">
+                  {searchQuery ? (
+                    <button
+                      onClick={() => onSearchChange("")}
+                      className="p-1 text-gray-400 hover:text-gray-700 rounded-md transition-colors cursor-pointer"
+                      title="Clear search"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsSearchExpanded(false)}
+                      className="p-1 text-gray-400 hover:text-gray-700 rounded-md transition-colors cursor-pointer"
+                      title="Collapse search"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   )}
-                </button>
+
+                  <div className="h-3.5 w-[1px] bg-gray-200" />
+
+                  <button
+                    onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
+                    className={`p-1 rounded-md transition-all cursor-pointer relative flex items-center justify-center ${
+                      isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
+                        ? "text-[#701010] bg-red-50"
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60"
+                    }`}
+                    title="Filter Opportunities"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    {(filterRegion || filterIndustry || filterCommission) && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#701010] ring-2 ring-white animate-pulse" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Floating Filter Popover */}
             {isFilterPopoverOpen && (
