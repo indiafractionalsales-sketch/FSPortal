@@ -156,12 +156,6 @@ export default function Navbar({
 
       {/* Right: Profile & Actions */}
       <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
-        
-        {/* Persona Badge (moved from Left Sidebar) */}
-        <span className="hidden sm:inline-flex items-center text-[10px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-2.5 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-xs">
-          {personaLabel}
-        </span>
-
         <button className="hidden md:flex w-9 h-9 hover:bg-gray-100 rounded-full items-center justify-center transition-colors relative">
           <Bell className="w-4 h-4 text-gray-700" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-[#701010] rounded-full border border-white"></span>

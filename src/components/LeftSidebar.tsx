@@ -85,10 +85,27 @@ export default function LeftSidebar({
     if (setMobileTab) setMobileTab("feed");
   };
 
+  const getPersonaLabel = () => {
+    if (userType === "obo") return "Overseas Business Owner";
+    if (userType === "sp") return "Sales Partner";
+    if (userType === "tpsp") return "Service Provider";
+    if (oboData && (oboData.brandName || oboData.logo)) return "Overseas Business Owner";
+    if (tpspData && (tpspData.companyName || tpspData.logo)) return "Service Provider";
+    return "Sales Partner";
+  };
+
+  const getProfileName = () => {
+    if (spData?.fullName) return spData.fullName;
+    if (oboData?.brandName) return oboData.brandName;
+    if (tpspData?.companyName) return tpspData.companyName;
+    if (user?.displayName) return user.displayName;
+    return "Partner User";
+  };
+
   return (
     <div className={`w-full md:w-[300px] xl:w-[320px] 2xl:w-[360px] flex-shrink-0 ${mobileTab === 'profile' ? 'flex' : (mobileTab ? 'hidden' : 'flex')} md:flex flex-col overflow-y-auto p-4 custom-scrollbar bg-white/50 gap-4 border-r border-gray-100 ${className}`}>
       
-      {/* Profile Header (Banner & Avatar) */}
+      {/* Profile Header (Banner, Avatar, Persona Pill) */}
       <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
         {/* Banner */}
         <div className="h-16 bg-[#701010] relative overflow-hidden">
@@ -97,9 +114,9 @@ export default function LeftSidebar({
           )}
         </div>
 
-        {/* Avatar */}
+        {/* Avatar & Persona Pill */}
         <div className="px-4 pb-3">
-          <div className="relative -mt-8">
+          <div className="relative -mt-8 flex items-end justify-between">
             {spData?.profilePhoto ? (
               <img
                 src={spData.profilePhoto}
@@ -123,6 +140,15 @@ export default function LeftSidebar({
                 {user?.email?.charAt(0).toUpperCase() ?? "P"}
               </div>
             )}
+          </div>
+
+          <div className="mt-2.5">
+            <h3 className="font-serif font-bold text-sm text-gray-900 truncate">{getProfileName()}</h3>
+            <div className="mt-1">
+              <span className="inline-flex items-center text-[9.5px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shadow-2xs">
+                {getPersonaLabel()}
+              </span>
+            </div>
           </div>
         </div>
       </div>
