@@ -224,19 +224,40 @@ export default function LeftSidebar({
           <h4 className="text-xs font-headline font-bold text-gray-900 uppercase tracking-widest pb-1.5 mb-3 border-b border-gray-50">Quick Links</h4>
           <ul className="space-y-1.5">
             <li>
-              <button onClick={() => handleFeedTabClick("global")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "global" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+              <button
+                onClick={() => handleFeedTabClick("global")}
+                className={`w-full flex items-center gap-2.5 py-2.5 px-2.5 transition-all rounded-lg text-left border-l-4 cursor-pointer ${
+                  feedTab === "global" && !isMarketplaceActive
+                    ? "bg-red-50/90 border-[#701010] text-[#701010] font-bold shadow-2xs"
+                    : "hover:bg-gray-50 text-gray-700 border-transparent font-medium"
+                }`}
+              >
                 <span className="text-base">🌍</span>
                 <span className="text-xs font-headline font-bold uppercase tracking-wider">Global Feed</span>
               </button>
             </li>
             <li>
-              <button onClick={() => handleFeedTabClick("mine")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "mine" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+              <button
+                onClick={() => handleFeedTabClick("mine")}
+                className={`w-full flex items-center gap-2.5 py-2.5 px-2.5 transition-all rounded-lg text-left border-l-4 cursor-pointer ${
+                  feedTab === "mine" && !isMarketplaceActive
+                    ? "bg-red-50/90 border-[#701010] text-[#701010] font-bold shadow-2xs"
+                    : "hover:bg-gray-50 text-gray-700 border-transparent font-medium"
+                }`}
+              >
                 <span className="text-base">📝</span>
                 <span className="text-xs font-headline font-bold uppercase tracking-wider">My Posts</span>
               </button>
             </li>
             <li>
-              <button onClick={() => handleFeedTabClick("deals")} className={`w-full flex items-center gap-2.5 px-2 py-2 transition-all rounded-lg text-left ${feedTab === "deals" && !isMarketplaceActive ? "bg-[#701010]/5 text-[#701010]" : "hover:bg-gray-50 text-gray-700"}`}>
+              <button
+                onClick={() => handleFeedTabClick("deals")}
+                className={`w-full flex items-center gap-2.5 py-2.5 px-2.5 transition-all rounded-lg text-left border-l-4 cursor-pointer ${
+                  feedTab === "deals" && !isMarketplaceActive
+                    ? "bg-red-50/90 border-[#701010] text-[#701010] font-bold shadow-2xs"
+                    : "hover:bg-gray-50 text-gray-700 border-transparent font-medium"
+                }`}
+              >
                 <span className="text-base">💼</span>
                 <span className="text-xs font-headline font-bold uppercase tracking-wider">My Deals</span>
               </button>

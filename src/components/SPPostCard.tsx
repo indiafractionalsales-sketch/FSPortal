@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { storage } from "@/lib/firebase";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, MessageSquare, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText } from "lucide-react";
+import { MapPin, ImageIcon, X, Send, Calendar, Clock, Users, Globe, ExternalLink, ThumbsUp, MessageCircle, MessageSquare, Video, Star, Pencil, Tag, Loader2, Share2, Camera, FileText, TrendingUp, CheckCircle2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
 import RatingModal from "@/components/RatingModal";
@@ -152,14 +152,14 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [existingReview, setExistingReview] = useState<{ rating: number; comment: string } | null>(null);
   const [reviewChecked, setReviewChecked] = useState(false);
-  
+
   // Service Agreement states
   const [isAgreementAccepted, setIsAgreementAccepted] = useState(false);
   const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
-  
+
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isCheckingAttendance, setIsCheckingAttendance] = useState(false);
-  
+
   // Offers states
   const [isOfferDrawerOpen, setIsOfferDrawerOpen] = useState(false);
   const [isOffersPanelOpen, setIsOffersPanelOpen] = useState(false);
@@ -211,7 +211,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   }, [isPartner, post.__id]);
 
   const getCurrencySymbol = (currency: string) => {
-    switch(currency) {
+    switch (currency) {
       case 'EUR': return '€';
       case 'GBP': return '£';
       case 'INR': return '₹';
@@ -237,7 +237,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
-      
+
       const res = await fetch(`/api/comments?postId=${post.__id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -245,7 +245,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       });
       const data = await res.json();
       console.log('fetchComments Response:', res.status, data);
-      
+
       if (data.comments) {
         setComments(data.comments);
       } else {
@@ -273,7 +273,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
     }
 
     const action = isLiked ? 'unlike' : 'like';
-    
+
     // Optimistic UI update
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
@@ -305,7 +305,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
             postTitle: post.eventName || post.expectedOutcomes || "Opportunity Post",
             postUrl: `https://fractionalsalespartner.com/post/${post.__id}`
           })
-        }).catch(() => {});
+        }).catch(() => { });
       }
     } catch (e) {
       console.error(e);
@@ -345,7 +345,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       alert("Image exceeds 5MB limit. Please choose a smaller file.");
       return;
     }
-    
+
     setIsCompressing(true);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -375,7 +375,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
   const handleSubmitComment = async () => {
     if (!newCommentText.trim() && !selectedImage) return;
     setIsSubmittingComment(true);
-    
+
     try {
       let finalImageUrl = null;
       if (selectedImage) {
@@ -403,7 +403,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       });
 
       if (!res.ok) throw new Error("Failed to post comment");
-      
+
       const { data } = await res.json();
       setComments([...comments, data]);
 
@@ -419,7 +419,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
           postTitle: post.eventName || post.expectedOutcomes || "Opportunity Post",
           postUrl: `https://fractionalsalespartner.com/post/${post.__id}`
         })
-      }).catch(() => {});
+      }).catch(() => { });
 
       setNewCommentText("");
       setSelectedImage(null);
@@ -454,7 +454,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
         return;
       }
       setIsCheckingOut(true);
-      
+
       const isScriptLoaded = await loadRazorpayScript();
       if (!isScriptLoaded) {
         alert("Failed to load payment gateway. Please check your internet connection.");
@@ -463,7 +463,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       }
 
       const token = await auth.currentUser?.getIdToken();
-      
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -475,7 +475,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
       });
 
       const data = await res.json();
-      
+
       if (data.error) {
         alert(data.error);
         setIsCheckingOut(false);
@@ -507,7 +507,7 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
                   receipt: data.receipt
                 })
               });
-              
+
               const verifyData = await verifyRes.json();
               if (verifyData.error) {
                 alert(verifyData.error);
@@ -536,1032 +536,1054 @@ export default function SPPostCard({ post, authorName, authorAvatar, currentUser
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
       }
-    } catch (err) {
-      console.error("Checkout failed:", err);
-      alert("Checkout failed. Please try again.");
     } finally {
       setIsCheckingOut(false);
     }
   };
 
+  const getPaidPriceString = () => {
+    const p = post as any;
+    if (p.paymentAmount) {
+      return Number(p.paymentAmount).toLocaleString('en-IN', { style: 'currency', currency: p.paymentCurrency || 'INR', maximumFractionDigits: 0 });
+    }
+    if (post.packages && post.packages.length > 0) {
+      const totalCost = calculateTotalCost(post.packages[0].items || []);
+      return totalCost.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+    }
+    if (p.agreedPrice) {
+      return Number(p.agreedPrice).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+    }
+    return "₹1";
+  };
+
   return (
     <>
-    <div className="relative bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+      <div className="relative bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
 
-      {/* Post Author */}
-      <div className="flex items-start justify-between p-4 pb-3">
-        <Link href={post.ownerUid ? (isOwner ? '/profile' : `/user/${post.ownerUid}`) : '#'} className="flex items-start gap-3 group">
-          {authorAvatar ? (
-            <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm mt-0.5 group-hover:opacity-90 transition-opacity" />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg mt-0.5 group-hover:opacity-90 transition-opacity">{initials}</div>
-          )}
-          <div>
-            <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug flex items-center flex-wrap gap-2 group-hover:text-[#701010] transition-colors">
-              <span className="group-hover:underline">{authorName || "User"}</span>
-              {post.paymentStatus === 'sold' && (
-                <span className="bg-red-50 border border-red-100 text-red-600 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shadow-[0_1px_2px_rgba(239,68,68,0.1)] flex items-center gap-1.5 ml-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
-                  CLOSED
+        {/* Post Author */}
+        <div className="flex items-start justify-between p-4 pb-3">
+          <div className="flex items-start gap-3">
+            <Link href={post.ownerUid ? (isOwner ? '/profile' : `/user/${post.ownerUid}`) : '#'} className="flex items-center gap-3 group">
+              {authorAvatar ? (
+                <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm mt-0.5 group-hover:opacity-90 transition-opacity" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#701010] flex items-center justify-center text-white font-serif font-bold text-lg mt-0.5 group-hover:opacity-90 transition-opacity">{initials}</div>
+              )}
+            </Link>
+            <div>
+              <h3 className="font-serif font-bold text-sm text-gray-900 leading-snug flex items-center flex-wrap gap-1.5 transition-colors">
+                <Link href={post.ownerUid ? (isOwner ? '/profile' : `/user/${post.ownerUid}`) : '#'} className="hover:underline hover:text-[#701010]">
+                  {authorName || "User"}
+                </Link>
+                <span title="Verified Partner" className="inline-flex items-center text-blue-500 shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 fill-blue-500 text-white" />
                 </span>
-              )}
-              {post.postType === "obo" && (
-                <span
-                  className="font-sans font-normal text-xs text-gray-600 ml-1.5 cursor-pointer hover:underline"
-                  onClick={onViewDetails}
-                >
-                  is looking for Sales Partners in <span className="font-bold text-[#701010]">{post.targetCountry || "Global"}</span>
-                </span>
-              )}
-            </h3>
-            <p className="text-[9px] font-headline text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
-              <span>{post.postType === "obo" ? "Business Owner" : "Sales Partner"}</span>
-              <span>·</span>
-              <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""}</span>
-              <span className="inline-flex items-center gap-0.5 bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.5 rounded-full font-bold text-[8px]">
-                <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                4.9 (12)
-              </span>
-              <span className="inline-flex items-center gap-0.5 text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold text-[8px]">
-                🔒 Verified
-              </span>
-            </p>
-          </div>
-        </Link>
-        <div className="flex items-center gap-2">
-          {/* Package Capsules */}
-          {post.packages && post.packages.length > 0 && (
-            <div className="flex items-center gap-1.5 mr-2">
-              {post.packages.map((pkg, idx) => (
-                <button
-                  key={pkg.id || idx}
-                  onClick={() => setViewingPackage(pkg)}
-                  className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 rounded-md text-[#701010] text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
-                >
-                  <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
-                  {calculateTotalCost(pkg.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Top-Right Minimalist Like Button */}
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleLike();
-            }}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-              isLiked 
-                ? 'text-blue-600 bg-blue-50 border border-blue-100/50 shadow-sm' 
-                : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50 border border-transparent'
-            }`}
-            title={isLiked ? "Unlike post" : "Like post"}
-          >
-            <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-blue-600' : ''}`} /> 
-            {likeCount > 0 && <span className="font-headline font-semibold">{likeCount}</span>}
-          </button>
-
-          {isOwner && onEdit && post.paymentStatus !== 'sold' && (
-            <button
-              onClick={onEdit}
-              className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-              title="Edit Post"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {/* Action Buttons (Full width to utilize space below price tags) */}
-      {post.paymentStatus === 'sold' && (
-        <div className="px-4 pb-3 -mt-1">
-          <div className="flex flex-wrap items-center gap-1.5 pl-[3.25rem]">
-            {/* Capture Lead - visible only to the Sales Partner */}
-            {((post.postType === 'sp' && currentUid === post.ownerUid) ||
-              (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
-              <button
-                onClick={() => setShowLeadCapture(true)}
-                className="flex-shrink-0 bg-gray-900 hover:bg-gray-800 text-white text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-gray-850"
-              >
-                <Camera className="w-2.5 h-2.5" />
-                Capture Lead
-              </button>
-            )}
-            {/* Attendance - visible only to the Sales Partner for events */}
-            {isPartner && post.spPostSubType !== "consultancy" && (
-              <button
-                onClick={() => setShowAttendance(true)}
-                className="flex-shrink-0 bg-indigo-900 hover:bg-indigo-800 text-indigo-100 text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer border border-indigo-850"
-              >
-                <MapPin className="w-2.5 h-2.5" />
-                {isCheckingAttendance ? "..." : isCheckedIn ? "Active Session" : "Check-in"}
-              </button>
-            )}
-            {/* Insights - visible to both SP and OBO for this sold deal */}
-            {((post.postType === 'sp' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy)) ||
-              (post.postType === 'obo' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy))) && (
-              <button
-                onClick={() => router.push(`/insights/${post.__id}`)}
-                className="flex-shrink-0 bg-white hover:bg-gray-50 text-[#701010] border border-[#701010]/20 text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-              >
-                📈 Insights
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {post.postType === "obo" ? (
-        <>
-          {/* Info above image */}
-          <div className="px-4 pb-3">
-            {post.expectedOutcomes && (
-              <div>
-                <ExpandableText text={post.expectedOutcomes} limit={200} className="text-sm text-gray-800 leading-relaxed font-sans" />
-              </div>
-            )}
-          </div>
-
-          {post.mediaUrl ? (
-            <div className="flex w-full h-44 border-t border-b border-gray-100 bg-gray-50/30">
-              {/* Media thumbnail */}
-              <div className="w-2/5 h-full overflow-hidden flex-shrink-0 border-r border-gray-100 bg-black">
-                <img src={post.mediaUrl} alt="Product/Brand" className="w-full h-full object-cover opacity-90" />
-              </div>
-              {/* Info beside image (Grid Table) */}
-              <div className="flex-1 p-3 grid grid-cols-2 gap-x-2 gap-y-3 content-center">
-                <div className="flex flex-col">
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                    <span className="text-[11px] leading-none -mt-0.5">🎯</span> Targeting
-                  </p>
-                  <p className="text-[11px] font-bold text-[#701010] font-sans line-clamp-1 mt-1" title={post.targetIndustry}>{post.targetIndustry}</p>
-                </div>
-
-                <div className="flex flex-col">
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                    <span className="text-[11px] leading-none -mt-0.5">🌐</span> Channels
-                  </p>
-                  <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.b2bChannels || post.b2cChannels}>{post.b2bChannels || post.b2cChannels}</p>
-                </div>
-
-                <div className="flex flex-col">
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                    <span className="text-[11px] leading-none -mt-0.5">📍</span> Location
-                  </p>
-                  <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.repLocation}>{post.repLocation}</p>
-                </div>
-
-                {post.commissionRate && (
-                  <div className="flex flex-col">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                      <span className="text-[11px] leading-none -mt-0.5">💰</span> Commission
-                    </p>
-                    <p className="text-[11px] font-bold text-[#701010] font-sans line-clamp-1 mt-1" title={post.commissionRate}>{post.commissionRate}</p>
-                  </div>
-                )}
-
-                {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
-                  <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
-                      💰 Target Budget Range
-                    </p>
-                    <p className="text-xs font-bold text-gray-900 font-sans mt-1">
-                      {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
-                    </p>
-                  </div>
-                )}
-
-                {post.pricingType === "open" && (
-                  <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
-                      💰 Target Budget
-                    </p>
-                    <p className="text-xs font-bold text-gray-900 font-sans mt-1">
-                      Open to Pitch ({post.budgetCurrency || "USD"})
-                    </p>
-                  </div>
-                )}
-
-                {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
-                  <div className="flex flex-col">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                      <span className="text-[11px] leading-none -mt-0.5">💵</span> Currency
-                    </p>
-                    <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.currency}>{post.currency}</p>
-                  </div>
-                )}
-
-                {post.engagementType && (
-                  <div className="flex flex-col">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                      <span className="text-[11px] leading-none -mt-0.5">🤝</span> Engagement
-                    </p>
-                    <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.engagementType}>{post.engagementType}</p>
-                  </div>
-                )}
-
-                {post.minExperience && (
-                  <div className="flex flex-col">
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
-                      <span className="text-[11px] leading-none -mt-0.5">💼</span> Experience
-                    </p>
-                    <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.minExperience}>{post.minExperience}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="px-4 pb-3 border-t border-gray-50 pt-4 grid grid-cols-2 gap-x-4 gap-y-4">
-              <div className="flex items-start gap-2.5">
-                <span className="text-[14px] leading-none flex-shrink-0 mt-0.5">🎯</span>
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Targeting</p>
-                  <p className="text-xs font-bold text-[#701010] font-sans line-clamp-1 mt-1">{post.targetIndustry}</p>
-                  <p className="text-[10px] text-gray-600 font-sans line-clamp-1 mt-0.5">{post.targetCustomerType}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Globe className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Channels</p>
-                  <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.b2bChannels || post.b2cChannels}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Location</p>
-                  <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.repLocation}</p>
-                </div>
-              </div>
-              {post.commissionRate && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Commission</p>
-                    <p className="text-sm font-bold text-[#701010] font-sans mt-1">{post.commissionRate}</p>
-                  </div>
-                </div>
-              )}
-              {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
-                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget Range</p>
-                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
-                      {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {post.pricingType === "open" && (
-                <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget</p>
-                    <p className="text-sm font-bold text-gray-900 font-sans mt-1">
-                      Open to Pitch ({post.budgetCurrency || "USD"})
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💵</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Currency</p>
-                    <p className="text-sm font-bold text-gray-800 font-sans mt-1">{post.currency}</p>
-                  </div>
-                </div>
-              )}
-              {post.engagementType && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">🤝</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Engagement</p>
-                    <p className="text-sm text-gray-800 font-sans mt-1">{post.engagementType}</p>
-                  </div>
-                </div>
-              )}
-              {post.minExperience && (
-                <div className="flex items-start gap-2.5">
-                  <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💼</span>
-                  <div>
-                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Experience</p>
-                    <p className="text-sm text-gray-800 font-sans mt-1">{post.minExperience}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </>
-      ) : post.spPostSubType === "consultancy" ? (
-        <>
-          {/* Consultancy Description / Specialisation Pitch */}
-          {(post.specialisation || post.description) && (
-            <div className="px-4 pb-3">
-              <ExpandableText text={post.specialisation || post.description || ""} limit={180} className="text-xs text-gray-700 leading-relaxed font-sans" />
-            </div>
-          )}
-
-          {/* Consultancy Details Area */}
-          {post.mediaUrl ? (
-            <div className="flex w-full border-t border-b border-gray-100 bg-gray-50/30">
-              {/* Media Thumbnail */}
-              <div className="w-1/3 min-h-[140px] overflow-hidden flex-shrink-0 border-r border-gray-100 bg-gray-100">
-                <img src={post.mediaUrl} alt={post.serviceTitle || "Consultancy"} className="w-full h-full object-cover" />
-              </div>
-              {/* Details Column */}
-              <div className="flex-1 p-3 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-start justify-between gap-1 mb-1.5">
-                    <h4
-                      className="font-serif font-bold text-sm text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors line-clamp-2"
-                      onClick={onViewDetails}
-                    >
-                      {post.serviceTitle || post.eventName || "Business Consultancy Service"}
-                    </h4>
-                    <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
-                      Consultancy
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 bg-teal-50/50 p-2 rounded-lg border border-teal-100/60">
-                    {post.domain && (
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain</span>
-                        <span className="text-[11px] font-bold text-teal-950 truncate">{post.domain}</span>
-                      </div>
-                    )}
-                    {post.targetMarkets && (
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Markets</span>
-                        <span className="text-[11px] font-bold text-teal-950 truncate">{post.targetMarkets}</span>
-                      </div>
-                    )}
-                    {post.engagementMode && (
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
-                        <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementMode}</span>
-                      </div>
-                    )}
-                    {post.engagementDuration && (
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
-                        <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementDuration}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {post.languages && (
-                  <div className="mt-1 text-[9px] text-gray-500 font-sans truncate">
-                    <span className="font-bold text-gray-700">Languages:</span> {post.languages}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            /* No Media: Full Width Grid */
-            <div className="px-4 pb-3 border-t border-gray-100 pt-3">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h4
-                  className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors"
-                  onClick={onViewDetails}
-                >
-                  {post.serviceTitle || post.eventName || "Business Consultancy Service"}
-                </h4>
-                <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
-                  Consultancy
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-2 bg-teal-50/40 p-3 rounded-xl border border-teal-100/60">
-                {post.domain && (
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain / Industry</span>
-                    <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.domain}</span>
-                  </div>
-                )}
-                {post.targetMarkets && (
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Target Markets</span>
-                    <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.targetMarkets}</span>
-                  </div>
-                )}
-                {post.engagementMode && (
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
-                    <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementMode}</span>
-                  </div>
-                )}
-                {post.engagementDuration && (
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
-                    <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementDuration}</span>
-                  </div>
-                )}
-              </div>
-
-              {post.languages && (
-                <div className="mt-2 text-[10px] text-gray-500 font-sans">
-                  <span className="font-bold text-gray-700">Languages:</span> {post.languages}
-                </div>
-              )}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          {/* Description — shown prominently above media */}
-          {post.description && (
-            <div className="px-4 pb-3">
-              <ExpandableText text={post.description} limit={180} className="text-xs text-gray-700 leading-relaxed font-sans" />
-            </div>
-          )}
-
-          {/* Event Details Area */}
-          {post.mediaUrl ? (
-            <div className="flex w-full h-36 border-t border-b border-gray-100 bg-gray-50/30">
-              {/* Media thumbnail */}
-              <div className="w-1/3 h-full overflow-hidden flex-shrink-0">
-                <img src={post.mediaUrl} alt="Event" className="w-full h-full object-cover" />
-              </div>
-              {/* Details */}
-              <div className="flex-1 p-3 flex flex-col justify-between">
-                <div>
-                  <h4
-                    className="font-serif font-bold text-sm text-gray-900 leading-snug line-clamp-2 cursor-pointer hover:text-[#701010] hover:underline transition-colors"
+                {post.postType === "obo" && (
+                  <span
+                    className="font-sans font-normal text-xs text-gray-600 ml-1 cursor-pointer hover:underline"
                     onClick={onViewDetails}
                   >
-                    {post.eventName}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
-                    {formattedDate && (
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-700 font-sans truncate">{formattedDate}</span>
-                      </div>
-                    )}
-                    {post.time && (
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                        <span className="text-[10px] text-gray-700 font-sans truncate">{post.time}</span>
-                      </div>
-                    )}
-                    {/* Location col1, Event capsule col2 — same grid row */}
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                      <span className="text-[10px] text-gray-700 font-sans truncate">
-                        {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
-                        {post.googleMapLink && (
-                          <a href={post.googleMapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#701010] font-bold hover:underline">(Map)</a>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      {post.eventUrl ? (
-                        <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
-                          Event ↗
-                        </a>
-                      ) : (
-                        <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
-                          Event
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-1">
-                  {post.expectedFootfall ? (
-                    <div className="flex items-center gap-1 text-gray-500">
-                      <Users className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-600">
-                        Expected: <span className="text-[#701010]">{post.expectedFootfall}</span>
-                      </span>
-                    </div>
-                  ) : <div />}
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* No media: text-only card */
-            <div className="px-4 pb-3 border-t border-gray-50 pt-3">
-              <h4
-                className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-[#701010] hover:underline transition-colors"
-                onClick={onViewDetails}
-              >
-                {post.eventName}
-              </h4>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
-                {formattedDate && (
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                    <span className="text-[10px] text-gray-700 font-sans">{formattedDate}</span>
-                  </div>
-                )}
-                {post.time && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                    <span className="text-[10px] text-gray-700 font-sans">{post.time}</span>
-                  </div>
-                )}
-                {/* Location col1, Event capsule col2 — same grid row */}
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
-                  <span className="text-[10px] text-gray-700 font-sans truncate">
-                    {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+                    is looking for Sales Partners in <span className="font-bold text-[#701010]">{post.targetCountry || "Global"}</span>
                   </span>
-                </div>
-                <div className="flex items-center">
-                  {post.eventUrl ? (
-                    <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
-                      Event ↗
+                )}
+              </h3>
+              <p className="text-[9px] font-headline text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+                <span>{post.postType === "obo" ? "Business Owner" : "Sales Partner"}</span>
+                <span>·</span>
+                <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""}</span>
+                {post.paymentStatus !== 'sold' && (
+                  <span className="inline-flex items-center gap-0.5 bg-amber-50 text-amber-900 border border-amber-200 px-1.5 py-0.5 rounded-full font-bold text-[8px]">
+                    <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                    4.9 (12)
+                  </span>
+                )}
+
+                {/* DEAL POST: Labeled action buttons in the same line after Verified */}
+                {post.paymentStatus === 'sold' && (
+                  <span className="inline-flex items-center gap-1 ml-1 pl-1.5 border-l border-gray-200">
+                    {/* Service Agreement PDF */}
+                    <a
+                      href={`/api/agreements/download?order_id=${post.paymentOrderId || post.__id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Service Agreement (PDF)"
+                      className="px-2 py-0.5 text-[#701010] bg-red-50 hover:bg-red-100 rounded-md border border-red-200/80 transition-all flex items-center gap-1 cursor-pointer text-[8px] font-bold uppercase tracking-wider shadow-2xs"
+                    >
+                      <FileText className="w-2.5 h-2.5" />
+                      Agreement
                     </a>
-                  ) : (
-                    <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
-                      Event
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
 
+                    {/* Insights icon */}
+                    {((post.postType === 'sp' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy)) ||
+                      (post.postType === 'obo' && (currentUid === post.ownerUid || currentUid === post.paymentLockedBy))) && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(`/insights/${post.__id}`);
+                          }}
+                          title="Insights"
+                          className="px-2 py-0.5 text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-200 transition-all flex items-center gap-1 cursor-pointer text-[8px] font-bold uppercase tracking-wider shadow-2xs"
+                        >
+                          <TrendingUp className="w-2.5 h-2.5 text-gray-700" />
+                          Insights
+                        </button>
+                      )}
 
-
-      {/* Video link */}
-      {post.videoUrl && (
-        <div className="px-4 pb-3 flex items-center gap-4">
-          <a href={post.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline">
-            <Video className="w-3 h-3" /> Watch Video
-          </a>
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
-        {post.postType === "obo" && (
-          // Offer-based OBO Post
-          !isOwner ? (
-            // Sales Partner User sees "Respond"
-            <button 
-              onClick={async () => {
-                if (post.paymentStatus === 'sold' || !acceptingOffers) return;
-                // Fetch existing offer for this SP on this post
-                setIsFetchingOffer(true);
-                try {
-                  const token = await auth.currentUser?.getIdToken();
-                  if (token && post.__id) {
-                    const res = await fetch(`/api/offers?postId=${post.__id}`, {
-                      headers: { Authorization: `Bearer ${token}` },
-                    });
-                    if (res.ok) {
-                      const data = await res.json();
-                      const pendingOffer = (data.offers || []).find(
-                        (o: any) => o.status === "pending" || o.status === "accepted"
-                      );
-                      setExistingOffer(pendingOffer || null);
-                    }
-                  }
-                } catch (e) {
-                  console.error("Failed to fetch existing offer:", e);
-                  setExistingOffer(null);
-                } finally {
-                  setIsFetchingOffer(false);
-                }
-                setIsOfferDrawerOpen(true);
-              }}
-              disabled={post.paymentStatus === 'sold' || !acceptingOffers || isFetchingOffer}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${
-                post.paymentStatus === 'sold' || !acceptingOffers
-                  ? 'text-gray-400 bg-gray-50 cursor-not-allowed font-medium'
-                  : 'text-[#701010] hover:bg-red-50 hover:text-[#5a0c0c]'
-              }`}
-            >
-              {isFetchingOffer ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              {post.paymentStatus === 'sold' ? 'Deal Finalized' : isFetchingOffer ? 'Loading...' : 'Respond'}
-            </button>
-          ) : (
-            // Post Owner (OBO) sees "Responses (count)"
-            <button 
-              onClick={() => setIsOffersPanelOpen(true)} 
-              className="flex-1 flex items-center justify-center gap-2 py-2 text-[#701010] font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#5a0c0c] transition-all rounded-lg"
-            >
-              <MessageCircle className="w-3.5 h-3.5" /> 
-              Responses ({offerCount})
-            </button>
-          )
-        )}
-
-        {!isOwner && (
-          <button
-            onClick={() => {
-              window.dispatchEvent(
-                new CustomEvent("open_direct_post_chat", {
-                  detail: {
-                    recipientUid: post.ownerUid,
-                    recipientName: authorName || "Partner",
-                    postTitle: post.eventName || post.expectedOutcomes || "Feed Post",
-                    postId: post.__id || ""
-                  }
-                })
-              );
-            }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#701010] transition-all rounded-lg cursor-pointer"
-            title="Direct Chat with Publisher"
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-[#701010]" /> Chat
-          </button>
-        )}
-
-        <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
-          <MessageCircle className="w-3.5 h-3.5" /> Comment
-        </button>
-        <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
-          <Share2 className="w-3.5 h-3.5" /> Share
-        </button>
-      </div>
-
-      {post.paymentStatus === 'sold' && (
-        <div className="border-t border-gray-100 mx-4 py-3 mt-1">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[10px] font-headline font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Deal Finalized
-              </span>
-              <a 
-                href={`/api/agreements/download?order_id=${post.paymentOrderId || post.__id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#701010] border border-amber-200 rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
-              >
-                <FileText className="w-3.5 h-3.5 text-[#701010]" />
-                Service Agreement (PDF)
-              </a>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {((post.postType === 'sp' && currentUid === post.paymentLockedBy) ||
-                (post.postType === 'obo' && currentUid === post.ownerUid)) && (
-                <button 
-                  onClick={() => alert("Payment release requested successfully. The funds will be processed and transferred to your registered account shortly.")}
-                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
-                >
-                  💰 Release Payment
-                </button>
-              )}
-
-              <button
-                onClick={async () => {
-                  if (!reviewChecked) {
-                    try {
-                      const token = await auth.currentUser?.getIdToken();
-                      if (token) {
-                        const res = await fetch(`/api/reviews/submit?postId=${post.__id}`, {
-                          headers: { Authorization: `Bearer ${token}` },
-                        });
-                        const data = await res.json();
-                        if (data.exists) {
-                          setExistingReview({ rating: data.review.rating, comment: data.review.comment });
-                        }
-                        setReviewChecked(true);
-                      }
-                    } catch (e) { /* continue */ }
-                  }
-                  setShowRatingModal(true);
-                }}
-                className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-headline font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Star className="w-3 h-3" />
-                {existingReview ? 'View Rating' : 'Rate Partner'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Lead Capture Interface (full-screen overlay) */}
-      <LeadCaptureInterface
-        isOpen={showLeadCapture}
-        onClose={() => setShowLeadCapture(false)}
-        postId={post.__id}
-        targetOwnerUid={
-          post.postType === 'sp'
-            ? post.paymentLockedBy
-            : post.ownerUid
-        }
-      />
-
-      {/* Attendance Drawer */}
-      <AttendanceDrawer
-        isOpen={showAttendance}
-        onClose={() => {
-          setShowAttendance(false);
-          checkAttendanceStatus();
-        }}
-        postId={post.__id || ''}
-        clientName={post.eventName || post.expectedOutcomes || 'Client Location'}
-      />
-
-      {/* Rating Modal */}
-      <RatingModal
-        isOpen={showRatingModal}
-        onClose={() => setShowRatingModal(false)}
-        postId={post.__id || ''}
-        targetUid={
-          post.postType === 'sp'
-            ? post.ownerUid || ''
-            : post.paymentLockedBy || ''
-        }
-        targetName={authorName || 'Partner'}
-        existingReview={existingReview}
-      />
-    </div>
-
-    {/* Package Viewing Drawer (Bottom/Right aligned based on screen) */}
-    {viewingPackage && (
-      <div className="fixed inset-0 z-[100] flex justify-end">
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-          onClick={() => setViewingPackage(null)}
-        />
-        {/* Drawer */}
-        <div className="relative w-full max-w-md bg-gray-50 h-full shadow-2xl flex flex-col animate-slide-in-right">
-          <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100 shadow-sm">
-            <div>
-              <h2 className="font-serif font-bold text-lg text-gray-900">{viewingPackage.name || "Package Details"}</h2>
-              <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider mt-0.5 font-bold">
-                Total (INR): {calculateTotalCost(viewingPackage.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
-                {viewingPackage.outwardCurrency && viewingPackage.outwardCurrency !== 'INR' && (
-                  <span className="ml-2 bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded font-bold">
-                    SP&apos;s Currency: {viewingPackage.outwardCurrency}
+                    {/* Capture Lead icon */}
+                    {((post.postType === 'sp' && currentUid === post.ownerUid) ||
+                      (post.postType === 'obo' && currentUid === post.paymentLockedBy)) && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowLeadCapture(true);
+                          }}
+                          title="Capture Lead"
+                          className="px-2 py-0.5 text-white bg-gray-900 hover:bg-gray-800 rounded-md border border-gray-800 transition-all flex items-center gap-1 cursor-pointer text-[8px] font-bold uppercase tracking-wider shadow-2xs"
+                        >
+                          <Camera className="w-2.5 h-2.5" />
+                          Capture Leads
+                        </button>
+                      )}
                   </span>
                 )}
               </p>
             </div>
-            <button 
-              onClick={() => setViewingPackage(null)}
-              className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <Pencil className="w-4 h-4 hidden" /> {/* Just to keep the icon hidden to use X but we'll use a generic X instead */}
-              <span className="text-xl leading-none">&times;</span>
-            </button>
           </div>
-          
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
-              <div className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100">
-                <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item</div>
-                <div className="col-span-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Amount (₹ INR)</div>
-              </div>
-              
-              <div className="divide-y divide-gray-50">
-                {(viewingPackage.items || []).map((item: any, i: number) => (
-                  <div key={item.id || i} className="grid grid-cols-12 gap-3 py-3 items-center">
-                    <div className="col-span-8 text-sm text-gray-700">{item.description || "—"}</div>
-                    <div className="col-span-4 text-sm font-semibold text-gray-900 text-right">
-                      {parseFloat(item.cost || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
-                    </div>
-                  </div>
+          <div className="flex items-center gap-2">
+            {/* Package Capsules (Hidden on sold deals) */}
+            {post.paymentStatus !== 'sold' && post.packages && post.packages.length > 0 && (
+              <div className="flex items-center gap-1.5 mr-2">
+                {post.packages.map((pkg, idx) => (
+                  <button
+                    key={pkg.id || idx}
+                    onClick={() => setViewingPackage(pkg)}
+                    className="px-2 py-1 bg-[#701010]/5 hover:bg-[#701010]/10 border border-[#701010]/20 text-[#701010] rounded-md text-[9px] font-headline font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
+                    title="View Package & Purchase"
+                  >
+                    <Tag className="w-3 h-3 text-[#701010] fill-[#701010] mr-0.5" />
+                    {calculateTotalCost(pkg.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+                  </button>
                 ))}
               </div>
-            </div>
+            )}
 
-            {/* Service Agreement Acceptance Section */}
-            <div className="mt-4 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                  <Tag className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Service Agreement</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAgreementModalOpen(true)}
-                  className="text-[11px] font-bold text-[#701010] hover:underline flex items-center gap-1"
-                >
-                  <Pencil className="w-3 h-3 hidden" />
-                  Read Full Agreement &rarr;
-                </button>
-              </div>
-
-              <label className="flex items-start gap-2.5 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={isAgreementAccepted}
-                  onChange={(e) => setIsAgreementAccepted(e.target.checked)}
-                  className="mt-0.5 rounded border-amber-300 text-[#701010] focus:ring-[#701010] w-4 h-4"
-                />
-                <span className="text-[11px] text-amber-950 font-medium leading-tight">
-                  I have read and agree to the{" "}
-                  <button
-                    type="button"
-                    onClick={() => setIsAgreementModalOpen(true)}
-                    className="underline text-[#701010] font-bold"
-                  >
-                    Fractional Sales Partner Service Agreement
-                  </button>{" "}
-                  and Terms &amp; Conditions.
-                </span>
-              </label>
-            </div>
-            
-            <div className="mt-5 flex justify-end gap-3">
+            {/* Top-Right Minimalist Like Button (Hidden on sold deals) */}
+            {post.paymentStatus !== 'sold' && (
               <button
-                onClick={() => setViewingPackage(null)}
-                className="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors shadow-sm"
-              >
-                Close
-              </button>
-              {!isOwner && post.paymentStatus !== 'sold' && (
-                <button
-                  onClick={() => handleCheckout(viewingPackage.id)}
-                  disabled={isCheckingOut || !isAgreementAccepted}
-                  className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[140px] ${
-                    !isAgreementAccepted
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-[#701010] text-white hover:bg-[#5a0c0c]"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleLike();
+                }}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${isLiked
+                  ? 'text-blue-600 bg-blue-50 border border-blue-100/50 shadow-sm'
+                  : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50 border border-transparent'
                   }`}
-                >
-                  {isCheckingOut ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  ) : (
-                    "Pay to Confirm"
-                  )}
-                </button>
-              )}
-            </div>
+                title={isLiked ? "Unlike post" : "Like post"}
+              >
+                <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-blue-600' : ''}`} />
+                {likeCount > 0 && <span className="font-headline font-semibold">{likeCount}</span>}
+              </button>
+            )}
+
+            {isOwner && onEdit && post.paymentStatus !== 'sold' && (
+              <button
+                onClick={onEdit}
+                className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                title="Edit Post"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
-      </div>
-    )}
 
-    {/* Service Agreement Modal */}
-    {viewingPackage && (
-      <ServiceAgreementModal
-        isOpen={isAgreementModalOpen}
-        onClose={() => setIsAgreementModalOpen(false)}
-        onAccept={() => setIsAgreementAccepted(true)}
-        isAccepted={isAgreementAccepted}
-        agreementData={{
-          agreementRef: `FSP-SA-${Date.now().toString().slice(-6)}`,
-          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
-          clientName: auth.currentUser?.displayName || "Business Owner",
-          clientEmail: auth.currentUser?.email || "N/A",
-          spName: authorName || "Sales Partner",
-          spEmail: "support@fractionalsalespartner.com",
-          packageName: viewingPackage.name || "Package Representation",
-          totalAmount: calculateTotalCost(viewingPackage.items || []),
-          currency: "INR",
-          lineItems: viewingPackage.items || [],
-          eventName: post.eventName || post.expectedOutcomes || "Event Representation",
-        }}
-      />
-    )}
 
-    {/* Comments Drawer */}
-    {isCommentsOpen && (
-      <div className="fixed inset-0 z-[100] flex justify-end">
-        <div 
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-          onClick={() => setIsCommentsOpen(false)}
-        />
-        <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-in-right">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
-            <h2 className="font-serif font-bold text-lg text-gray-900">Comments</h2>
-            <button 
-              onClick={() => setIsCommentsOpen(false)}
-              className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          {/* Comments List */}
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50">
-            {isLoadingComments ? (
-              <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-[#701010]" /></div>
-            ) : comments.length === 0 ? (
-              <div className="text-center py-10 text-gray-400 text-sm">No comments yet. Be the first to start the conversation!</div>
+
+        {post.postType === "obo" ? (
+          <>
+            {/* Info above image */}
+            <div className="px-4 pb-3">
+              {post.expectedOutcomes && (
+                <div>
+                  <ExpandableText text={post.expectedOutcomes} limit={200} className="text-sm text-gray-800 leading-relaxed font-sans" />
+                </div>
+              )}
+            </div>
+
+            {post.mediaUrl ? (
+              <div className="flex w-full h-44 border-t border-b border-gray-100 bg-gray-50/30">
+                {/* Media thumbnail */}
+                <div className="w-2/5 h-full overflow-hidden flex-shrink-0 border-r border-gray-100 bg-black">
+                  <img src={post.mediaUrl} alt="Product/Brand" className="w-full h-full object-cover opacity-90" />
+                </div>
+                {/* Info beside image (Grid Table) */}
+                <div className="flex-1 p-3 grid grid-cols-2 gap-x-2 gap-y-3 content-center">
+                  <div className="flex flex-col">
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                      <span className="text-[11px] leading-none -mt-0.5">🎯</span> Targeting
+                    </p>
+                    <p className="text-[11px] font-bold text-[#701010] font-sans line-clamp-1 mt-1" title={post.targetIndustry}>{post.targetIndustry}</p>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                      <span className="text-[11px] leading-none -mt-0.5">🌐</span> Channels
+                    </p>
+                    <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.b2bChannels || post.b2cChannels}>{post.b2bChannels || post.b2cChannels}</p>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                      <span className="text-[11px] leading-none -mt-0.5">📍</span> Location
+                    </p>
+                    <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.repLocation}>{post.repLocation}</p>
+                  </div>
+
+                  {post.commissionRate && (
+                    <div className="flex flex-col">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                        <span className="text-[11px] leading-none -mt-0.5">💰</span> Commission
+                      </p>
+                      <p className="text-[11px] font-bold text-[#701010] font-sans line-clamp-1 mt-1" title={post.commissionRate}>{post.commissionRate}</p>
+                    </div>
+                  )}
+
+                  {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
+                    <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
+                        💰 Target Budget Range
+                      </p>
+                      <p className="text-xs font-bold text-gray-900 font-sans mt-1">
+                        {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
+                      </p>
+                    </div>
+                  )}
+
+                  {post.pricingType === "open" && (
+                    <div className="flex flex-col col-span-2 bg-[#701010]/5 p-2 rounded-lg border border-[#701010]/10 mb-1">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none flex items-center gap-1">
+                        💰 Target Budget
+                      </p>
+                      <p className="text-xs font-bold text-gray-900 font-sans mt-1">
+                        Open to Pitch ({post.budgetCurrency || "USD"})
+                      </p>
+                    </div>
+                  )}
+
+                  {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
+                    <div className="flex flex-col">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                        <span className="text-[11px] leading-none -mt-0.5">💵</span> Currency
+                      </p>
+                      <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.currency}>{post.currency}</p>
+                    </div>
+                  )}
+
+                  {post.engagementType && (
+                    <div className="flex flex-col">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                        <span className="text-[11px] leading-none -mt-0.5">🤝</span> Engagement
+                      </p>
+                      <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.engagementType}>{post.engagementType}</p>
+                    </div>
+                  )}
+
+                  {post.minExperience && (
+                    <div className="flex flex-col">
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none flex items-center gap-1">
+                        <span className="text-[11px] leading-none -mt-0.5">💼</span> Experience
+                      </p>
+                      <p className="text-[11px] text-gray-800 font-sans line-clamp-1 mt-1" title={post.minExperience}>{post.minExperience}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
-              <div className="space-y-4">
-                {comments.map((c) => (
-                  <div key={c.id} className="flex gap-3">
-                    {c.authorAvatar ? (
-                      <img src={c.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500 text-xs">
-                        {c.authorName?.charAt(0) || 'U'}
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
-                        <p className="font-bold text-xs text-gray-900">{c.authorName}</p>
-                        <p className="text-sm text-gray-700 mt-0.5">{c.text}</p>
-                        {c.imageUrl && (
-                          <img src={c.imageUrl} alt="attached" className="mt-2 rounded-lg max-h-48 object-cover" />
-                        )}
-                      </div>
-                      <p className="text-[10px] text-gray-400 mt-1 ml-2">
-                        {new Date(c.createdAt).toLocaleDateString()} {new Date(c.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              <div className="px-4 pb-3 border-t border-gray-50 pt-4 grid grid-cols-2 gap-x-4 gap-y-4">
+                <div className="flex items-start gap-2.5">
+                  <span className="text-[14px] leading-none flex-shrink-0 mt-0.5">🎯</span>
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Targeting</p>
+                    <p className="text-xs font-bold text-[#701010] font-sans line-clamp-1 mt-1">{post.targetIndustry}</p>
+                    <p className="text-[10px] text-gray-600 font-sans line-clamp-1 mt-0.5">{post.targetCustomerType}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <Globe className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Channels</p>
+                    <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.b2bChannels || post.b2cChannels}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#701010] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Location</p>
+                    <p className="text-xs text-gray-800 font-sans line-clamp-1 mt-1">{post.repLocation}</p>
+                  </div>
+                </div>
+                {post.commissionRate && (
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Commission</p>
+                      <p className="text-sm font-bold text-[#701010] font-sans mt-1">{post.commissionRate}</p>
+                    </div>
+                  </div>
+                )}
+                {post.pricingType === "range" && (post.budgetMin || post.budgetMax) && (
+                  <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget Range</p>
+                      <p className="text-sm font-bold text-gray-900 font-sans mt-1">
+                        {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMin).toLocaleString()} – {getCurrencySymbol(post.budgetCurrency || 'USD')}{Number(post.budgetMax).toLocaleString()} {post.budgetCurrency}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                )}
 
-          {/* Input Area */}
-          <div className="p-4 bg-white border-t border-gray-100 flex flex-col gap-2">
-            {selectedImage && (
-              <div className="relative self-start mb-2">
-                <img src={selectedImage} alt="preview" className="h-20 rounded-lg border border-gray-200 object-cover" />
-                <button onClick={() => setSelectedImage(null)} className="absolute -top-2 -right-2 bg-gray-900 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors">
-                  <X className="w-3 h-3" />
-                </button>
+                {post.pricingType === "open" && (
+                  <div className="flex items-start gap-2.5 col-span-2 bg-[#701010]/5 p-3 rounded-lg border border-[#701010]/10">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💰</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-[#701010] leading-none">Target Budget</p>
+                      <p className="text-sm font-bold text-gray-900 font-sans mt-1">
+                        Open to Pitch ({post.budgetCurrency || "USD"})
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {post.currency && post.pricingType !== "range" && post.pricingType !== "open" && (
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💵</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Currency</p>
+                      <p className="text-sm font-bold text-gray-800 font-sans mt-1">{post.currency}</p>
+                    </div>
+                  </div>
+                )}
+                {post.engagementType && (
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">🤝</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Engagement</p>
+                      <p className="text-sm text-gray-800 font-sans mt-1">{post.engagementType}</p>
+                    </div>
+                  </div>
+                )}
+                {post.minExperience && (
+                  <div className="flex items-start gap-2.5">
+                    <span className="text-[15px] leading-none flex-shrink-0 mt-0.5">💼</span>
+                    <div>
+                      <p className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-500 leading-none">Experience</p>
+                      <p className="text-sm text-gray-800 font-sans mt-1">{post.minExperience}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <label className="p-2 text-gray-400 hover:text-[#701010] hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} disabled={isSubmittingComment || isCompressing} />
-                {isCompressing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-              </label>
-              <input 
-                type="text" 
-                value={newCommentText}
-                onChange={(e) => setNewCommentText(e.target.value)}
-                placeholder="Write a comment..." 
-                className="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:ring-1 focus:ring-[#701010] outline-none"
-                onKeyDown={(e) => { if(e.key === 'Enter') handleSubmitComment(); }}
-                disabled={isSubmittingComment}
-              />
-              <button 
-                onClick={handleSubmitComment}
-                disabled={isSubmittingComment || (!newCommentText.trim() && !selectedImage)}
-                className="p-2 text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          </>
+        ) : post.spPostSubType === "consultancy" ? (
+          <>
+            {/* Consultancy Description / Specialisation Pitch */}
+            {(post.specialisation || post.description) && (
+              <div className="px-4 pb-3">
+                <ExpandableText text={post.specialisation || post.description || ""} limit={180} className="text-xs text-gray-700 leading-relaxed font-sans" />
+              </div>
+            )}
+
+            {/* Consultancy Details Area */}
+            {post.mediaUrl ? (
+              <div className="flex w-full border-t border-b border-gray-100 bg-gray-50/30">
+                {/* Media Thumbnail */}
+                <div className="w-1/3 min-h-[140px] overflow-hidden flex-shrink-0 border-r border-gray-100 bg-gray-100">
+                  <img src={post.mediaUrl} alt={post.serviceTitle || "Consultancy"} className="w-full h-full object-cover" />
+                </div>
+                {/* Details Column */}
+                <div className="flex-1 p-3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between gap-1 mb-1.5">
+                      <h4
+                        className="font-serif font-bold text-sm text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors line-clamp-2"
+                        onClick={onViewDetails}
+                      >
+                        {post.serviceTitle || post.eventName || "Business Consultancy Service"}
+                      </h4>
+                      <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                        Consultancy
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 bg-teal-50/50 p-2 rounded-lg border border-teal-100/60">
+                      {post.domain && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain</span>
+                          <span className="text-[11px] font-bold text-teal-950 truncate">{post.domain}</span>
+                        </div>
+                      )}
+                      {post.targetMarkets && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Markets</span>
+                          <span className="text-[11px] font-bold text-teal-950 truncate">{post.targetMarkets}</span>
+                        </div>
+                      )}
+                      {post.engagementMode && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
+                          <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementMode}</span>
+                        </div>
+                      )}
+                      {post.engagementDuration && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
+                          <span className="text-[10px] font-medium text-gray-800 truncate">{post.engagementDuration}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {post.languages && (
+                    <div className="mt-1 text-[9px] text-gray-500 font-sans truncate">
+                      <span className="font-bold text-gray-700">Languages:</span> {post.languages}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* No Media: Full Width Grid */
+              <div className="px-4 pb-3 border-t border-gray-100 pt-3">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h4
+                    className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-teal-800 hover:underline transition-colors"
+                    onClick={onViewDetails}
+                  >
+                    {post.serviceTitle || post.eventName || "Business Consultancy Service"}
+                  </h4>
+                  <span className="inline-flex shrink-0 text-[8px] font-headline font-bold uppercase tracking-widest text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                    Consultancy
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mt-2 bg-teal-50/40 p-3 rounded-xl border border-teal-100/60">
+                  {post.domain && (
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Domain / Industry</span>
+                      <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.domain}</span>
+                    </div>
+                  )}
+                  {post.targetMarkets && (
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Target Markets</span>
+                      <span className="text-xs font-bold text-teal-950 truncate mt-0.5">{post.targetMarkets}</span>
+                    </div>
+                  )}
+                  {post.engagementMode && (
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Mode</span>
+                      <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementMode}</span>
+                    </div>
+                  )}
+                  {post.engagementDuration && (
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-teal-900/60">Duration</span>
+                      <span className="text-xs font-medium text-gray-800 truncate mt-0.5">{post.engagementDuration}</span>
+                    </div>
+                  )}
+                </div>
+
+                {post.languages && (
+                  <div className="mt-2 text-[10px] text-gray-500 font-sans">
+                    <span className="font-bold text-gray-700">Languages:</span> {post.languages}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Description — shown prominently above media */}
+            {post.description && (
+              <div className="px-4 pb-3">
+                <ExpandableText text={post.description} limit={180} className="text-xs text-gray-700 leading-relaxed font-sans" />
+              </div>
+            )}
+
+            {/* Event Details Area */}
+            {post.mediaUrl ? (
+              <div className="flex w-full h-36 border-t border-b border-gray-100 bg-gray-50/30">
+                {/* Media thumbnail */}
+                <div className="w-1/3 h-full overflow-hidden flex-shrink-0">
+                  <img src={post.mediaUrl} alt="Event" className="w-full h-full object-cover" />
+                </div>
+                {/* Details */}
+                <div className="flex-1 p-3 flex flex-col justify-between">
+                  <div>
+                    <h4
+                      className="font-serif font-bold text-sm text-gray-900 leading-snug line-clamp-2 cursor-pointer hover:text-[#701010] hover:underline transition-colors"
+                      onClick={onViewDetails}
+                    >
+                      {post.eventName}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
+                      {formattedDate && (
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                          <span className="text-[10px] text-gray-700 font-sans truncate">{formattedDate}</span>
+                        </div>
+                      )}
+                      {post.time && (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                          <span className="text-[10px] text-gray-700 font-sans truncate">{post.time}</span>
+                        </div>
+                      )}
+                      {/* Location col1, Event capsule col2 — same grid row */}
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                        <span className="text-[10px] text-gray-700 font-sans truncate">
+                          {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+                          {post.googleMapLink && (
+                            <a href={post.googleMapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#701010] font-bold hover:underline">(Map)</a>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        {post.eventUrl ? (
+                          <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+                            Event ↗
+                          </a>
+                        ) : (
+                          <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+                            Event
+                          </span>
+                        )}
+                      </div>
+                      {/* Paid Price below location — follows exact matrix pattern */}
+                      {post.paymentStatus === 'sold' && (
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                          <span className="text-[10px] text-gray-700 font-sans truncate">
+                            Paid: <span className="font-bold text-gray-900">{getPaidPriceString()}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    {post.expectedFootfall ? (
+                      <div className="flex items-center gap-1 text-gray-500">
+                        <Users className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-[9px] font-headline font-bold uppercase tracking-wider text-gray-600">
+                          Expected: <span className="text-[#701010]">{post.expectedFootfall}</span>
+                        </span>
+                      </div>
+                    ) : <div />}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* No media: text-only card */
+              <div className="px-4 pb-3 border-t border-gray-50 pt-3">
+                <h4
+                  className="font-serif font-bold text-base text-gray-900 leading-snug cursor-pointer hover:text-[#701010] hover:underline transition-colors"
+                  onClick={onViewDetails}
+                >
+                  {post.eventName}
+                </h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
+                  {formattedDate && (
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                      <span className="text-[10px] text-gray-700 font-sans">{formattedDate}</span>
+                    </div>
+                  )}
+                  {post.time && (
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                      <span className="text-[10px] text-gray-700 font-sans">{post.time}</span>
+                    </div>
+                  )}
+                  {/* Location col1, Event capsule col2 — same grid row */}
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                    <span className="text-[10px] text-gray-700 font-sans truncate">
+                      {[post.venue, post.city, post.country].filter(Boolean).join(", ")}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    {post.eventUrl ? (
+                      <a href={post.eventUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+                        Event ↗
+                      </a>
+                    ) : (
+                      <span className="inline-flex text-[8px] font-headline font-bold uppercase tracking-widest text-[#701010] bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
+                        Event
+                      </span>
+                    )}
+                  </div>
+                  {post.paymentStatus === 'sold' && (
+                    <div className="flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#701010] flex-shrink-0" />
+                      <span className="text-[10px] text-gray-700 font-sans truncate">
+                        Paid: <span className="font-bold text-gray-900">{getPaidPriceString()}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+
+
+        {/* Video link */}
+        {post.videoUrl && (
+          <div className="px-4 pb-3 flex items-center gap-4">
+            <a href={post.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[9px] font-headline font-bold uppercase tracking-widest text-[#701010] hover:underline">
+              <Video className="w-3 h-3" /> Watch Video
+            </a>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center border-t border-gray-100 mx-4 gap-2 py-1">
+          {post.postType === "obo" && post.paymentStatus !== "sold" && (
+            // Offer-based OBO Post
+            !isOwner ? (
+              // Sales Partner User sees "Respond"
+              <button
+                onClick={async () => {
+                  if (!acceptingOffers) return;
+                  // Fetch existing offer for this SP on this post
+                  setIsFetchingOffer(true);
+                  try {
+                    const token = await auth.currentUser?.getIdToken();
+                    if (token && post.__id) {
+                      const res = await fetch(`/api/offers?postId=${post.__id}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        const pendingOffer = (data.offers || []).find(
+                          (o: any) => o.status === "pending" || o.status === "accepted"
+                        );
+                        setExistingOffer(pendingOffer || null);
+                      }
+                    }
+                  } catch (e) {
+                    console.error("Failed to fetch existing offer:", e);
+                    setExistingOffer(null);
+                  } finally {
+                    setIsFetchingOffer(false);
+                  }
+                  setIsOfferDrawerOpen(true);
+                }}
+                disabled={!acceptingOffers || isFetchingOffer}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 font-headline font-bold uppercase tracking-widest text-[10px] transition-all rounded-lg ${!acceptingOffers
+                  ? 'text-gray-400 bg-gray-50 cursor-not-allowed font-medium'
+                  : 'text-[#701010] hover:bg-red-50 hover:text-[#5a0c0c]'
+                  }`}
               >
-                {isSubmittingComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isFetchingOffer ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                {isFetchingOffer ? 'Loading...' : 'Respond'}
               </button>
+            ) : (
+              // Post Owner (OBO) sees "Responses (count)"
+              <button
+                onClick={() => setIsOffersPanelOpen(true)}
+                className="flex-1 flex items-center justify-center gap-2 py-2 text-[#701010] font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#5a0c0c] transition-all rounded-lg"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                Responses ({offerCount})
+              </button>
+            )
+          )}
+
+          {(post.paymentStatus === 'sold' || !isOwner) && (
+            <button
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent("open_direct_post_chat", {
+                    detail: {
+                      recipientUid: post.ownerUid,
+                      recipientName: authorName || "Partner",
+                      postTitle: post.eventName || post.expectedOutcomes || "Feed Post",
+                      postId: post.__id || ""
+                    }
+                  })
+                );
+              }}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-red-50 hover:text-[#701010] transition-all rounded-lg cursor-pointer"
+              title="Direct Chat with Publisher"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-[#701010]" /> Chat
+            </button>
+          )}
+
+          {post.paymentStatus === 'sold' ? (
+            <button
+              onClick={() => setShowAttendance(true)}
+              className="flex-1 flex items-center justify-center gap-2 py-2 text-indigo-900 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-indigo-50 transition-all rounded-lg cursor-pointer"
+            >
+              <MapPin className="w-3.5 h-3.5 text-indigo-700" />
+              {isCheckingAttendance ? "..." : isCheckedIn ? "Active Session" : "Check-in"}
+            </button>
+          ) : (
+            <button onClick={handleOpenComments} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
+              <MessageCircle className="w-3.5 h-3.5" /> Comment
+            </button>
+          )}
+
+          {post.paymentStatus === 'sold' ? (
+            <button
+              onClick={async () => {
+                if (!reviewChecked) {
+                  try {
+                    const token = await auth.currentUser?.getIdToken();
+                    if (token) {
+                      const res = await fetch(`/api/reviews/submit?postId=${post.__id}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      const data = await res.json();
+                      if (data.exists) {
+                        setExistingReview({ rating: data.review.rating, comment: data.review.comment });
+                      }
+                      setReviewChecked(true);
+                    }
+                  } catch (e) { /* continue */ }
+                }
+                setShowRatingModal(true);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 py-2 text-amber-900 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-amber-50 transition-all rounded-lg cursor-pointer"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              {existingReview ? 'View Rating' : 'Rate Partner'}
+            </button>
+          ) : (
+            <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-700 font-headline font-bold uppercase tracking-widest text-[10px] hover:bg-gray-50 hover:text-[#701010] transition-all rounded-lg">
+              <Share2 className="w-3.5 h-3.5" /> Share
+            </button>
+          )}
+        </div>
+
+        {/* Lead Capture Interface (full-screen overlay) */}
+        <LeadCaptureInterface
+          isOpen={showLeadCapture}
+          onClose={() => setShowLeadCapture(false)}
+          postId={post.__id}
+          targetOwnerUid={
+            post.postType === 'sp'
+              ? post.paymentLockedBy
+              : post.ownerUid
+          }
+        />
+
+        {/* Attendance Drawer */}
+        <AttendanceDrawer
+          isOpen={showAttendance}
+          onClose={() => {
+            setShowAttendance(false);
+            checkAttendanceStatus();
+          }}
+          postId={post.__id || ''}
+          clientName={post.eventName || post.expectedOutcomes || 'Client Location'}
+        />
+
+        {/* Rating Modal */}
+        <RatingModal
+          isOpen={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          postId={post.__id || ''}
+          targetUid={
+            post.postType === 'sp'
+              ? post.ownerUid || ''
+              : post.paymentLockedBy || ''
+          }
+          targetName={authorName || 'Partner'}
+          existingReview={existingReview}
+        />
+      </div>
+
+      {/* Package Viewing Drawer (Bottom/Right aligned based on screen) */}
+      {viewingPackage && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setViewingPackage(null)}
+          />
+          {/* Drawer */}
+          <div className="relative w-full max-w-md bg-gray-50 h-full shadow-2xl flex flex-col animate-slide-in-right">
+            <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100 shadow-sm">
+              <div>
+                <h2 className="font-serif font-bold text-lg text-gray-900">{viewingPackage.name || "Package Details"}</h2>
+                <p className="text-[10px] font-headline text-gray-500 uppercase tracking-wider mt-0.5 font-bold">
+                  Total (INR): {calculateTotalCost(viewingPackage.items || []).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+                  {viewingPackage.outwardCurrency && viewingPackage.outwardCurrency !== 'INR' && (
+                    <span className="ml-2 bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                      SP&apos;s Currency: {viewingPackage.outwardCurrency}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingPackage(null)}
+                className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Pencil className="w-4 h-4 hidden" /> {/* Just to keep the icon hidden to use X but we'll use a generic X instead */}
+                <span className="text-xl leading-none">&times;</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
+                <div className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100">
+                  <div className="col-span-8 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Line Item</div>
+                  <div className="col-span-4 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Amount (₹ INR)</div>
+                </div>
+
+                <div className="divide-y divide-gray-50">
+                  {(viewingPackage.items || []).map((item: any, i: number) => (
+                    <div key={item.id || i} className="grid grid-cols-12 gap-3 py-3 items-center">
+                      <div className="col-span-8 text-sm text-gray-700">{item.description || "—"}</div>
+                      <div className="col-span-4 text-sm font-semibold text-gray-900 text-right">
+                        {parseFloat(item.cost || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Service Agreement Acceptance Section */}
+              <div className="mt-4 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                    <Tag className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Service Agreement</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAgreementModalOpen(true)}
+                    className="text-[11px] font-bold text-[#701010] hover:underline flex items-center gap-1"
+                  >
+                    <Pencil className="w-3 h-3 hidden" />
+                    Read Full Agreement &rarr;
+                  </button>
+                </div>
+
+                <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={isAgreementAccepted}
+                    onChange={(e) => setIsAgreementAccepted(e.target.checked)}
+                    className="mt-0.5 rounded border-amber-300 text-[#701010] focus:ring-[#701010] w-4 h-4"
+                  />
+                  <span className="text-[11px] text-amber-950 font-medium leading-tight">
+                    I have read and agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setIsAgreementModalOpen(true)}
+                      className="underline text-[#701010] font-bold"
+                    >
+                      Fractional Sales Partner Service Agreement
+                    </button>{" "}
+                    and Terms &amp; Conditions.
+                  </span>
+                </label>
+              </div>
+
+              <div className="mt-5 flex justify-end gap-3">
+                <button
+                  onClick={() => setViewingPackage(null)}
+                  className="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  Close
+                </button>
+                {!isOwner && post.paymentStatus !== 'sold' && (
+                  <button
+                    onClick={() => handleCheckout(viewingPackage.id)}
+                    disabled={isCheckingOut || !isAgreementAccepted}
+                    className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[140px] ${!isAgreementAccepted
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-[#701010] text-white hover:bg-[#5a0c0c]"
+                      }`}
+                  >
+                    {isCheckingOut ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    ) : (
+                      "Pay to Confirm"
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {/* Offers and Respond Drawers */}
-    {isOfferDrawerOpen && (
-      <MakeOfferDrawer
-        isOpen={isOfferDrawerOpen}
-        onClose={() => setIsOfferDrawerOpen(false)}
-        postId={post.__id || ""}
-        preferredCurrency={currentUserCurrency || "USD"}
-        budgetRangeText={
-          post.pricingType === "range"
-            ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
-            : post.pricingType === "open"
-              ? "Open to Pitch"
-              : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
-        }
-        existingOffer={existingOffer}
-        onSuccess={() => {
-          // Only increment count if this was a brand-new offer (not an update)
-          if (!existingOffer) {
-            setOfferCount(prev => prev + 1);
+      {/* Service Agreement Modal */}
+      {viewingPackage && (
+        <ServiceAgreementModal
+          isOpen={isAgreementModalOpen}
+          onClose={() => setIsAgreementModalOpen(false)}
+          onAccept={() => setIsAgreementAccepted(true)}
+          isAccepted={isAgreementAccepted}
+          agreementData={{
+            agreementRef: `FSP-SA-${Date.now().toString().slice(-6)}`,
+            date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+            clientName: auth.currentUser?.displayName || "Business Owner",
+            clientEmail: auth.currentUser?.email || "N/A",
+            spName: authorName || "Sales Partner",
+            spEmail: "support@fractionalsalespartner.com",
+            packageName: viewingPackage.name || "Package Representation",
+            totalAmount: calculateTotalCost(viewingPackage.items || []),
+            currency: "INR",
+            lineItems: viewingPackage.items || [],
+            eventName: post.eventName || post.expectedOutcomes || "Event Representation",
+          }}
+        />
+      )}
+
+      {/* Comments Drawer */}
+      {isCommentsOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsCommentsOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-in-right">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h2 className="font-serif font-bold text-lg text-gray-900">Comments</h2>
+              <button
+                onClick={() => setIsCommentsOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Comments List */}
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50">
+              {isLoadingComments ? (
+                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-[#701010]" /></div>
+              ) : comments.length === 0 ? (
+                <div className="text-center py-10 text-gray-400 text-sm">No comments yet. Be the first to start the conversation!</div>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex gap-3">
+                      {c.authorAvatar ? (
+                        <img src={c.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500 text-xs">
+                          {c.authorName?.charAt(0) || 'U'}
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+                          <p className="font-bold text-xs text-gray-900">{c.authorName}</p>
+                          <p className="text-sm text-gray-700 mt-0.5">{c.text}</p>
+                          {c.imageUrl && (
+                            <img src={c.imageUrl} alt="attached" className="mt-2 rounded-lg max-h-48 object-cover" />
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-1 ml-2">
+                          {new Date(c.createdAt).toLocaleDateString()} {new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 bg-white border-t border-gray-100 flex flex-col gap-2">
+              {selectedImage && (
+                <div className="relative self-start mb-2">
+                  <img src={selectedImage} alt="preview" className="h-20 rounded-lg border border-gray-200 object-cover" />
+                  <button onClick={() => setSelectedImage(null)} className="absolute -top-2 -right-2 bg-gray-900 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <label className="p-2 text-gray-400 hover:text-[#701010] hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} disabled={isSubmittingComment || isCompressing} />
+                  {isCompressing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
+                </label>
+                <input
+                  type="text"
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  placeholder="Write a comment..."
+                  className="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:ring-1 focus:ring-[#701010] outline-none"
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSubmitComment(); }}
+                  disabled={isSubmittingComment}
+                />
+                <button
+                  onClick={handleSubmitComment}
+                  disabled={isSubmittingComment || (!newCommentText.trim() && !selectedImage)}
+                  className="p-2 text-white bg-[#701010] hover:bg-[#5a0c0c] rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmittingComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Offers and Respond Drawers */}
+      {isOfferDrawerOpen && (
+        <MakeOfferDrawer
+          isOpen={isOfferDrawerOpen}
+          onClose={() => setIsOfferDrawerOpen(false)}
+          postId={post.__id || ""}
+          preferredCurrency={currentUserCurrency || "USD"}
+          budgetRangeText={
+            post.pricingType === "range"
+              ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
+              : post.pricingType === "open"
+                ? "Open to Pitch"
+                : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
           }
-        }}
-      />
-    )}
+          existingOffer={existingOffer}
+          onSuccess={() => {
+            // Only increment count if this was a brand-new offer (not an update)
+            if (!existingOffer) {
+              setOfferCount(prev => prev + 1);
+            }
+          }}
+        />
+      )}
 
 
-    {isOffersPanelOpen && (
-      <OffersPanel
-        isOpen={isOffersPanelOpen}
-        onClose={() => setIsOffersPanelOpen(false)}
-        postId={post.__id || ""}
-        postTitle={post.expectedOutcomes || "Commercial Sales Representation Project"}
-        budgetRangeText={
-          post.pricingType === "range"
-            ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
-            : post.pricingType === "open"
-              ? "Open to Pitch"
-              : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
-        }
-        onDealFinalized={() => {
-          setAcceptingOffers(false);
-        }}
-      />
-    )}
+      {isOffersPanelOpen && (
+        <OffersPanel
+          isOpen={isOffersPanelOpen}
+          onClose={() => setIsOffersPanelOpen(false)}
+          postId={post.__id || ""}
+          postTitle={post.expectedOutcomes || "Commercial Sales Representation Project"}
+          budgetRangeText={
+            post.pricingType === "range"
+              ? `${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMin || 0).toLocaleString()} – ${getCurrencySymbol(post.budgetCurrency || 'USD')}${Number(post.budgetMax || 0).toLocaleString()} ${post.budgetCurrency || 'USD'}`
+              : post.pricingType === "open"
+                ? "Open to Pitch"
+                : `${post.fixedCharges ? 'Fixed Charges: ' + post.fixedCharges : ''}${post.retainer ? ' Retainer: ' + post.retainer : ''} (${post.currency || "USD"})`
+          }
+          onDealFinalized={() => {
+            setAcceptingOffers(false);
+          }}
+        />
+      )}
     </>
   );
 }
