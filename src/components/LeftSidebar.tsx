@@ -142,9 +142,9 @@ export default function LeftSidebar({
             )}
           </div>
 
-          <div className="mt-2.5 flex items-center gap-2 flex-wrap min-w-0">
+          <div className="mt-2.5 flex items-center gap-1.5 flex-wrap min-w-0">
             <h3 className="font-serif font-bold text-sm text-gray-900 truncate">{getProfileName()}</h3>
-            <span className="inline-flex items-center text-[9px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shadow-2xs">
+            <span className="inline-flex items-center text-[8px] font-headline font-bold text-[#701010] bg-[#701010]/8 border border-[#701010]/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shadow-2xs">
               {getPersonaLabel()}
             </span>
           </div>
