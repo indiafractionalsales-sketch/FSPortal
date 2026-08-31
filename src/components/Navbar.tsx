@@ -16,7 +16,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store } from "lucide-react";
+import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store, Search, Compass, X } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
@@ -32,6 +32,15 @@ interface NavbarProps {
   isMarketplaceActive?: boolean;
   onMarketplaceClick?: () => void;
   onHomeClick?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  filterRegion?: string;
+  onFilterRegionChange?: (region: string) => void;
+  filterIndustry?: string;
+  onFilterIndustryChange?: (industry: string) => void;
+  filterCommission?: string;
+  onFilterCommissionChange?: (type: string) => void;
+  onClearFilters?: () => void;
 }
 
 export default function Navbar({ 
@@ -40,12 +49,22 @@ export default function Navbar({
   profileData = {},
   isMarketplaceActive = false,
   onMarketplaceClick,
-  onHomeClick
+  onHomeClick,
+  searchQuery = "",
+  onSearchChange,
+  filterRegion = "",
+  onFilterRegionChange,
+  filterIndustry = "",
+  onFilterIndustryChange,
+  filterCommission = "",
+  onFilterCommissionChange,
+  onClearFilters
 }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isScanOpen, setIsScanOpen] = useState(false);
+  const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
   
   const { spData, oboData, tpspData } = profileData || {};
 
@@ -89,15 +108,124 @@ export default function Navbar({
 
   return (
     <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
-      {/* Left: Logo */}
-      <div className="flex flex-col items-start gap-0 flex-1 min-w-0">
-        <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-wrap md:flex-nowrap items-center gap-1 hover:opacity-80 transition-opacity">
-          <span className="whitespace-nowrap">Fractional Sales</span>
-          <span className="hidden md:inline-block text-[#701010] font-headline text-[8px] md:text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1 py-[1px] md:px-1.5 md:py-0.5 ml-0 md:ml-1 rounded-sm">
-            Partner
-          </span>
+      {/* Left: Logo & Integrated Search Bar */}
+      <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
+        <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-col items-start hover:opacity-80 transition-opacity flex-shrink-0">
+          <div className="flex items-center gap-1">
+            <span className="whitespace-nowrap">Fractional Sales</span>
+            <span className="hidden md:inline-block text-[#701010] font-headline text-[8px] md:text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1 py-[1px] md:px-1.5 md:py-0.5 ml-0 md:ml-1 rounded-sm">
+              Partner
+            </span>
+          </div>
+          <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
         </Link>
-        <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
+
+        {/* Global Navbar Search Bar & Filter Popover */}
+        {onSearchChange && (
+          <div className="relative hidden md:flex items-center gap-2 max-w-md w-full ml-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search opportunities by title, region, author..."
+                value={searchQuery || ""}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="w-full pl-9 pr-7 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#701010] text-gray-900 transition-all font-sans"
+              />
+              {searchQuery && (
+                <button onClick={() => onSearchChange("")} className="absolute right-2 top-2 text-gray-400 hover:text-gray-700">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={() => setIsFilterPopoverOpen(!isFilterPopoverOpen)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
+                isFilterPopoverOpen || filterRegion || filterIndustry || filterCommission
+                  ? "bg-red-50 text-[#701010] border-red-200 shadow-2xs"
+                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" /> Filter
+              {(filterRegion || filterIndustry || filterCommission) && (
+                <span className="w-2 h-2 rounded-full bg-[#701010] animate-pulse" />
+              )}
+            </button>
+
+            {/* Floating Filter Popover */}
+            {isFilterPopoverOpen && (
+              <div className="absolute top-11 right-0 w-80 bg-white border border-gray-200 rounded-xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3 font-sans">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                  <span className="text-xs font-headline font-bold uppercase tracking-wider text-gray-900">Filter Opportunities</span>
+                  <button onClick={() => setIsFilterPopoverOpen(false)} className="text-gray-400 hover:text-gray-700">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Target Country / Region</label>
+                  <select
+                    value={filterRegion || ""}
+                    onChange={(e) => onFilterRegionChange && onFilterRegionChange(e.target.value)}
+                    className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                  >
+                    <option value="">All Regions</option>
+                    <option value="United Kingdom">United Kingdom & Europe</option>
+                    <option value="United States">United States & North America</option>
+                    <option value="India">India & South Asia</option>
+                    <option value="Singapore">Singapore & Southeast Asia</option>
+                    <option value="United Arab Emirates">UAE & Middle East</option>
+                    <option value="Australia">Australia & Oceania</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Industry Vertical</label>
+                  <select
+                    value={filterIndustry || ""}
+                    onChange={(e) => onFilterIndustryChange && onFilterIndustryChange(e.target.value)}
+                    className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                  >
+                    <option value="">All Industries</option>
+                    <option value="Healthcare">Biotech, Pharma & Healthcare</option>
+                    <option value="Software">IT, SaaS & Technology</option>
+                    <option value="Manufacturing">Industrial & Manufacturing</option>
+                    <option value="Consumer">FMCG & Consumer Brands</option>
+                    <option value="Consultancy">Business Consultancy</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Opportunity Type</label>
+                  <select
+                    value={filterCommission || ""}
+                    onChange={(e) => onFilterCommissionChange && onFilterCommissionChange(e.target.value)}
+                    className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                  >
+                    <option value="">All Types</option>
+                    <option value="obo">Business Owner Opportunities (OBO)</option>
+                    <option value="consultancy">Sales Partner Consultancies</option>
+                    <option value="event">Trade Fairs & Expos</option>
+                  </select>
+                </div>
+
+                {(filterRegion || filterIndustry || filterCommission || searchQuery) && (
+                  <div className="flex justify-end pt-1">
+                    <button
+                      onClick={() => {
+                        if (onClearFilters) onClearFilters();
+                      }}
+                      className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#701010] hover:underline"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Center: Nav icons */}

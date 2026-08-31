@@ -379,6 +379,20 @@ export default function HomePage() {
         isMarketplaceActive={isMarketplaceActive}
         onHomeClick={() => setIsMarketplaceActive(false)}
         onMarketplaceClick={() => setIsMarketplaceActive(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterRegion={filterRegion}
+        onFilterRegionChange={setFilterRegion}
+        filterIndustry={filterIndustry}
+        onFilterIndustryChange={setFilterIndustry}
+        filterCommission={filterCommission}
+        onFilterCommissionChange={setFilterCommission}
+        onClearFilters={() => {
+          setSearchQuery("");
+          setFilterRegion("");
+          setFilterIndustry("");
+          setFilterCommission("");
+        }}
       />
 
       {/* Main Content Area */}
@@ -448,108 +462,6 @@ export default function HomePage() {
                       <span>💼</span> Post My Business
                     </button>
                   </div>
-                </div>
-
-                {/* Faceted Search & Discovery Filter Bar */}
-                <div className="bg-white border border-gray-100 rounded-xl shadow-xs p-3 font-sans">
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-                      <input
-                        type="text"
-                        placeholder="Search opportunities by title, region, keyword, or author..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-8 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#701010] text-gray-900 transition-all font-sans"
-                      />
-                      {searchQuery && (
-                        <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-2 text-gray-400 hover:text-gray-700">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
-                        isFilterExpanded || filterRegion || filterIndustry || filterCommission
-                          ? "bg-red-50 text-[#701010] border-red-200 shadow-2xs"
-                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Compass className="w-3.5 h-3.5" /> Filter
-                      {(filterRegion || filterIndustry || filterCommission) && (
-                        <span className="w-2 h-2 rounded-full bg-[#701010] animate-pulse" />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Expanded Controls */}
-                  {isFilterExpanded && (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div>
-                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Target Country / Region</label>
-                        <select
-                          value={filterRegion}
-                          onChange={(e) => setFilterRegion(e.target.value)}
-                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
-                        >
-                          <option value="">All Regions</option>
-                          <option value="United Kingdom">United Kingdom & Europe</option>
-                          <option value="United States">United States & North America</option>
-                          <option value="India">India & South Asia</option>
-                          <option value="Singapore">Singapore & Southeast Asia</option>
-                          <option value="United Arab Emirates">UAE & Middle East</option>
-                          <option value="Australia">Australia & Oceania</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Industry Vertical</label>
-                        <select
-                          value={filterIndustry}
-                          onChange={(e) => setFilterIndustry(e.target.value)}
-                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
-                        >
-                          <option value="">All Industries</option>
-                          <option value="Healthcare">Biotech, Pharma & Healthcare</option>
-                          <option value="Software">IT, SaaS & Technology</option>
-                          <option value="Manufacturing">Industrial & Manufacturing</option>
-                          <option value="Consumer">FMCG & Consumer Brands</option>
-                          <option value="Consultancy">Business Consultancy</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Opportunity Type</label>
-                        <select
-                          value={filterCommission}
-                          onChange={(e) => setFilterCommission(e.target.value)}
-                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
-                        >
-                          <option value="">All Types</option>
-                          <option value="obo">Business Owner Opportunities (OBO)</option>
-                          <option value="consultancy">Sales Partner Consultancies</option>
-                          <option value="event">Trade Fairs & Expos</option>
-                        </select>
-                      </div>
-
-                      {(filterRegion || filterIndustry || filterCommission || searchQuery) && (
-                        <div className="sm:col-span-3 flex justify-end">
-                          <button
-                            onClick={() => {
-                              setFilterRegion("");
-                              setFilterIndustry("");
-                              setFilterCommission("");
-                              setSearchQuery("");
-                            }}
-                            className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#701010] hover:underline"
-                          >
-                            Clear All Filters
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 {/* Dynamic Posts Feed */}
