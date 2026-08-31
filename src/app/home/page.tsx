@@ -93,6 +93,13 @@ export default function HomePage() {
   const isFetchingRef = useRef(false);
   const PAGE_SIZE = 10;
 
+  // Faceted Search & Discovery Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterRegion, setFilterRegion] = useState("");
+  const [filterIndustry, setFilterIndustry] = useState("");
+  const [filterCommission, setFilterCommission] = useState("");
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
   // Core profile identity states (for displaying avatar/names)
   const [userType, setUserType] = useState<"obo" | "sp" | "tpsp" | "">("");
   const [oboData, setOboData] = useState({
@@ -443,11 +450,158 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                {/* Faceted Search & Discovery Filter Bar */}
+                <div className="bg-white border border-gray-100 rounded-xl shadow-xs p-3 font-sans">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Search opportunities by title, region, keyword, or author..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-8 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-[#701010] text-gray-900 transition-all font-sans"
+                      />
+                      {searchQuery && (
+                        <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-2 text-gray-400 hover:text-gray-700">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-headline font-bold uppercase tracking-wider rounded-lg border transition-all cursor-pointer ${
+                        isFilterExpanded || filterRegion || filterIndustry || filterCommission
+                          ? "bg-red-50 text-[#701010] border-red-200 shadow-2xs"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Compass className="w-3.5 h-3.5" /> Filter
+                      {(filterRegion || filterIndustry || filterCommission) && (
+                        <span className="w-2 h-2 rounded-full bg-[#701010] animate-pulse" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Expanded Controls */}
+                  {isFilterExpanded && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div>
+                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Target Country / Region</label>
+                        <select
+                          value={filterRegion}
+                          onChange={(e) => setFilterRegion(e.target.value)}
+                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                        >
+                          <option value="">All Regions</option>
+                          <option value="United Kingdom">United Kingdom & Europe</option>
+                          <option value="United States">United States & North America</option>
+                          <option value="India">India & South Asia</option>
+                          <option value="Singapore">Singapore & Southeast Asia</option>
+                          <option value="United Arab Emirates">UAE & Middle East</option>
+                          <option value="Australia">Australia & Oceania</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Industry Vertical</label>
+                        <select
+                          value={filterIndustry}
+                          onChange={(e) => setFilterIndustry(e.target.value)}
+                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                        >
+                          <option value="">All Industries</option>
+                          <option value="Healthcare">Biotech, Pharma & Healthcare</option>
+                          <option value="Software">IT, SaaS & Technology</option>
+                          <option value="Manufacturing">Industrial & Manufacturing</option>
+                          <option value="Consumer">FMCG & Consumer Brands</option>
+                          <option value="Consultancy">Business Consultancy</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-headline font-bold uppercase tracking-wider text-gray-500 mb-1 block">Opportunity Type</label>
+                        <select
+                          value={filterCommission}
+                          onChange={(e) => setFilterCommission(e.target.value)}
+                          className="w-full text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-900 outline-none focus:border-[#701010] font-sans"
+                        >
+                          <option value="">All Types</option>
+                          <option value="obo">Business Owner Opportunities (OBO)</option>
+                          <option value="consultancy">Sales Partner Consultancies</option>
+                          <option value="event">Trade Fairs & Expos</option>
+                        </select>
+                      </div>
+
+                      {(filterRegion || filterIndustry || filterCommission || searchQuery) && (
+                        <div className="sm:col-span-3 flex justify-end">
+                          <button
+                            onClick={() => {
+                              setFilterRegion("");
+                              setFilterIndustry("");
+                              setFilterCommission("");
+                              setSearchQuery("");
+                            }}
+                            className="text-[10px] font-headline font-bold uppercase tracking-wider text-[#701010] hover:underline"
+                          >
+                            Clear All Filters
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Dynamic Posts Feed */}
                 {(() => {
                   const displayedPosts = posts.filter((post) => {
-                    if (feedTab === "mine") return post.paymentStatus !== "sold";
-                    if (feedTab === "deals") return post.paymentStatus === "sold";
+                    if (feedTab === "mine") {
+                      if (post.paymentStatus === "sold") return false;
+                    }
+                    if (feedTab === "deals") {
+                      if (post.paymentStatus !== "sold") return false;
+                    }
+
+                    // Faceted Search Query Filter
+                    if (searchQuery.trim()) {
+                      const q = searchQuery.toLowerCase();
+                      const matchText = [
+                        post.eventName,
+                        post.description,
+                        post.expectedOutcomes,
+                        post.targetCountry,
+                        post.targetCity,
+                        post.targetIndustry,
+                        post.authorName
+                      ].filter(Boolean).join(" ").toLowerCase();
+                      if (!matchText.includes(q)) return false;
+                    }
+
+                    // Faceted Region Filter
+                    if (filterRegion) {
+                      const regionMatch = [post.targetCountry, post.targetCity, post.country, post.city]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+                      if (!regionMatch.includes(filterRegion.toLowerCase())) return false;
+                    }
+
+                    // Faceted Industry Filter
+                    if (filterIndustry) {
+                      const indMatch = [post.targetIndustry, post.category, post.description]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+                      if (!indMatch.includes(filterIndustry.toLowerCase())) return false;
+                    }
+
+                    // Faceted Commission / Mode Filter
+                    if (filterCommission) {
+                      if (filterCommission === "obo" && post.postType !== "obo") return false;
+                      if (filterCommission === "consultancy" && post.spPostSubType !== "consultancy") return false;
+                      if (filterCommission === "event" && (post.postType === "obo" || post.spPostSubType === "consultancy")) return false;
+                    }
+
                     return true;
                   });
 

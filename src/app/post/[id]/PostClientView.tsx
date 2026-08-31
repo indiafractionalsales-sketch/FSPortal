@@ -12,12 +12,14 @@
  * Indian and international intellectual property laws.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { ServerPost } from "@/lib/server-posts";
 import SPPostCard from "@/components/SPPostCard";
 import PostDetailsDrawer from "@/components/PostDetailsDrawer";
-import { ArrowLeft, Share2, Check } from "lucide-react";
+import { ArrowLeft, Share2, Check, Sparkles } from "lucide-react";
 
 interface PostClientViewProps {
   post: ServerPost;
@@ -27,6 +29,14 @@ interface PostClientViewProps {
 export default function PostClientView({ post, postId }: PostClientViewProps) {
   const [viewingPost, setViewingPost] = useState<any | null>(null);
   const [copied, setCopied] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const formattedPost = {
     ...post,
@@ -60,7 +70,29 @@ export default function PostClientView({ post, postId }: PostClientViewProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
+      {/* Guest Conversion CTA Banner (Hook 1: Opportunity Sharing Loop) */}
+      {!user && (
+        <div className="w-full bg-gradient-to-r from-[#701010] via-red-900 to-[#5a0c0c] text-white rounded-2xl p-5 shadow-lg border border-red-800 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans animate-in fade-in slide-in-from-top-3 duration-300">
+          <div className="space-y-1 text-center sm:text-left">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-headline font-bold uppercase tracking-widest bg-amber-400/20 text-amber-300 border border-amber-400/30">
+              <Sparkles className="w-3 h-3 text-amber-300" /> Fractional Sales Network
+            </span>
+            <h3 className="text-base sm:text-lg font-serif font-bold text-white leading-tight">
+              Expand Your Business with Local Sales Representation
+            </h3>
+            <p className="text-xs text-red-100/90 max-w-xl">
+              Join business owners and regional sales partners closing deals worldwide. Register free to respond to this opportunity & connect directly.
+            </p>
+          </div>
+          <Link
+            href="/onboarding"
+            className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-[#701010] font-headline font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md hover:scale-105 flex-shrink-0 cursor-pointer flex items-center gap-1.5"
+          >
+            Register to Respond ↗
+          </Link>
+        </div>
+      )}
       {/* Top Navigation — Back to Feed + Share Post */}
       <div className="flex items-center justify-between">
         <Link
