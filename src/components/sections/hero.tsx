@@ -37,7 +37,7 @@ export function Hero() {
           Fractional Sales Partner
         </h1>
         <p className="text-slate-800 text-sm md:text-base mx-auto mb-6 font-sans leading-relaxed">
-          Discover the change-makers helping MSMEs from emerging markets reach their full potential across the UK, USA, AUS, and EU.
+          Scale globally without the overhead. Connect with trusted on-the-ground talent across the UK, Germany, and the EU to expand your SME’s reach efficiently.
         </p>
         
         <Link href="#read-more" className="inline-flex items-center gap-2 text-red-600 font-bold hover:text-red-800 transition-colors text-xs tracking-[0.2em] uppercase font-sans">
