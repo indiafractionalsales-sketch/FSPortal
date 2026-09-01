@@ -15,6 +15,7 @@
 import React from "react";
 import { Facebook, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 
 export function Footer() {
   return (
@@ -26,10 +27,8 @@ export function Footer() {
 
           {/* Brand Logo & Tagline */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-lg">
-            <Link href="/">
-              <span className="font-serif font-bold text-2xl md:text-3xl tracking-tight text-white hover:text-sky-200 transition-colors">
-                Fractional Sales Partner
-              </span>
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              <BrandLogo size="lg" lightText={true} />
             </Link>
             <p className="text-sky-100/90 text-xs md:text-sm mt-2 leading-relaxed font-medium">
               Empowering MSMEs from emerging markets to scale globally through verified fractional sales expertise.

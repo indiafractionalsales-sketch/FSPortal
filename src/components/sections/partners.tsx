@@ -70,6 +70,35 @@ export function Partners() {
                   );
                 }
 
+                // Custom Partner Images for grid spots 2 and 8
+                if (index === 2) {
+                  return (
+                    <div key={index} className="aspect-square relative overflow-hidden group bg-gray-200">
+                      <img 
+                        src="/partners/partner-1.jpg" 
+                        alt="Fractional Sales Partner"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                  );
+                }
+
+                if (index === 8) {
+                  return (
+                    <div key={index} className="aspect-square relative overflow-hidden group bg-gray-200">
+                      <img 
+                        src="/partners/partner-2.jpg" 
+                        alt="Fractional Sales Partner"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                  );
+                }
+
                 // Randomize pravatar images to get a good mix of professionals
                 // Pravatar IDs: 11, 12, 14, 15, 31, 32, 33, 44, 47, 50, 51, 57, 59, 60, 68
                 const avatarIds = [11, 12, 14, 15, 31, 32, 33, 44, 47, 50, 51, 57, 59, 60, 68];
