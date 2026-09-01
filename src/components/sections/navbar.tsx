@@ -20,8 +20,21 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 
-export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+interface NavbarProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function Navbar({ isOpen: controlledIsOpen, onOpenChange }: NavbarProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+    setInternalIsOpen(open);
+  };
 
   // Prevent background scrolling when mega menu is active
   useEffect(() => {
