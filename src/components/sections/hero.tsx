@@ -17,7 +17,11 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export function Hero() {
+interface HeroProps {
+  onOpenMenu?: () => void;
+}
+
+export function Hero({ onOpenMenu }: HeroProps = {}) {
   return (
     <section className="relative h-[80vh] flex items-end justify-center pb-12 overflow-hidden bg-white">
       {/* Full Background Image */}
@@ -37,10 +41,13 @@ export function Hero() {
           Fractional Sales Partner
         </h1>
         <p className="text-slate-800 text-sm md:text-base mx-auto mb-6 font-sans leading-relaxed">
-          Discover the change-makers helping MSMEs from emerging markets reach their full potential across the UK, USA, AUS, and EU.
+          Scale globally without the overhead. Connect with trusted on-the-ground talent across the UK, Germany, and the EU to expand your SME’s reach efficiently.
         </p>
         
-        <Link href="#read-more" className="inline-flex items-center gap-2 text-red-600 font-bold hover:text-red-800 transition-colors text-xs tracking-[0.2em] uppercase font-sans">
+        <button 
+          onClick={onOpenMenu}
+          className="inline-flex items-center gap-2 text-red-600 font-bold hover:text-red-800 transition-colors text-xs tracking-[0.2em] uppercase font-sans cursor-pointer"
+        >
           READ MORE
           <div className="border border-red-600 p-0.5 ml-1">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,7 +56,7 @@ export function Hero() {
               <path d="M4 18h16" />
             </svg>
           </div>
-        </Link>
+        </button>
       </div>
     </section>
   );

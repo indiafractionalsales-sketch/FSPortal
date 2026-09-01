@@ -13,6 +13,7 @@
  * Indian and international intellectual property laws.
  */
 
+import { useState } from "react";
 import { Navbar } from "@/components/sections/navbar";
 import { Hero } from "@/components/sections/hero";
 import { HowItWorks } from "@/components/sections/how-it-works";
@@ -22,10 +23,12 @@ import { Brands } from "@/components/sections/brands";
 import { Footer } from "@/components/sections/footer";
 
 export default function Home() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-white">
-      <Navbar />
-      <Hero />
+      <Navbar isOpen={isMenuOpen} onOpenChange={setIsMenuOpen} />
+      <Hero onOpenMenu={() => setIsMenuOpen(true)} />
       <Partners />
       <Services />
       <Brands />

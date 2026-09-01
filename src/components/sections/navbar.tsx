@@ -20,8 +20,21 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 
-export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+interface NavbarProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function Navbar({ isOpen: controlledIsOpen, onOpenChange }: NavbarProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+    setInternalIsOpen(open);
+  };
 
   // Prevent background scrolling when mega menu is active
   useEffect(() => {
@@ -273,7 +286,7 @@ export function Navbar() {
                     </span>
                   </div>
                   <h3 className="font-serif font-bold text-base text-amber-950 tracking-wide mb-1">
-                    Third-Party Services
+                    Partners
                   </h3>
                   <p className="text-[11px] text-amber-900/70 mb-5 leading-relaxed">
                     End-to-end B2B services supporting cross-border trade &amp; business operations.
@@ -281,7 +294,7 @@ export function Navbar() {
 
                   <ul className="space-y-3">
                     <li>
-                      <Link href="#tpsp-marketing" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
+                      <Link href="/partners#biz-dev-marketing" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
                         <span className="text-amber-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Biz Dev &amp; Marketing Agencies</p>
@@ -290,7 +303,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="#tpsp-legal" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
+                      <Link href="/partners#legal-regulatory" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
                         <span className="text-amber-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Legal &amp; Regulatory Services</p>
@@ -299,7 +312,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="#tpsp-tax" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
+                      <Link href="/partners#accounting-tax" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
                         <span className="text-amber-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Accounting, Audit &amp; Tax</p>
@@ -308,7 +321,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="#tpsp-logistics" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
+                      <Link href="/partners#logistics-freight" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
                         <span className="text-amber-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Logistics &amp; Freight Forwarding</p>
@@ -317,7 +330,7 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link href="#tpsp-cha" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
+                      <Link href="/partners#custom-house-agents" onClick={() => setIsOpen(false)} className="group flex items-start gap-2 text-xs text-gray-800 hover:text-amber-700 transition-colors">
                         <span className="text-amber-600 font-bold opacity-70 group-hover:opacity-100 transition-opacity">›</span>
                         <div>
                           <p className="font-semibold text-gray-900 group-hover:text-amber-700 transition-colors">Custom House Agents (CHAs)</p>
@@ -329,8 +342,8 @@ export function Navbar() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-amber-200/60">
-                  <Link href="#tpsp" onClick={() => setIsOpen(false)} className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center justify-between">
-                    <span>Ecosystem Partners</span>
+                  <Link href="/partners" onClick={() => setIsOpen(false)} className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center justify-between">
+                    <span>Ecosystem Partners Directory</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
