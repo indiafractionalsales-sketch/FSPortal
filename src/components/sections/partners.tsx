@@ -29,8 +29,8 @@ export function Partners() {
   const exporterSteps = [
     {
       step: "01",
-      title: "Event Posting & On-Ground Activation",
-      desc: "Sales Partners list upcoming trade expos and buyer meetings in target countries (UK, Germany, Italy, EU, etc.). Setup physical sample displays, standees, and localized pitch decks.",
+      title: "Expo Representation & Availability Announcement",
+      desc: "Sales Partners announce upcoming attendance at global expos (e.g. 'Attending XYZ Expo in Germany/Italy — hire me to pitch your brand, display standees & collect leads on your behalf').",
       icon: Megaphone,
       bg: "bg-emerald-50/90 border-emerald-200/90",
       iconBg: "bg-emerald-100 text-emerald-700"
