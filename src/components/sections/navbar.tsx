@@ -18,6 +18,7 @@ import {
   Menu, X, User, Briefcase, UserCheck, Building2, 
   Cpu, ArrowRight, Sparkles
 } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,21 +52,14 @@ export function Navbar() {
 
           {/* Center: Brand Logo */}
           <div className="flex flex-col items-center justify-center text-center">
-            <Link href="/" className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-              Fractional Sales 
-              <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1 rounded-sm">
-                Partner
-              </span>
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <BrandLogo size="md" />
             </Link>
-            <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Every Post is a Business</span>
           </div>
 
           {/* Right: Login / User Account */}
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-[#701010] hover:text-[#5a0c0c] border border-[#701010]/30 hover:border-[#701010] px-3.5 py-1.5 rounded-md transition-all font-headline uppercase tracking-wider">
-              Login / Sign Up
-            </Link>
-            <Link href="/login" className="relative p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors">
+            <Link href="/login" className="relative p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" title="Login / Account">
               <User className="w-5 h-5 text-gray-700" />
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#701010] rounded-full border-2 border-white"></span>
             </Link>
@@ -90,13 +84,9 @@ export function Navbar() {
 
             {/* Center: Brand Logo */}
             <div className="flex flex-col items-center justify-center text-center">
-              <Link href="/" onClick={() => setIsOpen(false)} className="font-serif font-bold text-lg md:text-xl tracking-tighter text-gray-900 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-                Fractional Sales 
-                <span className="text-[#701010] font-headline text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1.5 py-0.5 ml-1 rounded-sm">
-                  Partner
-                </span>
+              <Link href="/" onClick={() => setIsOpen(false)} className="hover:opacity-80 transition-opacity">
+                <BrandLogo size="md" />
               </Link>
-              <span className="text-[9px] font-sans text-gray-500 italic mt-[1px] leading-none">Every Post is a Business</span>
             </div>
 
             {/* Right: Quick Action */}

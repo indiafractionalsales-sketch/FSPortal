@@ -20,6 +20,7 @@ import { Home, Bell, Settings, LogOut, Scan, CreditCard, Store, Search, Compass,
 import { auth } from "@/lib/firebase";
 import { signOut, type User } from "firebase/auth";
 import LeadCaptureInterface from "@/components/LeadCaptureInterface";
+import BrandLogo from "@/components/BrandLogo";
 
 interface NavbarProps {
   user?: User | null;
@@ -112,14 +113,8 @@ export default function Navbar({
     <header className="bg-white h-16 flex-shrink-0 w-full z-50 flex items-center justify-between px-6 border-b border-gray-100">
       {/* Left: Logo */}
       <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
-        <Link href="/home" className="font-serif font-bold text-sm md:text-xl tracking-tighter text-gray-900 flex flex-col items-start hover:opacity-80 transition-opacity flex-shrink-0">
-          <div className="flex items-center gap-1">
-            <span className="whitespace-nowrap">Fractional Sales</span>
-            <span className="hidden md:inline-block text-[#701010] font-headline text-[8px] md:text-[10px] uppercase tracking-widest font-bold border border-[#701010]/20 px-1 py-[1px] md:px-1.5 md:py-0.5 ml-0 md:ml-1 rounded-sm">
-              Partner
-            </span>
-          </div>
-          <span className="text-[8px] md:text-[9px] font-sans text-gray-500 italic leading-none mt-[2px] truncate max-w-full">Every Post is a Business Post</span>
+        <Link href="/home" className="hover:opacity-80 transition-opacity flex-shrink-0">
+          <BrandLogo size="md" />
         </Link>
       </div>
 
