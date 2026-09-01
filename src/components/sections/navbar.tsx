@@ -286,7 +286,7 @@ export function Navbar({ isOpen: controlledIsOpen, onOpenChange }: NavbarProps =
                     </span>
                   </div>
                   <h3 className="font-serif font-bold text-base text-amber-950 tracking-wide mb-1">
-                    Third-Party Services
+                    Partners
                   </h3>
                   <p className="text-[11px] text-amber-900/70 mb-5 leading-relaxed">
                     End-to-end B2B services supporting cross-border trade &amp; business operations.
